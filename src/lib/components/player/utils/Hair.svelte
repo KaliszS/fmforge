@@ -17,7 +17,7 @@
 </script>
 
 {#if edit_mode}
-    <select bind:value={hair_color} title="Hair colour">
+    <select class="select" bind:value={hair_color} title="Hair colour">
         {#each hairColors as hc}
             <option value={hc.id}>{hc.label}</option>
         {/each}
@@ -37,14 +37,6 @@
 {/if}
 
 <style>
-    select {
-        padding: 4px 6px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        min-width: 100px;
-    }
-
     .hair-circle {
         width: 2em;
         height: 2em;
@@ -52,8 +44,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.9rem;
+        font-size: var(--font-sm);
         font-weight: bold;
         color: #fff;
+    }
+
+    /* Edit mode styling */
+    :global(.edit-mode) select {
+        min-width: 6rem;
     }
 </style>

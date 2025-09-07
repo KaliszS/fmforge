@@ -67,14 +67,14 @@
 </script>
 
 {#if edit_mode}
-    <select bind:value={position}>
+    <select class="select" bind:value={position}>
         {#each Object.entries(positionMap) as [key, value]}
             <option value={key}>{value.label}</option>
         {/each}
     </select>
 {:else}
     <span
-        class="position-badge {positionMap[position]?.group}"
+        class="badge badge-{positionMap[position]?.group}"
         title={positionMap[position]?.label}
     >
         {positionMap[position]?.short}
@@ -82,26 +82,9 @@
 {/if}
 
 <style>
-    .position-badge {
-        display: inline-block;
-        padding: 0.2em 0.6em;
-        border-radius: 0.5em;
-        font-size: 0.8rem;
-        font-weight: bold;
-        color: white;
-        text-transform: uppercase;
-    }
-
-    .goalkeeper {
-        background-color: #5b5d74;
-    }
-    .defender {
-        background-color: #00a693;
-    }
-    .midfielder {
-        background-color: #0077b6;
-    }
-    .attacker {
-        background-color: #e21e13;
+    /* Edit mode styling */
+    :global(.edit-mode) select {
+        min-width: 6rem;
     }
 </style>
+

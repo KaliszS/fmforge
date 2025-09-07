@@ -15,7 +15,7 @@
                 bind:value={ca}
                 min="0"
                 max="200"
-                class="ability-input"
+                class="input input-number ability-input"
             />
         </label>
         <label>
@@ -25,19 +25,17 @@
                 bind:value={pa}
                 min="0"
                 max="200"
-                class="ability-input"
+                class="input input-number ability-input"
             />
         </label>
     </article>
 {:else}
     <div class="ability-display">
-        <div class="ability-half ca" title="CA">
-            <!-- <div class="ability-label">CA</div> -->
+        <div class="ability-half ability-ca" title="CA">
             <div class="ability-value">{ca}</div>
         </div>
         <div class="separator-vertical"></div>
-        <div class="ability-half pa" title="PA">
-            <!-- <div class="ability-label">PA</div> -->
+        <div class="ability-half ability-pa" title="PA">
             <div class="ability-value">{pa}</div>
         </div>
     </div>
@@ -46,59 +44,23 @@
 <style>
     .ability-edit {
         display: flex;
-        gap: 1rem;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-xs);
+        background-color: var(--color-background-light);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border-light);
+    }
+
+    .ability-edit label {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        font-size: var(--font-sm);
+        font-weight: 500;
+        color: var(--color-text-light);
     }
 
     .ability-input {
-        width: 70px;
-        padding: 4px 6px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        font-size: 1rem;
-    }
-
-    .ability-display {
-        display: flex;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        border: 1px solid #ddd;
-        background-color: #f9f9f9;
-        /* min-width: 90px; */
-    }
-
-    .ability-half {
-        flex: 1;
-        padding: 0.25em;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .ca {
-        background-color: #e0edff;
-    }
-
-    .pa {
-        background-color: #f2e8ff;
-    }
-
-    .ability-label {
-        font-weight: 500;
-        font-size: 0.7rem;
-        color: #666;
-        margin-bottom: 2px;
-    }
-
-    .ability-value {
-        font-weight: bold;
-        font-size: 0.95em;
-        color: #222;
-    }
-
-    .separator-vertical {
-        width: 1px;
-        background-color: #ccc;
+        width: 4.375rem;
     }
 </style>

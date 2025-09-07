@@ -31,7 +31,7 @@
 </script>
 
 {#if edit_mode}
-    <select bind:value={ethnicity} title="Ethnicity">
+    <select class="select" bind:value={ethnicity} title="Ethnicity">
         {#each Array.from(ethnicityStyles.entries()) as [id, e]}
             <option value={id}>{e.title}</option>
         {/each}
@@ -52,13 +52,6 @@
 {/if}
 
 <style>
-    select {
-        padding: 4px 6px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        min-width: 100px;
-    }
     .ethnicity-icon {
         width: 2em;
         height: 2em;
@@ -66,8 +59,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.9rem;
+        font-size: var(--font-sm);
         font-weight: bold;
         color: #000;
+    }
+
+    /* Edit mode styling */
+    :global(.edit-mode) select {
+        min-width: 8rem;
     }
 </style>

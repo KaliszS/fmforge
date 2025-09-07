@@ -9,7 +9,7 @@
     <input
         type="text"
         bind:value={city}
-        class="city-input"
+        class="input input-text city-input"
         placeholder="Enter city name"
     />
 {:else}
@@ -20,17 +20,13 @@
 
 <style>
     .city-input {
-        padding: 0.3em 0.6em;
-        border-radius: 0.5em;
-        border: 1px solid #888;
-        font-size: 0.85em;
         width: 10em;
         text-align: center;
     }
 
     .city-box {
-        border-radius: 0.5em;
-        font-size: 0.75em;
+        border-radius: var(--radius-sm);
+        font-size: var(--font-xs);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -42,5 +38,11 @@
     .empty-city {
         color: rgba(6, 6, 5, 0.5);
         font-style: italic;
+    }
+
+    /* Edit mode styling */
+    :global(.edit-mode) .city-input {
+        min-width: 6rem;
+        max-width: 10rem;
     }
 </style>

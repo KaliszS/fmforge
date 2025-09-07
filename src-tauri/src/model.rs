@@ -41,6 +41,15 @@ pub struct PlayerRecord {
 pub struct PlayerFilters {
     pub country: Option<i32>,
     pub club: Option<i32>,
+    pub min_ca: Option<i32>,
+    pub max_ca: Option<i32>,
+    pub min_pa: Option<i32>,
+    pub max_pa: Option<i32>,
+    pub preferred_foot: Option<i8>,
+    pub favourite_number: Option<i32>,
+    pub birth_year_min: Option<i32>,
+    pub birth_year_max: Option<i32>,
+    pub sort_by: Option<String>,
 }
 
 impl fmt::Display for RecordType {

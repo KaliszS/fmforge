@@ -18,10 +18,9 @@
         margin: 0;
         max-width: 100%;
         width: 100%;
-        border-radius: 12px;
-        background-color: #fff;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        border-radius: var(--radius-xl);
+        background-color: var(--color-background);
+        box-shadow: 0 0.1875rem 0.625rem var(--color-shadow-light);
         overflow: hidden;
-        font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
     }
 </style>

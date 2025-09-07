@@ -32,7 +32,16 @@
     .appearance {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5em;
+        gap: var(--spacing-sm);
         align-items: center;
+    }
+
+    /* Edit mode styling */
+    :global(.edit-mode) .appearance {
+        padding: var(--spacing-xs);
+        background-color: var(--color-background-light);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border-light);
+        gap: var(--spacing-xs);
     }
 </style>

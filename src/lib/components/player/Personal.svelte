@@ -26,6 +26,10 @@
 {#if edit_mode}
     <Position {position} {edit_mode} />
     <Name {first_name} {common_name} {last_name} {edit_mode} />
+    <section>
+        <Birthdate {birthdate} {edit_mode} />
+        <City bind:city {edit_mode} />
+    </section>
 {:else}
     <article>
         <Position {position} {edit_mode} />
@@ -41,6 +45,18 @@
     section {
         display: flex;
         align-items: center;
-        gap: 1em;
+        gap: var(--spacing-md);
     }
+
+    /* Edit mode styling */
+    :global(.edit-mode) section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-xs);
+        background-color: var(--color-background-light);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border-light);
+    }
+
 </style>

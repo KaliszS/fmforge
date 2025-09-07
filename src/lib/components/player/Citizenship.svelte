@@ -23,6 +23,15 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.25em;
+        gap: var(--spacing-xs);
+    }
+
+    /* Edit mode styling */
+    :global(.edit-mode) .citizenship {
+        padding: var(--spacing-xs);
+        background-color: var(--color-background-light);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border-light);
+        margin-right: 0;
     }
 </style>

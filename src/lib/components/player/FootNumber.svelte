@@ -40,12 +40,24 @@
     .column {
         display: flex;
         flex-direction: column;
-        gap: 0.25em;
+        gap: var(--spacing-xs);
     }
 
     .column.compact {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: var(--spacing-xs);
+    }
+
+    /* Edit mode styling */
+    :global(.edit-mode) .details-grid {
+        padding: var(--spacing-xs);
+        background-color: var(--color-background-light);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border-light);
+    }
+
+    :global(.edit-mode) .column {
+        gap: var(--spacing-xs);
     }
 </style>

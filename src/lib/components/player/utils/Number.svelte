@@ -18,31 +18,23 @@
         max="99"
         value={favourite_number ?? ""}
         oninput={handleNumberInput}
-        class="number-input"
+        class="input input-number number-input"
         placeholder="Number"
     />
 {:else if favourite_number !== null && favourite_number !== undefined}
     <span class="tag" title="favourite number">⭐ {favourite_number}</span>
 {:else}
-    <span class="tag empty-tag" title="no favourite number">⭐ 0</span>
+    <span class="tag tag-empty" title="no favourite number">⭐ 0</span>
 {/if}
 
 <style>
-    .tag {
-        background-color: #eef0f6;
-        border-radius: 5px;
-        padding: 0.25em;
-        font-size: 0.75rem;
-        color: #333;
-        display: inline-flex;
-        align-items: center;
-        white-space: nowrap;
-        line-height: 1.2;
+    .number-input {
+        min-width: 6.25rem;
     }
 
-    .empty-tag {
-        background-color: #f0f0f0;
-        color: #999;
-        font-style: italic;
+    /* Edit mode styling */
+    :global(.edit-mode) .number-input {
+        min-width: 3rem;
+        text-align: center;
     }
 </style>

@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
+import { open, save } from "@tauri-apps/plugin-dialog";
 import type { PlayerRecord } from "$lib/types";
 
 export async function selectFileAndLoad(): Promise<string | null> {
@@ -11,7 +11,24 @@ export async function selectFileAndLoad(): Promise<string | null> {
   return null;
 }
 
+export async function selectSaveFile(): Promise<string | null> {
+  const path = await save({
+    filters: [
+      {
+        name: "EDT Files",
+        extensions: ["edt"]
+      }
+    ],
+    defaultPath: "regens_modified.edt"
+  });
+  return path;
+}
+
 export async function savePlayersToFile(players: PlayerRecord[], path: string) {
   await invoke("update_players", { newPlayers: players });
   await invoke("save_players_to_file", { path });
+}
+
+export async function getProblematicRows(): Promise<number[]> {
+  return await invoke("get_problematic_rows");
 }

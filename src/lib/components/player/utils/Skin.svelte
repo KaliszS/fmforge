@@ -15,6 +15,7 @@
         min="1"
         max="20"
         bind:value={skin_tone}
+        class="input input-number"
         title="Skin tone"
     />
 {:else}
@@ -28,14 +29,6 @@
 {/if}
 
 <style>
-    input[type="number"] {
-        padding: 4px 6px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        min-width: 100px;
-    }
-
     .skin-circle {
         width: 2em;
         height: 2em;
@@ -43,8 +36,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.9rem;
+        font-size: var(--font-sm);
         font-weight: bold;
         color: #fff;
+    }
+
+    /* Edit mode styling */
+    :global(.edit-mode) input[type="number"] {
+        min-width: 3rem;
+        text-align: center;
     }
 </style>

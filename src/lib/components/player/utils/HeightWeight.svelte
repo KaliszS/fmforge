@@ -7,8 +7,8 @@
 </script>
 
 {#if edit_mode}
-    <input type="number" bind:value={height} title="Height in cm" />
-    <input type="number" bind:value={weight} title="Weight in kg" />
+    <input type="number" class="input input-number" bind:value={height} title="Height in cm" />
+    <input type="number" class="input input-number" bind:value={weight} title="Weight in kg" />
 {:else}
     <section class="height-icon" title={`Height: ${height} cm`}>
         📏 <span>{height}</span>
@@ -19,14 +19,6 @@
 {/if}
 
 <style>
-    input[type="number"] {
-        padding: 4px 6px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        min-width: 100px;
-    }
-
     .height-icon,
     .weidth-icon {
         display: inline-flex;
@@ -34,16 +26,22 @@
         justify-content: center;
         padding: 0.75em 0.7em;
         font-size: 0.7em;
-        gap: 0.25em;
-        border-radius: 0.5em;
-        border: 1px solid #ccc;
-        background-color: #f9f9f9;
+        gap: var(--spacing-xs);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border);
+        background-color: var(--color-background-light);
     }
 
     .height-icon span,
     .weidth-icon span {
         font-weight: 600;
-        font-size: 1rem;
+        font-size: var(--font-base);
         line-height: 1;
+    }
+
+    /* Edit mode styling */
+    :global(.edit-mode) input[type="number"] {
+        min-width: 3rem;
+        text-align: center;
     }
 </style>
