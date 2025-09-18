@@ -1,6 +1,8 @@
 /* ==========================================================================
    CSS CUSTOM PROPERTIES (CSS Variables)
    ========================================================================== */
+
+/* Light Theme (Default) */
 :root {
   /* Colors */
   --color-primary: #396cd8;
@@ -18,7 +20,7 @@
   --color-background: #ffffff;
   --color-background-light: #f9f9f9;
   --color-background-hover: #f0f4ff;
-  --color-background-page: lightgray;
+  --color-background-page: #f5f5f5;
   
   --color-border: #ccc;
   --color-border-light: #ddd;
@@ -28,8 +30,147 @@
   --color-shadow-light: rgba(0, 0, 0, 0.08);
   --color-shadow-primary: rgba(57, 108, 216, 0.3);
   --color-shadow-primary-hover: rgba(57, 108, 216, 0.6);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  /* Colors */
+  --color-primary: #5a8cff;
+  --color-primary-hover: #4a7ae8;
+  --color-primary-light: #1a2332;
+  --color-secondary: #7a9cff;
+  --color-secondary-hover: #6a8ce8;
+  --color-secondary-light: #2a3441;
   
-  /* Spacing */
+  --color-text: #e8e8e8;
+  --color-text-light: #d0d0d0;
+  --color-text-muted: #a0a0a0;
+  --color-text-disabled: #666;
+  
+  --color-background: #1a1a1a;
+  --color-background-light: #2a2a2a;
+  --color-background-hover: #333;
+  --color-background-page: #0f0f0f;
+  
+  --color-border: #444;
+  --color-border-light: #555;
+  --color-border-focus: #5a8cff;
+  
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-shadow-light: rgba(0, 0, 0, 0.2);
+  --color-shadow-primary: rgba(90, 140, 255, 0.3);
+  --color-shadow-primary-hover: rgba(90, 140, 255, 0.6);
+}
+
+/* Dark theme specific tag colors */
+[data-theme="dark"] .tag-empty {
+  background-color: #3a3a3a;
+  color: #a0a0a0;
+  border: 1px solid #555;
+}
+
+[data-theme="dark"] .tag-foot-only {
+  background-color: #1e3a5f;
+  color: #87ceeb;
+  border: 1px solid #2a4a7f;
+}
+
+[data-theme="dark"] .tag-foot-preferred {
+  background-color: #5f3a1e;
+  color: #ffb366;
+  border: 1px solid #7f5a3e;
+}
+
+[data-theme="dark"] .tag-foot-both {
+  background-color: #1e5f1e;
+  color: #66ff66;
+  border: 1px solid #3e7f3e;
+}
+
+[data-theme="dark"] .tag.foot.only {
+  background-color: #1e3a5f;
+  color: #87ceeb;
+  border: 1px solid #2a4a7f;
+}
+
+[data-theme="dark"] .tag.foot.preferred {
+  background-color: #5f3a1e;
+  color: #ffb366;
+  border: 1px solid #7f5a3e;
+}
+
+[data-theme="dark"] .tag.foot.both {
+  background-color: #1e5f1e;
+  color: #66ff66;
+  border: 1px solid #3e7f3e;
+}
+
+/* Dark theme base tag improvements */
+[data-theme="dark"] .tag {
+  background-color: #2a2a2a;
+  color: #e8e8e8;
+  border: 1px solid #444;
+}
+
+/* Dark theme ability display */
+[data-theme="dark"] .ability-ca {
+  background-color: #1e3a5f;
+  color: #87ceeb;
+}
+
+[data-theme="dark"] .ability-pa {
+  background-color: #5f1e5f;
+  color: #dda0dd;
+}
+
+[data-theme="dark"] .ability-value {
+  color: inherit;
+  font-weight: bold;
+}
+
+/* Dark theme enhanced shadows and borders */
+[data-theme="dark"] .card,
+[data-theme="dark"] .list {
+  box-shadow: 0 0.1875rem 0.625rem rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-border);
+}
+
+[data-theme="dark"] .btn {
+  box-shadow: 0 0.125rem 0.3125rem rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .btn:hover {
+  box-shadow: 0 0.3125rem 0.9375rem var(--color-shadow-primary), 0 0 0.5rem var(--color-shadow-primary);
+}
+
+/* Dark theme input focus enhancement */
+[data-theme="dark"] .input:focus {
+  box-shadow: 0 0 0.5rem var(--color-shadow-primary), 0 0 0 0.125rem var(--color-border-focus);
+}
+
+/* Dark theme skin, hair, ethnicity circle and height/weight improvements */
+[data-theme="dark"] .skin-circle,
+[data-theme="dark"] .hair-circle,
+[data-theme="dark"] .ethnicity-icon {
+  color: #e8e8e8;
+  border: 1px solid #999;
+  box-shadow: 0 0 0 0.5px #000, 0 0 0 1px #999;
+}
+
+
+/* Dark theme edit button improvements */
+[data-theme="dark"] .edit-button {
+  border: 1px solid #999;
+  box-shadow: 0 0 0 0.5px #000, 0 0 0 1px #999;
+}
+
+[data-theme="dark"] .edit-button:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.5px #000, 0 0 0 1px var(--color-primary);
+}
+  
+/* Spacing */
+:root {
   --spacing-xs: 0.15rem;
   --spacing-sm: 0.25rem;
   --spacing-md: 0.5rem;
@@ -62,10 +203,13 @@
   box-sizing: border-box;
 }
 
+/* No transitions for theme switching - instant changes */
+
 body {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   color: var(--color-text);
+  background-color: var(--color-background-page);
 }
 
 /* ==========================================================================
@@ -309,6 +453,7 @@ body {
   white-space: nowrap;
   line-height: 1.2;
   background-color: #eef0f6;
+  border: 1px solid #d0d0d0;
 }
 
 /* Tag Variants */
@@ -316,36 +461,43 @@ body {
   background-color: var(--color-background-light);
   color: var(--color-text-disabled);
   font-style: italic;
+  border: 1px solid #ddd;
 }
 
 .tag-foot-only {
   background-color: #d4f0ff;
-  color: #045;
+  color: #1e3a5f;
+  border: 1px solid #a0d0ff;
 }
 
 .tag-foot-preferred {
   background-color: #ffe9c5;
-  color: #754c00;
+  color: #5f3a1e;
+  border: 1px solid #ffd0a0;
 }
 
 .tag-foot-both {
   background-color: #e0ffe0;
-  color: #264d26;
+  color: #1e5f1e;
+  border: 1px solid #a0ffa0;
 }
 
 .tag.foot.only {
   background-color: #d4f0ff;
-  color: #045;
+  color: #1e3a5f;
+  border: 1px solid #a0d0ff;
 }
 
 .tag.foot.preferred {
   background-color: #ffe9c5;
-  color: #754c00;
+  color: #5f3a1e;
+  border: 1px solid #ffd0a0;
 }
 
 .tag.foot.both {
   background-color: #e0ffe0;
-  color: #264d26;
+  color: #1e5f1e;
+  border: 1px solid #a0ffa0;
 }
 
 /* Position Badge */
@@ -435,16 +587,18 @@ body {
 
 .ability-ca {
   background-color: #e0edff;
+  color: #1e3a5f;
 }
 
 .ability-pa {
   background-color: #f2e8ff;
+  color: #5f1e5f;
 }
 
 .ability-value {
   font-weight: bold;
   font-size: 0.95em;
-  color: var(--color-text);
+  color: inherit;
 }
 
 .separator-vertical {

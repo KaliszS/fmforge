@@ -87,6 +87,30 @@
         color: #856404;
     }
 
+    /* Dark theme styling */
+    :global([data-theme="dark"]) .problematic-rows {
+        background-color: #3a2a1a;
+        border: 1px solid #5f3a1e;
+    }
+
+    :global([data-theme="dark"]) .problematic-header:hover {
+        background-color: #5f3a1e;
+    }
+
+    :global([data-theme="dark"]) .problematic-title,
+    :global([data-theme="dark"]) .problematic-toggle {
+        color: #ffb366;
+    }
+
+    :global([data-theme="dark"]) .problematic-details {
+        border-top: 1px solid #5f3a1e;
+        background-color: #2a1a0f;
+    }
+
+    :global([data-theme="dark"]) .problematic-description {
+        color: #ffb366;
+    }
+
     .problematic-list {
         display: flex;
         flex-wrap: wrap;

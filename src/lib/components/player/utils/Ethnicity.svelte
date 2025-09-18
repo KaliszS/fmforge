@@ -61,7 +61,9 @@
         justify-content: center;
         font-size: var(--font-sm);
         font-weight: bold;
-        color: #000;
+        color: #444;
+        border: 1px solid #666;
+        box-shadow: 0 0 0 0.5px #fff, 0 0 0 1px #666;
     }
 
     /* Edit mode styling */

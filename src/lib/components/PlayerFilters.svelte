@@ -230,7 +230,7 @@
                             type="number"
                             bind:value={favouriteNumber}
                             placeholder="e.g. 10"
-                            class="input input-number filter-input"
+                            class="input input-number favourite-number-input"
                         />
                     </div>
                 </div>
@@ -247,7 +247,7 @@
                             type="number"
                             bind:value={birthYear}
                             placeholder="e.g. 2005"
-                            class="input input-number filter-input"
+                            class="input input-number birth-year-input"
                         />
                     </div>
 
@@ -275,7 +275,7 @@
         background: var(--color-background);
         border-radius: var(--radius-lg);
         border: 1px solid var(--color-border-light);
-        box-shadow: 0 2px 8px var(--color-shadow-light);
+        box-shadow: 0 1px 3px var(--color-shadow-light);
         overflow: hidden;
         transition: all var(--transition-normal);
     }
@@ -284,20 +284,16 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--spacing-lg);
-        background: linear-gradient(135deg, var(--color-background-light) 0%, var(--color-background) 100%);
+        padding: var(--spacing-md) var(--spacing-lg);
+        background: var(--color-background-light);
         cursor: pointer;
         user-select: none;
-        transition: background-color var(--transition-fast);
+        transition: all var(--transition-fast);
+        min-height: 2.5rem;
     }
 
     .filters-header:hover {
-        background: linear-gradient(135deg, var(--color-background-hover) 0%, var(--color-background-light) 100%);
-    }
-
-    .filters-header:focus {
-        outline: 2px solid var(--color-primary);
-        outline-offset: -2px;
+        background: var(--color-background-hover);
     }
 
     .filters-title {
@@ -307,13 +303,13 @@
     }
 
     .filters-icon {
-        font-size: 1.2rem;
-        filter: drop-shadow(0 1px 2px var(--color-shadow-light));
+        font-size: 1rem;
+        opacity: 0.8;
     }
 
     .filters-title h3 {
         margin: 0;
-        font-size: var(--font-lg);
+        font-size: var(--font-base);
         font-weight: 600;
         color: var(--color-text);
     }
@@ -322,8 +318,8 @@
         background: var(--color-primary);
         color: white;
         border-radius: 50%;
-        width: 1.5rem;
-        height: 1.5rem;
+        width: 1.25rem;
+        height: 1.25rem;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -342,13 +338,13 @@
         background: var(--color-background);
         border: 1px solid var(--color-border);
         border-radius: 50%;
-        width: 2rem;
-        height: 2rem;
+        width: 1.75rem;
+        height: 1.75rem;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        font-size: var(--font-sm);
+        font-size: var(--font-xs);
         color: var(--color-text-muted);
         transition: all var(--transition-fast);
     }
@@ -373,7 +369,6 @@
     .filters-content {
         padding: var(--spacing-lg);
         background: var(--color-background);
-        border-top: 1px solid var(--color-border-light);
     }
 
     .filter-grid {
@@ -384,15 +379,15 @@
 
     .filter-group {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
         gap: var(--spacing-lg);
-        align-items: end;
+        align-items: start;
     }
 
     .filter-item {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-xs);
+        gap: var(--spacing-sm);
     }
 
     .filter-label {
@@ -400,21 +395,21 @@
         align-items: center;
         gap: var(--spacing-xs);
         font-size: var(--font-sm);
-        font-weight: 600;
-        color: var(--color-text);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-weight: 500;
+        color: var(--color-text-muted);
+        margin-bottom: var(--spacing-xs);
     }
 
     .filter-icon {
-        font-size: 1.1rem;
-        filter: drop-shadow(0 1px 2px var(--color-shadow-light));
+        font-size: 0.9rem;
+        opacity: 0.7;
     }
 
     .filter-controls {
         display: flex;
-        gap: var(--spacing-xs);
+        gap: var(--spacing-sm);
         align-items: center;
+        flex-wrap: wrap;
     }
 
     .select-input {
@@ -422,31 +417,69 @@
         min-width: 8rem;
         cursor: pointer;
         background: var(--color-background);
+        font-size: var(--font-sm);
+        padding: var(--spacing-sm);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        transition: all var(--transition-fast);
     }
 
     .filter-input {
         width: 4rem;
         text-align: center;
+        font-size: var(--font-sm);
+        padding: var(--spacing-sm);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        transition: all var(--transition-fast);
+    }
+
+    .favourite-number-input {
+        width: 6rem;
+        text-align: center;
+        font-size: var(--font-sm);
+        padding: var(--spacing-sm);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        transition: all var(--transition-fast);
+    }
+
+    .birth-year-input {
+        width: 6rem;
+        text-align: center;
+        font-size: var(--font-sm);
+        padding: var(--spacing-sm);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        transition: all var(--transition-fast);
     }
 
     .range-inputs {
         display: flex;
         align-items: center;
-        gap: var(--spacing-xs);
+        gap: var(--spacing-sm);
+        flex-wrap: wrap;
     }
 
     .range-input {
         width: 4rem;
         text-align: center;
+        font-size: var(--font-sm);
+        padding: var(--spacing-sm);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        transition: all var(--transition-fast);
     }
 
     .range-separator {
-        font-weight: 600;
+        font-weight: 500;
         color: var(--color-text-muted);
         font-size: var(--font-sm);
+        margin: 0 var(--spacing-xs);
     }
 
     .input:focus {
+        outline: none;
         border-color: var(--color-primary);
         box-shadow: 0 0 0 2px var(--color-shadow-primary);
     }
@@ -455,9 +488,22 @@
         border-color: var(--color-primary);
     }
 
+    /* Dark theme improvements */
+    [data-theme="dark"] .filters-container {
+        border-color: var(--color-border);
+        box-shadow: 0 1px 3px var(--color-shadow);
+    }
+
+    [data-theme="dark"] .btn-clear:hover {
+        background: #4a1a1a;
+        border-color: #ff6b6b;
+        color: #ff8a8a;
+    }
+
     @media (max-width: 768px) {
-        .filter-group {
+        .filter-grid {
             grid-template-columns: 1fr;
+            gap: var(--spacing-md);
         }
         
         .filters-header {
@@ -466,6 +512,15 @@
         
         .filters-content {
             padding: var(--spacing-md);
+        }
+
+        .filter-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .select-input {
+            min-width: auto;
         }
     }
 </style>
