@@ -49,8 +49,17 @@
             />
         </div>
         <div class="edit-actions">
-            <button class="btn-icon" onclick={toggleEdit}>
-                {edit_mode ? "💾" : "⚙︎"}
+            <button class="edit-button" onclick={toggleEdit} title={edit_mode ? "Save changes" : "Edit player"}>
+                {#if edit_mode}
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                {:else}
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                {/if}
             </button>
         </div>
     {:else}
@@ -83,8 +92,17 @@
             bind:weight={player.weight}
             bind:edit_mode
         />
-        <button class="btn-icon" onclick={toggleEdit}>
-            {edit_mode ? "💾" : "⚙︎"}
+        <button class="edit-button" onclick={toggleEdit} title={edit_mode ? "Save changes" : "Edit player"}>
+            {#if edit_mode}
+                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6L9 17l-5-5"/>
+                </svg>
+            {:else}
+                <svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+            {/if}
         </button>
     {/if}
 </li>
@@ -93,12 +111,12 @@
     .player-item {
         display: grid;
         grid-template-columns:
-            5em
+            3em
             18em
             7em
             2em
             13em
-            15em
+            16.5em
             auto;
         gap: var(--spacing-md);
         align-items: center;
@@ -130,18 +148,30 @@
         height: 100%;
     }
 
-    .edit-actions .btn-icon {
-        font-size: 2rem;
-        padding: var(--spacing-sm);
-        border-radius: var(--radius-md);
-        background: none;
-        border: none;
+    .edit-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border: 1px solid #666;
+        border-radius: var(--radius-sm);
+        background-color: var(--color-background);
+        color: var(--color-text);
         cursor: pointer;
         transition: all var(--transition-fast);
+        box-shadow: 0 0 0 0.5px #fff, 0 0 0 1px #666;
     }
 
-    .edit-actions .btn-icon:hover {
-        transform: scale(1.1);
+    .edit-button:hover {
+        background-color: var(--color-background-hover);
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.5px #fff, 0 0 0 1px var(--color-primary);
+        transform: scale(1.05);
+    }
+
+    .edit-button:active {
+        transform: scale(0.95);
     }
 
     .player-item:hover {

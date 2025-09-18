@@ -31,12 +31,12 @@
         overflow: hidden;
         text-overflow: ellipsis;
         margin-top: -0.3em;
-        color: #5c4527;
+        color: var(--color-text-muted);
         align-items: center;
     }
 
     .empty-city {
-        color: rgba(6, 6, 5, 0.5);
+        color: var(--color-text-disabled);
         font-style: italic;
     }
 

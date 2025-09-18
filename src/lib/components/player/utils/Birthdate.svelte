@@ -78,7 +78,7 @@
         margin-top: -0.25em;
         align-items: center;
         font-size: var(--font-xs);
-        color: #5c4527;
+        color: var(--color-text-muted);
         white-space: nowrap;
     }
 

@@ -25,7 +25,7 @@ export async function loadPlayersPage(
       max_ca: maxCA || null,
       min_pa: minPA || null,
       max_pa: maxPA || null,
-      preferred_foot: preferredFoot || null,
+      preferred_foot: preferredFoot,
       favourite_number: favouriteNumber || null,
       birth_year_min: birthYear || null,
       birth_year_max: birthYear || null,

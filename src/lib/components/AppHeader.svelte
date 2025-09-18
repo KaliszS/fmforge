@@ -2,6 +2,7 @@
     import { selectFileAndLoad, selectSaveFile, savePlayersToFile, getProblematicRows } from "$lib/api/file";
     import { loadPlayersPage } from "$lib/api/player";
     import type { PlayerRecord } from "$lib/types";
+    import ThemeToggle from "./ThemeToggle.svelte";
 
     let {
         players = $bindable(),
@@ -19,6 +20,7 @@
         sortBy = $bindable(),
         problematicRows = $bindable(),
         showProblematicDetails = $bindable(),
+        isLastPage = $bindable(),
     }: {
         players: PlayerRecord[];
         currentPage: number;
@@ -35,6 +37,7 @@
         sortBy: string | null;
         problematicRows: number[];
         showProblematicDetails: boolean;
+        isLastPage: boolean;
     } = $props();
 
     let source_path = $state("");
@@ -66,7 +69,7 @@
             setTimeout(async () => {
                 problematicRows = await getProblematicRows();
             }, 100);
-            
+            loadPage();
             alert("Regens loaded from file...");
         }
     }
@@ -100,7 +103,9 @@
             sortBy,
         );
         
-        console.log("Loaded players:", players.length);
+        isLastPage = players.length < pageSize;
+        
+        console.log("Loaded players:", players.length, "isLastPage:", isLastPage);
     }
 
     async function selectSaveLocation() {
@@ -120,7 +125,6 @@
 <section class="top-bar">
     <div class="top-bar-left">
         <button class="btn" onclick={selectFile}>Load file</button>
-        <button class="btn" onclick={loadPage}>Show players</button>
     </div>
     
     <div class="top-bar-center">
@@ -139,14 +143,19 @@
     </div>
     
     <div class="top-bar-right">
-        <label for="pageSizeInput" class="label">Players per page:</label>
-        <input
-            id="pageSizeInput"
-            type="number"
-            min="1"
-            bind:value={pageSize}
-            class="input input-number page-size-input"
-        />
+        <div class="controls-group">
+            <div class="page-size-control">
+                <label for="pageSizeInput" class="label">Players per page:</label>
+                <input
+                    id="pageSizeInput"
+                    type="number"
+                    min="1"
+                    bind:value={pageSize}
+                    class="input input-number page-size-input"
+                />
+            </div>
+            <ThemeToggle />
+        </div>
     </div>
 </section>
 
@@ -182,10 +191,24 @@
 
     .top-bar-right {
         display: flex;
+        align-items: center;
+        min-width: 12rem;
+    }
+
+    .controls-group {
+        display: flex;
+        flex-direction: row;
+        gap: var(--spacing-lg);
+        align-items: center;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .page-size-control {
+        display: flex;
         flex-direction: column;
         gap: var(--spacing-xs);
         align-items: flex-end;
-        min-width: 12rem;
     }
 
     .save-section {

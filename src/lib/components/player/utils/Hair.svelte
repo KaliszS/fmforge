@@ -46,7 +46,9 @@
         justify-content: center;
         font-size: var(--font-sm);
         font-weight: bold;
-        color: #fff;
+        color: #f5f5dc;
+        border: 1px solid #666;
+        box-shadow: 0 0 0 0.5px #fff, 0 0 0 1px #666;
     }
 
     /* Edit mode styling */
