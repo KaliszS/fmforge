@@ -3,6 +3,7 @@
     import { loadPlayersPage } from "$lib/api/player";
     import type { PlayerRecord } from "$lib/types";
     import ThemeToggle from "./ThemeToggle.svelte";
+    import ModSettings from "./ModSettings.svelte";
 
     let {
         players = $bindable(),
@@ -140,6 +141,7 @@
                 </div>
             {/if}
         </div>
+        <ModSettings />
     </div>
     
     <div class="top-bar-right">
@@ -208,7 +210,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-xs);
-        align-items: flex-end;
+        align-items: center;
     }
 
     .save-section {
