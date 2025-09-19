@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { modSettings } from '$lib/stores/modSettings';
+  
   let fmEdition = $state('');
   let retroYear = $state('');
   let showRealBirthDates = $state(false);
@@ -17,6 +19,13 @@
     const fmValid = fmEdition && validateYear(fmEdition);
     const retroValid = retroYear && validateYear(retroYear);
     canToggle = Boolean(fmValid && retroValid);
+    
+    modSettings.set({
+      fmEdition,
+      retroYear,
+      showRealBirthDates,
+      canToggle
+    });
   });
 
   function openModal() {
