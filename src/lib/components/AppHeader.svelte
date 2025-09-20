@@ -18,6 +18,7 @@
         preferredFoot = $bindable(),
         favouriteNumber = $bindable(),
         birthYear = $bindable(),
+        effectiveBirthYear = $bindable(),
         sortBy = $bindable(),
         problematicRows = $bindable(),
         showProblematicDetails = $bindable(),
@@ -35,6 +36,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
+        effectiveBirthYear: number | null;
         sortBy: string | null;
         problematicRows: number[];
         showProblematicDetails: boolean;
@@ -56,6 +58,7 @@
         void preferredFoot;
         void favouriteNumber;
         void birthYear;
+        void effectiveBirthYear;
         void sortBy;
         void currentPage;
         loadPage();
@@ -85,7 +88,7 @@
             maxPA,
             preferredFoot,
             favouriteNumber,
-            birthYear,
+            effectiveBirthYear,
             sortBy
         });
         
@@ -100,7 +103,7 @@
             maxPA,
             preferredFoot,
             favouriteNumber,
-            birthYear,
+            effectiveBirthYear,
             sortBy,
         );
         

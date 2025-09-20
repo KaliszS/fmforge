@@ -28,6 +28,7 @@
     let preferredFoot: number | null = $state(null);
     let favouriteNumber: number | null = $state(null);
     let birthYear: number | null = $state(null);
+    let effectiveBirthYear: number | null = $state(null);
     let sortBy: string | null = $state(null);
     let problematicRows: number[] = $state([]);
     let showProblematicDetails = $state(false);
@@ -70,6 +71,7 @@
         bind:preferredFoot
         bind:favouriteNumber
         bind:birthYear
+        bind:effectiveBirthYear
         bind:sortBy
         bind:problematicRows 
         bind:showProblematicDetails 
@@ -88,6 +90,7 @@
             bind:preferredFoot
             bind:favouriteNumber
             bind:birthYear
+            bind:effectiveBirthYear
             bind:sortBy
         />
 
