@@ -3,6 +3,7 @@
     import { loadPlayersPage } from "$lib/api/player";
     import type { PlayerRecord } from "$lib/types";
     import ThemeToggle from "./ThemeToggle.svelte";
+    import ModSettings from "./ModSettings.svelte";
 
     let {
         players = $bindable(),
@@ -17,6 +18,7 @@
         preferredFoot = $bindable(),
         favouriteNumber = $bindable(),
         birthYear = $bindable(),
+        effectiveBirthYear = $bindable(),
         sortBy = $bindable(),
         problematicRows = $bindable(),
         showProblematicDetails = $bindable(),
@@ -34,6 +36,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
+        effectiveBirthYear: number | null;
         sortBy: string | null;
         problematicRows: number[];
         showProblematicDetails: boolean;
@@ -55,6 +58,7 @@
         void preferredFoot;
         void favouriteNumber;
         void birthYear;
+        void effectiveBirthYear;
         void sortBy;
         void currentPage;
         loadPage();
@@ -84,7 +88,7 @@
             maxPA,
             preferredFoot,
             favouriteNumber,
-            birthYear,
+            effectiveBirthYear,
             sortBy
         });
         
@@ -99,7 +103,7 @@
             maxPA,
             preferredFoot,
             favouriteNumber,
-            birthYear,
+            effectiveBirthYear,
             sortBy,
         );
         
@@ -140,6 +144,7 @@
                 </div>
             {/if}
         </div>
+        <ModSettings />
     </div>
     
     <div class="top-bar-right">
@@ -208,7 +213,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--spacing-xs);
-        align-items: flex-end;
+        align-items: center;
     }
 
     .save-section {

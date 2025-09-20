@@ -2,6 +2,7 @@
     import { countryMap } from "$lib/countries";
     import { clubMap } from "$lib/clubs";
     import { FOOT_OPTIONS, SORT_OPTIONS } from "$lib/constants";
+    import { modSettings } from "$lib/stores/modSettings";
 
     let {
         selectedCountry = $bindable(),
@@ -13,6 +14,7 @@
         preferredFoot = $bindable(),
         favouriteNumber = $bindable(),
         birthYear = $bindable(),
+        effectiveBirthYear = $bindable(),
         sortBy = $bindable(),
     }: {
         selectedCountry: number | null;
@@ -24,6 +26,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
+        effectiveBirthYear: number | null;
         sortBy: string | null;
     } = $props();
 
@@ -63,6 +66,22 @@
         sortBy = null;
     }
 
+    // Convert birth year based on mod settings
+    $effect(() => {
+        if (!birthYear || !$modSettings.canToggle) {
+            effectiveBirthYear = birthYear;
+            return;
+        }
+        
+        if ($modSettings.showRealBirthDates) {
+            const fmEdition = parseInt($modSettings.fmEdition);
+            const retroYear = parseInt($modSettings.retroYear);
+            effectiveBirthYear = birthYear + (fmEdition - 1 - retroYear);
+        } else {
+            effectiveBirthYear = birthYear;
+        }
+    });
+
     const hasActiveFilters = $derived(
         selectedCountry !== null ||
         selectedClub !== null ||
@@ -100,8 +119,8 @@
                     ✕
                 </button>
             {/if}
-            <div class="expand-icon" class:expanded={isExpanded}>
-                ▼
+            <div class="expand-icon">
+                {isExpanded ? "▼" : "▶"}
             </div>
         </div>
     </div>
@@ -241,6 +260,11 @@
                         <label for="birthYear" class="filter-label">
                             <span class="filter-icon">📅</span>
                             Birth Year
+                            {#if $modSettings.canToggle}
+                                <span class="birth-year-mode-indicator">
+                                    ({$modSettings.showRealBirthDates ? 'Real-life' : 'In-game'})
+                                </span>
+                            {/if}
                         </label>
                         <input
                             id="birthYear"
@@ -359,11 +383,7 @@
     .expand-icon {
         font-size: var(--font-sm);
         color: var(--color-text-muted);
-        transition: transform var(--transition-fast);
-    }
-
-    .expand-icon.expanded {
-        transform: rotate(180deg);
+        transition: color var(--transition-fast);
     }
 
     .filters-content {
@@ -452,6 +472,13 @@
         border: 1px solid var(--color-border);
         border-radius: var(--radius-sm);
         transition: all var(--transition-fast);
+    }
+
+    .birth-year-mode-indicator {
+        font-size: var(--font-xs);
+        font-weight: 500;
+        color: var(--color-text-muted);
+        margin-left: var(--spacing-xs);
     }
 
     .range-inputs {
