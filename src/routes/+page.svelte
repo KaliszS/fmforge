@@ -1,6 +1,6 @@
 <script lang="ts">
     import PlayerTable from "$lib/components/PlayerTable.svelte";
-    import PaginationControls from "$lib/components/PaginationControls.svelte";
+    import PaginationSection from "$lib/components/PaginationSection.svelte";
     import AppHeader from "$lib/components/AppHeader.svelte";
     import PlayerFilters from "$lib/components/PlayerFilters.svelte";
     import ProblematicRows from "$lib/components/ProblematicRows.svelte";
@@ -10,7 +10,6 @@
     import { onMount } from 'svelte';
 
     onMount(() => {
-        // Initialize theme on page load
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
     });
@@ -97,9 +96,21 @@
         <ViewSwitcher bind:currentView onViewChange={handleViewChange} />
 
         {#if currentView === 'scout'}
-            <PaginationControls bind:currentPage onPrev={prevPage} onNext={nextPage} onPageChange={jumpToPage} {isLastPage} />
+            <PaginationSection 
+                bind:currentPage 
+                onPrev={prevPage} 
+                onNext={nextPage} 
+                onPageChange={jumpToPage} 
+                {isLastPage} 
+            />
             <PlayerTable bind:players />
-            <PaginationControls bind:currentPage onPrev={prevPage} onNext={nextPage} onPageChange={jumpToPage} {isLastPage} />
+            <PaginationSection 
+                bind:currentPage 
+                onPrev={prevPage} 
+                onNext={nextPage} 
+                onPageChange={jumpToPage} 
+                {isLastPage} 
+            />
         {:else if currentView === 'analyst'}
             <AnalystView 
                 bind:players
@@ -133,4 +144,5 @@
         display: flex;
         flex-direction: column;
     }
+    
 </style>
