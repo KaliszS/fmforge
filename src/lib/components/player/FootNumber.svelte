@@ -16,8 +16,8 @@
 {#if edit_mode}
     <div class="details-grid">
         <div class="column">
-            <Foot {preferred_foot} {edit_mode} />
-            <Number {favourite_number} {edit_mode} />
+            <Foot bind:preferred_foot {edit_mode} />
+            <Number bind:favourite_number {edit_mode} />
         </div>
     </div>
 {:else}
