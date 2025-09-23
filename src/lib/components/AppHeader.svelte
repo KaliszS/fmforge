@@ -3,7 +3,7 @@
     import type { PlayerRecord } from "$lib/types";
     import ThemeToggle from "./ThemeToggle.svelte";
     import ModSettings from "./ModSettings.svelte";
-    import { clearAllEditedPlayers, editedCount } from "$lib/stores/editedPlayers";
+    import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount } from "$lib/stores/editedPlayers";
 
     let {
         players = $bindable(),
@@ -57,9 +57,7 @@
     async function saveToFile() {
         await savePlayersToFile(players, save_path);
         
-        clearAllEditedPlayers();
-        
-        alert(`File saved to: ${save_path}`);
+        clearEditedPlayersStore();
     }
 
     async function selectFile() {
@@ -75,8 +73,6 @@
             }, 100);
             
             currentPage = 0;
-            
-            alert("Regens loaded from file...");
         }
     }
 </script>
