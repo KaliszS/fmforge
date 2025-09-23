@@ -1,9 +1,9 @@
 <script lang="ts">
     import { selectFileAndLoad, selectSaveFile, savePlayersToFile, getProblematicRows } from "$lib/api/file";
-    import { loadPlayersPage } from "$lib/api/player";
     import type { PlayerRecord } from "$lib/types";
     import ThemeToggle from "./ThemeToggle.svelte";
     import ModSettings from "./ModSettings.svelte";
+    import { clearAllEditedPlayers, editedCount } from "$lib/stores/editedPlayers";
 
     let {
         players = $bindable(),
@@ -46,72 +46,6 @@
     let source_path = $state("");
     let save_path = $state("");
 
-    // Single effect that watches all filter changes
-    $effect(() => {
-        void pageSize;
-        void selectedCountry;
-        void selectedClub;
-        void minCA;
-        void maxCA;
-        void minPA;
-        void maxPA;
-        void preferredFoot;
-        void favouriteNumber;
-        void birthYear;
-        void effectiveBirthYear;
-        void sortBy;
-        void currentPage;
-        loadPage();
-    });
-
-    async function selectFile() {
-        const path = await selectFileAndLoad();
-        if (path) {
-            source_path = path;
-            save_path = path;
-            
-            setTimeout(async () => {
-                problematicRows = await getProblematicRows();
-            }, 100);
-            loadPage();
-            alert("Regens loaded from file...");
-        }
-    }
-
-    async function loadPage() {
-        console.log("Loading page with filters:", {
-            selectedCountry,
-            selectedClub,
-            minCA,
-            maxCA,
-            minPA,
-            maxPA,
-            preferredFoot,
-            favouriteNumber,
-            effectiveBirthYear,
-            sortBy
-        });
-        
-        players = await loadPlayersPage(
-            currentPage * pageSize,
-            pageSize,
-            selectedCountry,
-            selectedClub,
-            minCA,
-            maxCA,
-            minPA,
-            maxPA,
-            preferredFoot,
-            favouriteNumber,
-            effectiveBirthYear,
-            sortBy,
-        );
-        
-        isLastPage = players.length < pageSize;
-        
-        console.log("Loaded players:", players.length, "isLastPage:", isLastPage);
-    }
-
     async function selectSaveLocation() {
         const path = await selectSaveFile();
         if (path) {
@@ -122,7 +56,28 @@
 
     async function saveToFile() {
         await savePlayersToFile(players, save_path);
+        
+        clearAllEditedPlayers();
+        
         alert(`File saved to: ${save_path}`);
+    }
+
+    async function selectFile() {
+        const path = await selectFileAndLoad();
+        if (path) {
+            source_path = path;
+            save_path = path;
+            
+            clearAllEditedPlayers();
+            
+            setTimeout(async () => {
+                problematicRows = await getProblematicRows();
+            }, 100);
+            
+            currentPage = 0;
+            
+            alert("Regens loaded from file...");
+        }
     }
 </script>
 
@@ -135,7 +90,17 @@
         <div class="save-section">
             <div class="save-buttons">
                 <button class="btn btn-sm" onclick={selectSaveLocation}>Choose save location</button>
-                <button class="btn btn-sm" onclick={saveToFile} disabled={!save_path}>Save changes</button>
+                <button 
+                    class="btn btn-sm" 
+                    class:has-edits={$editedCount > 0}
+                    onclick={saveToFile} 
+                    disabled={!save_path}
+                >
+                    Save changes
+                    {#if $editedCount > 0}
+                        <span class="edit-count">({$editedCount})</span>
+                    {/if}
+                </button>
             </div>
             {#if save_path}
                 <div class="save-path-info">
@@ -250,7 +215,8 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: var(--spacing-xs);
+        gap: var(--spacing-sm);
+        max-width: 20rem;
     }
 
     .save-label {
@@ -275,5 +241,60 @@
         text-align: right;
         font-weight: 500;
         box-shadow: 0 1px 3px var(--color-shadow-light);
+    }
+
+    .btn.has-edits {
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+        color: white;
+        font-weight: 700;
+        font-size: var(--font-sm);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0.25rem 1rem var(--color-shadow-primary);
+        border: 2px solid var(--color-primary);
+        animation: pulse 1.5s infinite;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn.has-edits::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shine 2s infinite;
+    }
+
+    .btn.has-edits:hover {
+        background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 0.5rem 1.5rem var(--color-shadow-primary);
+    }
+
+    .edit-count {
+        margin-left: var(--spacing-xs);
+        font-size: var(--font-xs);
+        opacity: 0.9;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 0.25rem 1rem var(--color-shadow-primary);
+        }
+        50% {
+            box-shadow: 0 0.5rem 1.5rem var(--color-shadow-primary), 0 0 0 0.5rem rgba(var(--color-primary-rgb), 0.4);
+        }
+    }
+
+    @keyframes shine {
+        0% {
+            left: -100%;
+        }
+        100% {
+            left: 100%;
+        }
     }
 </style>

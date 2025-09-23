@@ -1,49 +1,37 @@
 <script lang="ts">
-    let editedCount = $state(3); // Test value - remove when implementing real tracking
-    let showOnlyEdited = $state(false);
-    
-    function toggleShowOnlyEdited() {
-        showOnlyEdited = !showOnlyEdited;
-    }
-    
-    function resetAllChanges() {
-        // TODO: Implement reset functionality
-        console.log('Reset all changes clicked');
-    }
+    import { editedCount, clearAllEditedPlayers, showOnlyEdited, toggleShowOnlyEdited } from '$lib/stores/editedPlayers';
 </script>
 
-<article class="edited-players-info">
-    <section class="edited-count">
-        {#if editedCount > 0}
+{#if $editedCount > 0}
+    <article class="edited-players-info">
+        <section class="edited-count">
             <button 
                 class="count-badge clickable"
                 onclick={toggleShowOnlyEdited}
-                title={showOnlyEdited ? 'Show all players' : 'Show only edited players'}
+                title={$showOnlyEdited ? 'Show all players' : 'Show only edited players'}
             >
-                {editedCount}
+                {$editedCount}
             </button>
-        {:else}
-            <span class="count-badge">{editedCount}</span>
-        {/if}
-        <span class="count-text">
-            {editedCount === 1 ? 'player edited' : 'players edited'}
-        </span>
-    </section>
-    
-    <button 
-        class="reset-icon-btn" 
-        onclick={resetAllChanges}
-        title="Reset all changes to original values"
-        aria-label="Reset all changes to original values"
-    >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-            <path d="M21 3v5h-5"/>
-            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-            <path d="M3 21v-5h5"/>
-        </svg>
-    </button>
-</article>
+            <span class="count-text">
+                {$editedCount === 1 ? 'player edited' : 'players edited'}
+            </span>
+        </section>
+        
+        <button 
+            class="reset-icon-btn" 
+            onclick={clearAllEditedPlayers}
+            title="Reset all changes to original values"
+            aria-label="Reset all changes to original values"
+        >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                <path d="M21 3v5h-5"/>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                <path d="M3 21v-5h5"/>
+            </svg>
+        </button>
+    </article>
+{/if}
 
 <style>
     .edited-players-info {

@@ -6,8 +6,8 @@
 </script>
 
 <ul class="player-list">
-    {#each players as _, index}
-        <PlayerItem bind:player={players[index].player} />
+    {#each players as playerRecord, _}
+        <PlayerItem bind:player={playerRecord.player} playerId={playerRecord.id} />
     {/each}
 </ul>
 

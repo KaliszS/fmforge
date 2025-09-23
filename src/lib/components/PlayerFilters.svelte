@@ -16,6 +16,7 @@
         birthYear = $bindable(),
         effectiveBirthYear = $bindable(),
         sortBy = $bindable(),
+        disabled = false,
     }: {
         selectedCountry: number | null;
         selectedClub: number | null;
@@ -28,6 +29,7 @@
         birthYear: number | null;
         effectiveBirthYear: number | null;
         sortBy: string | null;
+        disabled?: boolean;
     } = $props();
 
     let isExpanded = $state(false);
@@ -43,27 +45,31 @@
     }));
 
     function toggleExpanded() {
-        isExpanded = !isExpanded;
+        if (!disabled) {
+            isExpanded = !isExpanded;
+        }
     }
 
     function handleKeydown(event: KeyboardEvent) {
-        if (event.key === 'Enter' || event.key === ' ') {
+        if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
             event.preventDefault();
             toggleExpanded();
         }
     }
 
     function clearAllFilters() {
-        selectedCountry = null;
-        selectedClub = null;
-        minCA = null;
-        maxCA = null;
-        minPA = null;
-        maxPA = null;
-        preferredFoot = null;
-        favouriteNumber = null;
-        birthYear = null;
-        sortBy = null;
+        if (!disabled) {
+            selectedCountry = null;
+            selectedClub = null;
+            minCA = null;
+            maxCA = null;
+            minPA = null;
+            maxPA = null;
+            preferredFoot = null;
+            favouriteNumber = null;
+            birthYear = null;
+            sortBy = null;
+        }
     }
 
     // Convert birth year based on mod settings
@@ -96,9 +102,10 @@
     );
 </script>
 
-<section class="filters-container">
+<section class="filters-container" class:disabled>
     <div 
         class="filters-header" 
+        class:disabled
         onclick={toggleExpanded}
         onkeydown={handleKeydown}
         role="button"
@@ -109,12 +116,12 @@
         <div class="filters-title">
             <span class="filters-icon">🔍</span>
             <h3>Filters & Sorting</h3>
-            {#if hasActiveFilters}
+            {#if hasActiveFilters && !disabled}
                 <span class="active-indicator">{[selectedCountry, selectedClub, minCA, maxCA, minPA, maxPA, preferredFoot, favouriteNumber, birthYear, sortBy].filter(v => v !== null).length}</span>
             {/if}
         </div>
         <div class="filters-actions">
-            {#if hasActiveFilters}
+            {#if hasActiveFilters && !disabled}
                 <button class="btn-clear" onclick={clearAllFilters} title="Clear all filters">
                     ✕
                 </button>
@@ -127,168 +134,176 @@
 
     {#if isExpanded}
         <div class="filters-content">
-            <div class="filter-grid">
-                <!-- Basic Filters Row -->
-                <div class="filter-group">
-                    <div class="filter-item">
-                        <label for="countrySelect" class="filter-label">
-                            <span class="filter-icon">🌍</span>
-                            Country
-                        </label>
-                        <div class="filter-controls">
-                            <select id="countrySelect" bind:value={selectedCountry} class="input select-input">
-                                <option value={null}>Any Country</option>
-                                {#each countryOptions as { id, name }}
-                                    <option value={id}>{name}</option>
+            {#if disabled}
+                <div class="disabled-message">
+                    <div class="disabled-icon">🚫</div>
+                    <h4>Filters are disabled for edited players view</h4>
+                    <p>Switch back to normal view to use filters and sorting options.</p>
+                </div>
+            {:else}
+                <div class="filter-grid">
+                    <!-- Basic Filters Row -->
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label for="countrySelect" class="filter-label">
+                                <span class="filter-icon">🌍</span>
+                                Country
+                            </label>
+                            <div class="filter-controls">
+                                <select id="countrySelect" bind:value={selectedCountry} class="input select-input">
+                                    <option value={null}>Any Country</option>
+                                    {#each countryOptions as { id, name }}
+                                        <option value={id}>{name}</option>
+                                    {/each}
+                                </select>
+                                <input
+                                    type="number"
+                                    bind:value={selectedCountry}
+                                    placeholder="ID"
+                                    class="input input-number filter-input"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="filter-item">
+                            <label for="clubSelect" class="filter-label">
+                                <span class="filter-icon">🏟️</span>
+                                Club
+                            </label>
+                            <div class="filter-controls">
+                                <select id="clubSelect" bind:value={selectedClub} class="input select-input">
+                                    <option value={null}>Any Club</option>
+                                    {#each clubOptions as { id, name }}
+                                        <option value={id}>{name}</option>
+                                    {/each}
+                                </select>
+                                <input
+                                    type="number"
+                                    bind:value={selectedClub}
+                                    placeholder="ID"
+                                    class="input input-number filter-input"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ability Filters Row -->
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label for="minCA" class="filter-label">
+                                <span class="filter-icon">⚡</span>
+                                CA Range
+                            </label>
+                            <div class="range-inputs">
+                                <input
+                                    id="minCA"
+                                    type="number"
+                                    bind:value={minCA}
+                                    placeholder="Min"
+                                    class="input input-number range-input"
+                                />
+                                <span class="range-separator">-</span>
+                                <input
+                                    id="maxCA"
+                                    type="number"
+                                    bind:value={maxCA}
+                                    placeholder="Max"
+                                    class="input input-number range-input"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="filter-item">
+                            <label for="minPA" class="filter-label">
+                                <span class="filter-icon">⭐</span>
+                                PA Range
+                            </label>
+                            <div class="range-inputs">
+                                <input
+                                    id="minPA"
+                                    type="number"
+                                    bind:value={minPA}
+                                    placeholder="Min"
+                                    class="input input-number range-input"
+                                />
+                                <span class="range-separator">-</span>
+                                <input
+                                    id="maxPA"
+                                    type="number"
+                                    bind:value={maxPA}
+                                    placeholder="Max"
+                                    class="input input-number range-input"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Filters Row -->
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label for="preferredFoot" class="filter-label">
+                                <span class="filter-icon">🦶</span>
+                                Preferred Foot
+                            </label>
+                            <select id="preferredFoot" bind:value={preferredFoot} class="input select-input">
+                                <option value={null}>Any</option>
+                                {#each FOOT_OPTIONS as { value, label, icon }}
+                                    <option value={value}>{icon} {label}</option>
                                 {/each}
                             </select>
+                        </div>
+
+                        <div class="filter-item">
+                            <label for="favouriteNumber" class="filter-label">
+                                <span class="filter-icon">🔢</span>
+                                Favourite Number
+                            </label>
                             <input
+                                id="favouriteNumber"
                                 type="number"
-                                bind:value={selectedCountry}
-                                placeholder="ID"
-                                class="input input-number filter-input"
+                                bind:value={favouriteNumber}
+                                placeholder="e.g. 10"
+                                class="input input-number favourite-number-input"
                             />
                         </div>
                     </div>
 
-                    <div class="filter-item">
-                        <label for="clubSelect" class="filter-label">
-                            <span class="filter-icon">🏟️</span>
-                            Club
-                        </label>
-                        <div class="filter-controls">
-                            <select id="clubSelect" bind:value={selectedClub} class="input select-input">
-                                <option value={null}>Any Club</option>
-                                {#each clubOptions as { id, name }}
-                                    <option value={id}>{name}</option>
+                    <!-- Birth Year & Sorting Row -->
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label for="birthYear" class="filter-label">
+                                <span class="filter-icon">📅</span>
+                                Birth Year
+                                {#if $modSettings.canToggle}
+                                    <span class="birth-year-mode-indicator">
+                                        ({$modSettings.showRealBirthDates ? 'Real-life' : 'In-game'})
+                                    </span>
+                                {/if}
+                            </label>
+                            <input
+                                id="birthYear"
+                                type="number"
+                                bind:value={birthYear}
+                                placeholder="e.g. 2005"
+                                class="input input-number birth-year-input"
+                            />
+                        </div>
+
+                        <div class="filter-item">
+                            <label for="sortBy" class="filter-label">
+                                <span class="filter-icon">📊</span>
+                                Sort By
+                            </label>
+                            <select id="sortBy" bind:value={sortBy} class="input select-input">
+                                <option value={null}>Default Order</option>
+                                {#each SORT_OPTIONS as { value, label, icon }}
+                                    <option value={value}>{icon} {label}</option>
                                 {/each}
                             </select>
-                            <input
-                                type="number"
-                                bind:value={selectedClub}
-                                placeholder="ID"
-                                class="input input-number filter-input"
-                            />
                         </div>
                     </div>
                 </div>
-
-                <!-- Ability Filters Row -->
-                <div class="filter-group">
-                    <div class="filter-item">
-                        <label for="minCA" class="filter-label">
-                            <span class="filter-icon">⚡</span>
-                            CA Range
-                        </label>
-                        <div class="range-inputs">
-                            <input
-                                id="minCA"
-                                type="number"
-                                bind:value={minCA}
-                                placeholder="Min"
-                                class="input input-number range-input"
-                            />
-                            <span class="range-separator">-</span>
-                            <input
-                                id="maxCA"
-                                type="number"
-                                bind:value={maxCA}
-                                placeholder="Max"
-                                class="input input-number range-input"
-                            />
-                        </div>
-                    </div>
-
-                    <div class="filter-item">
-                        <label for="minPA" class="filter-label">
-                            <span class="filter-icon">⭐</span>
-                            PA Range
-                        </label>
-                        <div class="range-inputs">
-                            <input
-                                id="minPA"
-                                type="number"
-                                bind:value={minPA}
-                                placeholder="Min"
-                                class="input input-number range-input"
-                            />
-                            <span class="range-separator">-</span>
-                            <input
-                                id="maxPA"
-                                type="number"
-                                bind:value={maxPA}
-                                placeholder="Max"
-                                class="input input-number range-input"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Additional Filters Row -->
-                <div class="filter-group">
-                    <div class="filter-item">
-                        <label for="preferredFoot" class="filter-label">
-                            <span class="filter-icon">🦶</span>
-                            Preferred Foot
-                        </label>
-                        <select id="preferredFoot" bind:value={preferredFoot} class="input select-input">
-                            <option value={null}>Any</option>
-                            {#each FOOT_OPTIONS as { value, label, icon }}
-                                <option value={value}>{icon} {label}</option>
-                            {/each}
-                        </select>
-                    </div>
-
-                    <div class="filter-item">
-                        <label for="favouriteNumber" class="filter-label">
-                            <span class="filter-icon">🔢</span>
-                            Favourite Number
-                        </label>
-                        <input
-                            id="favouriteNumber"
-                            type="number"
-                            bind:value={favouriteNumber}
-                            placeholder="e.g. 10"
-                            class="input input-number favourite-number-input"
-                        />
-                    </div>
-                </div>
-
-                <!-- Birth Year & Sorting Row -->
-                <div class="filter-group">
-                    <div class="filter-item">
-                        <label for="birthYear" class="filter-label">
-                            <span class="filter-icon">📅</span>
-                            Birth Year
-                            {#if $modSettings.canToggle}
-                                <span class="birth-year-mode-indicator">
-                                    ({$modSettings.showRealBirthDates ? 'Real-life' : 'In-game'})
-                                </span>
-                            {/if}
-                        </label>
-                        <input
-                            id="birthYear"
-                            type="number"
-                            bind:value={birthYear}
-                            placeholder="e.g. 2005"
-                            class="input input-number birth-year-input"
-                        />
-                    </div>
-
-                    <div class="filter-item">
-                        <label for="sortBy" class="filter-label">
-                            <span class="filter-icon">📊</span>
-                            Sort By
-                        </label>
-                        <select id="sortBy" bind:value={sortBy} class="input select-input">
-                            <option value={null}>Default Order</option>
-                            {#each SORT_OPTIONS as { value, label, icon }}
-                                <option value={value}>{icon} {label}</option>
-                            {/each}
-                        </select>
-                    </div>
-                </div>
-            </div>
+            {/if}
         </div>
     {/if}
 </section>
@@ -304,6 +319,12 @@
         transition: all var(--transition-normal);
     }
 
+    .filters-container.disabled {
+        opacity: 0.6;
+        background: var(--color-background-light);
+        border-color: var(--color-border);
+    }
+
     .filters-header {
         display: flex;
         align-items: center;
@@ -316,7 +337,12 @@
         min-height: 2.5rem;
     }
 
-    .filters-header:hover {
+    .filters-header.disabled {
+        cursor: not-allowed;
+        background: var(--color-background-light);
+    }
+
+    .filters-header:hover:not(.disabled) {
         background: var(--color-background-hover);
     }
 
@@ -389,6 +415,34 @@
     .filters-content {
         padding: var(--spacing-lg);
         background: var(--color-background);
+    }
+
+    .disabled-message {
+        text-align: center;
+        padding: var(--spacing-xl) var(--spacing-lg);
+        background: var(--color-background-light);
+        border-radius: var(--radius-md);
+        border: 2px dashed var(--color-border);
+    }
+
+    .disabled-icon {
+        font-size: 2rem;
+        margin-bottom: var(--spacing-md);
+        opacity: 0.7;
+    }
+
+    .disabled-message h4 {
+        margin: 0 0 var(--spacing-sm) 0;
+        font-size: var(--font-lg);
+        font-weight: 600;
+        color: var(--color-text);
+    }
+
+    .disabled-message p {
+        margin: 0;
+        font-size: var(--font-sm);
+        color: var(--color-text-muted);
+        line-height: 1.5;
     }
 
     .filter-grid {
@@ -525,6 +579,11 @@
         background: #4a1a1a;
         border-color: #ff6b6b;
         color: #ff8a8a;
+    }
+
+    [data-theme="dark"] .disabled-message {
+        background: var(--color-background);
+        border-color: var(--color-border);
     }
 
     @media (max-width: 768px) {

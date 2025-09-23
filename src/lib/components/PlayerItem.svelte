@@ -6,16 +6,59 @@
     import Club from "./player/Club.svelte";
     import FootNumber from "./player/FootNumber.svelte";
     import Appearance from "./player/Appearance.svelte";
+    import { 
+        saveOriginalPlayer, 
+        saveModifiedPlayer, 
+        checkAndCleanupPlayer,
+        getOriginalPlayer,
+        originalPlayers
+    } from "$lib/stores/editedPlayers";
+    import { onMount, onDestroy } from 'svelte';
 
-    let { player = $bindable() }: { player: Player } = $props();
+    let { 
+        player = $bindable(), 
+        playerId 
+    }: { 
+        player: Player;
+        playerId: number;
+    } = $props();
+    
     let edit_mode = $state(false);
+    let isPlayerEdited = $derived($originalPlayers.has(playerId));
 
     function toggleEdit() {
-        edit_mode = !edit_mode;
+        if (!edit_mode) {
+            saveOriginalPlayer(playerId, player);
+            edit_mode = true;
+        } else {
+            saveModifiedPlayer(playerId, player);
+            checkAndCleanupPlayer(playerId);
+            edit_mode = false;
+        }
     }
+
+    function restoreOriginalValues() {
+        const originalPlayer = getOriginalPlayer(playerId);
+        if (originalPlayer) {
+            player = { ...originalPlayer };
+            edit_mode = false;
+        }
+    }
+
+    function handleRestoreEvent() {
+        restoreOriginalValues();
+    }
+
+    onMount(() => {
+        document.addEventListener('restoreOriginalValues', handleRestoreEvent);
+    });
+
+    onDestroy(() => {
+        document.removeEventListener('restoreOriginalValues', handleRestoreEvent);
+    });
 </script>
 
-<li class="player-item" class:edit-mode={edit_mode}>
+<li class="player-item" class:edit-mode={edit_mode} class:edited={isPlayerEdited}>
     {#if edit_mode}
         <div class="edit-fields">
             <Citizenship bind:nation={player.nationality_id} {edit_mode} />
@@ -176,5 +219,24 @@
 
     .player-item:hover {
         background-color: var(--color-background-hover);
+    }
+
+    .player-item.edited {
+        border-left: 4px solid var(--color-primary);
+        background-color: rgba(var(--color-primary-rgb), 0.05);
+        position: relative;
+    }
+
+    .player-item.edited::before {
+        content: "✏️";
+        position: absolute;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        font-size: var(--font-sm);
+        opacity: 0.7;
+    }
+
+    .player-item.edited:hover {
+        background-color: rgba(var(--color-primary-rgb), 0.1);
     }
 </style>

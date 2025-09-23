@@ -7,6 +7,8 @@
     import ViewSwitcher from "$lib/components/ViewSwitcher.svelte";
     import AnalystView from "$lib/components/AnalystView.svelte";
     import type { PlayerRecord } from "$lib/types";
+    import { showOnlyEdited, getModifiedPlayersAsRecords } from "$lib/stores/editedPlayers";
+    import { loadPlayersPage } from "$lib/api/player";
     import { onMount } from 'svelte';
 
     onMount(() => {
@@ -33,6 +35,67 @@
     let showProblematicDetails = $state(false);
     let currentView: 'scout' | 'analyst' = $state('scout');
 
+    let filteredPlayers = $derived(
+        $showOnlyEdited
+            ? (() => {
+                const allEditedPlayers = getModifiedPlayersAsRecords();
+                const startIndex = currentPage * pageSize;
+                const endIndex = startIndex + pageSize;
+                return allEditedPlayers.slice(startIndex, endIndex);
+            })()
+            : players
+    );
+
+    async function loadPage() {        
+        players = await loadPlayersPage(
+            currentPage * pageSize,
+            pageSize,
+            selectedCountry,
+            selectedClub,
+            minCA,
+            maxCA,
+            minPA,
+            maxPA,
+            preferredFoot,
+            favouriteNumber,
+            effectiveBirthYear,
+            sortBy,
+        );
+        
+        isLastPage = players.length < pageSize;
+    }
+
+    $effect(() => {
+        void selectedCountry;
+        void selectedClub;
+        void minCA;
+        void maxCA;
+        void minPA;
+        void maxPA;
+        void preferredFoot;
+        void favouriteNumber;
+        void birthYear;
+        void effectiveBirthYear;
+        void sortBy;
+        void currentPage;
+        void pageSize;
+        
+        if (!$showOnlyEdited) {
+            loadPage();
+        }
+    });
+
+    $effect(() => {
+        if ($showOnlyEdited) {
+            const allEditedPlayers = getModifiedPlayersAsRecords();
+            const totalEdited = allEditedPlayers.length;
+            const startIndex = currentPage * pageSize;
+            isLastPage = startIndex + pageSize >= totalEdited;
+        } else {
+            isLastPage = players.length < pageSize;
+        }
+    });
+
     function nextPage() {
         currentPage += 1;
     }
@@ -58,7 +121,7 @@
 
 <main>
     <AppHeader 
-        bind:players 
+        bind:players={filteredPlayers}
         bind:currentPage 
         bind:pageSize 
         bind:selectedCountry 
@@ -91,6 +154,7 @@
             bind:birthYear
             bind:effectiveBirthYear
             bind:sortBy
+            disabled={$showOnlyEdited}
         />
 
         <ViewSwitcher bind:currentView onViewChange={handleViewChange} />
@@ -103,7 +167,7 @@
                 onPageChange={jumpToPage} 
                 {isLastPage} 
             />
-            <PlayerTable bind:players />
+            <PlayerTable bind:players={filteredPlayers} />
             <PaginationSection 
                 bind:currentPage 
                 onPrev={prevPage} 
@@ -144,5 +208,4 @@
         display: flex;
         flex-direction: column;
     }
-    
 </style>
