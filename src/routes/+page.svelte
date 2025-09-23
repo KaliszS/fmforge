@@ -17,7 +17,7 @@
     });
 
     let players: PlayerRecord[] = $state([]);
-    let currentPage = $state(0);
+    let currentPage = $state(-1); // loading data from file will always set currentPage to 0 and triggert $effect to load page
     let pageSize = $state(10);
     let isLastPage = $state(false);
     let selectedCountry: number | null = $state(null);
@@ -35,17 +35,6 @@
     let showProblematicDetails = $state(false);
     let currentView: 'scout' | 'analyst' = $state('scout');
 
-    let filteredPlayers = $derived(
-        $showOnlyEdited
-            ? (() => {
-                const allEditedPlayers = getModifiedPlayersAsRecords();
-                const startIndex = currentPage * pageSize;
-                const endIndex = startIndex + pageSize;
-                return allEditedPlayers.slice(startIndex, endIndex);
-            })()
-            : players
-    );
-
     async function loadPage() {        
         players = await loadPlayersPage(
             currentPage * pageSize,
@@ -61,9 +50,20 @@
             effectiveBirthYear,
             sortBy,
         );
-        
+
         isLastPage = players.length < pageSize;
     }
+
+    let filteredPlayers = $derived(
+        $showOnlyEdited
+            ? (() => {
+                const allEditedPlayers = getModifiedPlayersAsRecords();
+                const startIndex = currentPage * pageSize;
+                const endIndex = startIndex + pageSize;
+                return allEditedPlayers.slice(startIndex, endIndex);
+            })()
+            : players
+    );
 
     $effect(() => {
         void selectedCountry;
@@ -112,7 +112,6 @@
 
     function handleViewChange(view: 'scout' | 'analyst') {
         currentView = view;
-        // Reset to first page when switching views
         if (view === 'scout') {
             currentPage = 0;
         }

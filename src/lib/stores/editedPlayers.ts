@@ -80,12 +80,16 @@ export function checkAndCleanupPlayer(id: number) {
     }
 }
 
-export function clearAllEditedPlayers() {
-    document.dispatchEvent(new CustomEvent('restoreOriginalValues'));
-    
+export function clearEditedPlayersStore() { // for saving to file
     originalPlayers.set(new Map());
     modifiedPlayers.set(new Map());
     showOnlyEdited.set(false);
+}
+
+
+export function clearAllEditedPlayers() { // for resetting all changes to original values
+    document.dispatchEvent(new CustomEvent('restoreOriginalValues'));
+    clearEditedPlayersStore();
 }
 
 export function toggleShowOnlyEdited() {
