@@ -24,10 +24,10 @@
 </script>
 
 {#if edit_mode}
-    <Position {position} {edit_mode} />
-    <Name {first_name} {common_name} {last_name} {edit_mode} />
+    <Position bind:position {edit_mode} />
+    <Name bind:first_name bind:common_name bind:last_name {edit_mode} />
     <section>
-        <Birthdate {birthdate} {edit_mode} />
+        <Birthdate bind:birthdate {edit_mode} />
         <City bind:city {edit_mode} />
     </section>
 {:else}

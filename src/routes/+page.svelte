@@ -1,16 +1,17 @@
 <script lang="ts">
     import PlayerTable from "$lib/components/PlayerTable.svelte";
-    import PaginationControls from "$lib/components/PaginationControls.svelte";
+    import PaginationSection from "$lib/components/PaginationSection.svelte";
     import AppHeader from "$lib/components/AppHeader.svelte";
     import PlayerFilters from "$lib/components/PlayerFilters.svelte";
     import ProblematicRows from "$lib/components/ProblematicRows.svelte";
     import ViewSwitcher from "$lib/components/ViewSwitcher.svelte";
     import AnalystView from "$lib/components/AnalystView.svelte";
     import type { PlayerRecord } from "$lib/types";
+    import { showOnlyEdited, getModifiedPlayersAsRecords } from "$lib/stores/editedPlayers";
+    import { loadPlayersPage } from "$lib/api/player";
     import { onMount } from 'svelte';
 
     onMount(() => {
-        // Initialize theme on page load
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
     });
@@ -33,6 +34,67 @@
     let problematicRows: number[] = $state([]);
     let showProblematicDetails = $state(false);
     let currentView: 'scout' | 'analyst' = $state('scout');
+
+    let filteredPlayers = $derived(
+        $showOnlyEdited
+            ? (() => {
+                const allEditedPlayers = getModifiedPlayersAsRecords();
+                const startIndex = currentPage * pageSize;
+                const endIndex = startIndex + pageSize;
+                return allEditedPlayers.slice(startIndex, endIndex);
+            })()
+            : players
+    );
+
+    async function loadPage() {        
+        players = await loadPlayersPage(
+            currentPage * pageSize,
+            pageSize,
+            selectedCountry,
+            selectedClub,
+            minCA,
+            maxCA,
+            minPA,
+            maxPA,
+            preferredFoot,
+            favouriteNumber,
+            effectiveBirthYear,
+            sortBy,
+        );
+        
+        isLastPage = players.length < pageSize;
+    }
+
+    $effect(() => {
+        void selectedCountry;
+        void selectedClub;
+        void minCA;
+        void maxCA;
+        void minPA;
+        void maxPA;
+        void preferredFoot;
+        void favouriteNumber;
+        void birthYear;
+        void effectiveBirthYear;
+        void sortBy;
+        void currentPage;
+        void pageSize;
+        
+        if (!$showOnlyEdited) {
+            loadPage();
+        }
+    });
+
+    $effect(() => {
+        if ($showOnlyEdited) {
+            const allEditedPlayers = getModifiedPlayersAsRecords();
+            const totalEdited = allEditedPlayers.length;
+            const startIndex = currentPage * pageSize;
+            isLastPage = startIndex + pageSize >= totalEdited;
+        } else {
+            isLastPage = players.length < pageSize;
+        }
+    });
 
     function nextPage() {
         currentPage += 1;
@@ -59,7 +121,7 @@
 
 <main>
     <AppHeader 
-        bind:players 
+        bind:players={filteredPlayers}
         bind:currentPage 
         bind:pageSize 
         bind:selectedCountry 
@@ -92,14 +154,27 @@
             bind:birthYear
             bind:effectiveBirthYear
             bind:sortBy
+            disabled={$showOnlyEdited}
         />
 
         <ViewSwitcher bind:currentView onViewChange={handleViewChange} />
 
         {#if currentView === 'scout'}
-            <PaginationControls bind:currentPage onPrev={prevPage} onNext={nextPage} onPageChange={jumpToPage} {isLastPage} />
-            <PlayerTable bind:players />
-            <PaginationControls bind:currentPage onPrev={prevPage} onNext={nextPage} onPageChange={jumpToPage} {isLastPage} />
+            <PaginationSection 
+                bind:currentPage 
+                onPrev={prevPage} 
+                onNext={nextPage} 
+                onPageChange={jumpToPage} 
+                {isLastPage} 
+            />
+            <PlayerTable bind:players={filteredPlayers} />
+            <PaginationSection 
+                bind:currentPage 
+                onPrev={prevPage} 
+                onNext={nextPage} 
+                onPageChange={jumpToPage} 
+                {isLastPage} 
+            />
         {:else if currentView === 'analyst'}
             <AnalystView 
                 bind:players
