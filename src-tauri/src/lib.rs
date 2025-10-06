@@ -255,11 +255,15 @@ fn get_players_page(
 
     println!("Filtered to {} players", filtered_players.len());
 
-    // Apply sorting if specified
+    // Apply sorting - default to birthdate if no sort specified
     if let Some(ref f) = filters {
         if let Some(ref sort_by) = f.sort_by {
             filtered_players = sort_players(filtered_players, sort_by);
+        } else {
+            filtered_players = sort_players(filtered_players, "age_desc");
         }
+    } else {
+        filtered_players = sort_players(filtered_players, "age_desc");
     }
 
     // Apply pagination
@@ -279,6 +283,24 @@ fn update_players(new_players: Vec<PlayerRecord>) -> Result<(), String> {
     for record in new_players {
         players.insert(record.id, record.player);
     }
+    Ok(())
+}
+
+#[tauri::command]
+fn add_new_player() -> Result<usize, String> {
+    // Don't add to PLAYERS immediately - just return a unique temporary ID
+    // The player will be added to the backend when save_players_to_file is called
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let temp_id = (SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as usize);
+    println!("Prepared new player for later addition (temp ID: {})", temp_id);
+    Ok(temp_id)
+}
+
+#[tauri::command]
+fn remove_player(id: usize) -> Result<(), String> {
+    let mut players = PLAYERS.lock().map_err(|e| e.to_string())?;
+    players.remove(&id);
+    println!("Removed player with ID: {}", id);
     Ok(())
 }
 
@@ -320,7 +342,7 @@ fn save_players_to_file(path: String) -> Result<(), String> {
         file.write_all(line.as_bytes()).unwrap();
     }
 
-    println!("[SAVE] Successfully saved {}", players.len(),);
+    println!("[SAVE] Successfully saved {} players", players.len());
     Ok(())
 }
 
@@ -334,6 +356,8 @@ pub fn run() {
             load_players_from_file,
             get_players_page,
             update_players,
+            add_new_player,
+            remove_player,
             get_problematic_rows,
             save_players_to_file
         ])

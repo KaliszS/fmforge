@@ -1,9 +1,10 @@
 <script lang="ts">
     import { selectFileAndLoad, selectSaveFile, savePlayersToFile, getProblematicRows } from "$lib/api/file";
+    import { removePlayer, updatePlayers } from "$lib/api/player";
     import type { PlayerRecord } from "$lib/types";
     import ThemeToggle from "./ThemeToggle.svelte";
     import ModSettings from "./ModSettings.svelte";
-    import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount } from "$lib/stores/editedPlayers";
+    import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount, modifiedPlayers } from "$lib/stores/editedPlayers";
 
     let {
         players = $bindable(),
@@ -23,6 +24,7 @@
         problematicRows = $bindable(),
         showProblematicDetails = $bindable(),
         isLastPage = $bindable(),
+        triggerRefresh,
     }: {
         players: PlayerRecord[];
         currentPage: number;
@@ -41,6 +43,7 @@
         problematicRows: number[];
         showProblematicDetails: boolean;
         isLastPage: boolean;
+        triggerRefresh: () => void;
     } = $props();
 
     let source_path = $state("");
@@ -55,9 +58,30 @@
     }
 
     async function saveToFile() {
-        await savePlayersToFile(players, save_path);
+        //  remove deleted players from backend
+        for (const [id, player] of $modifiedPlayers) {
+            if (player === null) {
+                await removePlayer(id);
+            }
+        }
+        
+        // process additions and modifications
+        const playersToUpdate: PlayerRecord[] = [];
+        for (const [id, player] of $modifiedPlayers) {
+            if (player !== null) {
+                playersToUpdate.push({ id, player });
+            }
+        }
+        
+        if (playersToUpdate.length > 0) {
+            await updatePlayers(playersToUpdate);
+        }
+        
+        await savePlayersToFile(save_path);
         
         clearEditedPlayersStore();
+        
+        triggerRefresh();
     }
 
     async function selectFile() {

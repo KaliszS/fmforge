@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { PlayerRecord } from "$lib/types";
+import type { PlayerRecord, Player } from "$lib/types";
 
 export async function loadPlayersPage(
   offset: number,
@@ -32,4 +32,16 @@ export async function loadPlayersPage(
       sort_by: sortBy || null,
     },
   });
+}
+
+export async function addNewPlayer(): Promise<number> {
+  return await invoke("add_new_player", { });
+}
+
+export async function removePlayer(id: number): Promise<void> {
+  return await invoke("remove_player", { id });
+}
+
+export async function updatePlayers(players: PlayerRecord[]): Promise<void> {
+  return await invoke("update_players", { newPlayers: players });
 }

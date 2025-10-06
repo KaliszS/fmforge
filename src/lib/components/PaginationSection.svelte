@@ -1,25 +1,35 @@
 <script lang="ts">
     import PaginationControls from "./PaginationControls.svelte";
     import EditedPlayersInfo from "./EditedPlayersInfo.svelte";
+    import EditTypeLabels from "./EditTypeLabels.svelte";
     
     let {
         currentPage = $bindable(),
         onPrev,
         onNext,
         onPageChange,
-        isLastPage
+        isLastPage,
+        editTypeFilter = $bindable(),
+        onFilterChange = () => {}
     }: {
         currentPage: number;
         onPrev: () => void;
         onNext: () => void;
         onPageChange: (page: number) => void;
         isLastPage: boolean;
+        editTypeFilter?: 'all' | 'modified' | 'added' | 'deleted';
+        onFilterChange?: (type: 'all' | 'modified' | 'added' | 'deleted') => void;
     } = $props();
+    
+    function handleFilterReset() {
+        editTypeFilter = 'all';
+        onFilterChange('all');
+    }
 </script>
 
 <section class="pagination-section">
     <aside class="pagination-left">
-        <EditedPlayersInfo />
+        <EditedPlayersInfo {editTypeFilter} onFilterReset={handleFilterReset} />
     </aside>
     <section class="pagination-center">
         <PaginationControls 
@@ -31,7 +41,7 @@
         />
     </section>
     <aside class="pagination-right">
-        <!-- Empty space for balance -->
+        <EditTypeLabels bind:editTypeFilter {onFilterChange} />
     </aside>
 </section>
 
@@ -58,6 +68,6 @@
     .pagination-right {
         flex: 1;
         display: flex;
-        justify-content: flex-end;
+        justify-content: center;
     }
 </style>

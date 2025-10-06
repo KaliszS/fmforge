@@ -7,7 +7,7 @@
     import ViewSwitcher from "$lib/components/ViewSwitcher.svelte";
     import AnalystView from "$lib/components/AnalystView.svelte";
     import type { PlayerRecord } from "$lib/types";
-    import { showOnlyEdited, getModifiedPlayersAsRecords } from "$lib/stores/editedPlayers";
+    import { showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers, modifiedPlayers } from "$lib/stores/editedPlayers";
     import { loadPlayersPage } from "$lib/api/player";
     import { onMount } from 'svelte';
 
@@ -15,11 +15,18 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
     });
+    
+    $effect(() => { // reset to page 1 when switching to edited players view
+        if ($showOnlyEdited) {
+            jumpToPage(0);
+        }
+    });
 
     let players: PlayerRecord[] = $state([]);
     let currentPage = $state(-1); // loading data from file will always set currentPage to 0 and triggert $effect to load page
     let pageSize = $state(10);
     let isLastPage = $state(false);
+    let refreshTrigger = $state(0);
     let selectedCountry: number | null = $state(null);
     let selectedClub: number | null = $state(null);
     let minCA: number | null = $state(null);
@@ -34,6 +41,28 @@
     let problematicRows: number[] = $state([]);
     let showProblematicDetails = $state(false);
     let currentView: 'scout' | 'analyst' = $state('scout');
+    let editTypeFilter: 'all' | 'modified' | 'added' | 'deleted' = $state('all');
+
+    function filterEditedPlayersByType(players: PlayerRecord[]): PlayerRecord[] {
+        if (editTypeFilter === 'all') {
+            return players;
+        }
+        
+        return players.filter(record => {
+            const original = $originalPlayers.get(record.id);
+            const modified = $modifiedPlayers.get(record.id);
+            switch (editTypeFilter) {
+                case 'modified':
+                    return original !== null && modified !== null;
+                case 'added':
+                    return original === null && modified !== null;
+                case 'deleted':
+                    return original !== null && modified === null;
+                default:
+                    return true;
+            }
+        });
+    }
 
     async function loadPage() {        
         players = await loadPlayersPage(
@@ -57,10 +86,12 @@
     let filteredPlayers = $derived(
         $showOnlyEdited
             ? (() => {
+                void editTypeFilter;
                 const allEditedPlayers = getModifiedPlayersAsRecords();
+                const filtered = filterEditedPlayersByType(allEditedPlayers);
                 const startIndex = currentPage * pageSize;
                 const endIndex = startIndex + pageSize;
-                return allEditedPlayers.slice(startIndex, endIndex);
+                return filtered.slice(startIndex, endIndex);
             })()
             : players
     );
@@ -87,13 +118,23 @@
 
     $effect(() => {
         if ($showOnlyEdited) {
+            void editTypeFilter;
             const allEditedPlayers = getModifiedPlayersAsRecords();
-            const totalEdited = allEditedPlayers.length;
+            const filtered = filterEditedPlayersByType(allEditedPlayers);
+            const totalEdited = filtered.length;
             const startIndex = currentPage * pageSize;
             isLastPage = startIndex + pageSize >= totalEdited;
         } else {
             isLastPage = players.length < pageSize;
         }
+    });
+
+    $effect(() => {
+        void refreshTrigger;
+        if (refreshTrigger > 0) {
+            loadPage();
+        }
+        refreshTrigger = 0; // otherwise page will be loaded twice
     });
 
     function nextPage() {
@@ -108,6 +149,10 @@
 
     function jumpToPage(page: number) {
         currentPage = page;
+    }
+
+    function triggerRefresh() {
+        refreshTrigger += 1;
     }
 
     function handleViewChange(view: 'scout' | 'analyst') {
@@ -137,6 +182,7 @@
         bind:problematicRows 
         bind:showProblematicDetails 
         bind:isLastPage
+        {triggerRefresh}
     />
     
     <article class="content">
@@ -164,7 +210,9 @@
                 onPrev={prevPage} 
                 onNext={nextPage} 
                 onPageChange={jumpToPage} 
-                {isLastPage} 
+                {isLastPage}
+                bind:editTypeFilter
+                onFilterChange={(type) => editTypeFilter = type}
             />
             <PlayerTable bind:players={filteredPlayers} />
             <PaginationSection 
@@ -172,7 +220,9 @@
                 onPrev={prevPage} 
                 onNext={nextPage} 
                 onPageChange={jumpToPage} 
-                {isLastPage} 
+                {isLastPage}
+                bind:editTypeFilter
+                onFilterChange={(type) => editTypeFilter = type}
             />
         {:else if currentView === 'analyst'}
             <AnalystView 

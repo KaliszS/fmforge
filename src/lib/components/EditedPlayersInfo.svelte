@@ -1,5 +1,18 @@
 <script lang="ts">
     import { editedCount, clearAllEditedPlayers, showOnlyEdited, toggleShowOnlyEdited } from '$lib/stores/editedPlayers';
+    import RefreshButton from "./RefreshButton.svelte";
+    
+    let {
+        editTypeFilter = 'all',
+        onFilterReset = () => {}
+    }: {
+        editTypeFilter?: 'all' | 'modified' | 'added' | 'deleted';
+        onFilterReset?: () => void;
+    } = $props();
+    
+    function handleToggle() {
+        toggleShowOnlyEdited(editTypeFilter, onFilterReset);
+    }
 </script>
 
 {#if $editedCount > 0}
@@ -7,7 +20,7 @@
         <section class="edited-count">
             <button 
                 class="count-badge clickable"
-                onclick={toggleShowOnlyEdited}
+                onclick={handleToggle}
                 title={$showOnlyEdited ? 'Show all players' : 'Show only edited players'}
             >
                 {$editedCount}
@@ -17,19 +30,11 @@
             </span>
         </section>
         
-        <button 
-            class="reset-icon-btn" 
-            onclick={clearAllEditedPlayers}
+        <RefreshButton 
+            size={18}
             title="Reset all changes to original values"
-            aria-label="Reset all changes to original values"
-        >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-                <path d="M21 3v5h-5"/>
-                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-                <path d="M3 21v-5h5"/>
-            </svg>
-        </button>
+            onClick={clearAllEditedPlayers}
+        />
     </article>
 {/if}
 
@@ -75,30 +80,4 @@
         font-weight: 500;
     }
     
-    .reset-icon-btn {
-        background: none;
-        border: none;
-        color: var(--color-text-muted);
-        cursor: pointer;
-        padding: var(--spacing-sm);
-        border-radius: var(--radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: 
-            color var(--transition-fast),
-            background-color var(--transition-fast),
-            transform var(--transition-fast);
-    }
-    
-    .reset-icon-btn:hover {
-        color: var(--color-text);
-        background-color: var(--color-background-hover);
-        transform: scale(1.1);
-    }
-    
-    .reset-icon-btn svg {
-        width: 18px;
-        height: 18px;
-    }
 </style>

@@ -1,12 +1,35 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
     import PlayerItem from "./PlayerItem.svelte";
+    import AddPlayerRow from "./AddPlayerRow.svelte";
+    import { modifiedPlayers, originalPlayers, showOnlyEdited } from "$lib/stores/editedPlayers";
 
     let { players = $bindable() }: { players: PlayerRecord[] } = $props();
+    
+    let newlyAddedPlayers = $derived.by(() => {
+        let result: PlayerRecord[] = [];
+        $modifiedPlayers.forEach((player, id) => {
+            const original = $originalPlayers.get(id);
+            if (original === null) {
+                result.push({ id, player });
+            }
+        });
+        return result;
+    });
 </script>
 
 <ul class="player-list">
-    {#each players as playerRecord, _}
+    {#if players.length > 0}
+        <AddPlayerRow />
+    {/if}
+    
+    {#if !$showOnlyEdited}
+        {#each newlyAddedPlayers as playerRecord}
+            <PlayerItem bind:player={playerRecord.player} playerId={playerRecord.id} />
+        {/each}
+    {/if}
+    
+    {#each players as playerRecord}
         <PlayerItem bind:player={playerRecord.player} playerId={playerRecord.id} />
     {/each}
 </ul>
