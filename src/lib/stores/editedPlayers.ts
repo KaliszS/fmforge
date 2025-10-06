@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store';
 import type { Player, PlayerRecord } from '$lib/types';
 
-export const originalPlayers = writable<Map<number, Player>>(new Map());
-export const modifiedPlayers = writable<Map<number, Player>>(new Map());
+export const originalPlayers = writable<Map<number, Player | null>>(new Map());
+export const modifiedPlayers = writable<Map<number, Player | null>>(new Map());
 export const editedCount = writable<number>(0);
 export const showOnlyEdited = writable<boolean>(false);
 
@@ -33,11 +33,11 @@ function clonePlayer(player: Player): Player {
     return JSON.parse(JSON.stringify(player));
 }
 
-export function saveOriginalPlayer(id: number, player: Player) {
+export function saveOriginalPlayer(id: number, player: Player | null) {
     originalPlayers.update(originals => {
         const newOriginals = new Map(originals);
         if (!newOriginals.has(id)) {
-            newOriginals.set(id, clonePlayer(player));
+            newOriginals.set(id, player ? clonePlayer(player) : null);
         }
         return newOriginals;
     });
@@ -80,6 +80,101 @@ export function checkAndCleanupPlayer(id: number) {
     }
 }
 
+export function addNewPlayerToStore(id: number, player: Player) {
+    saveOriginalPlayer(id, null);
+    saveModifiedPlayer(id, player);
+}
+
+export function markPlayerForDeletion(id: number, player: Player) {
+    let original: Player | null | undefined;
+    originalPlayers.subscribe(originals => {
+        original = originals.get(id);
+    })();
+    
+    if (original === null) {
+        // newly added player
+        originalPlayers.update(originals => {
+            const newOriginals = new Map(originals);
+            newOriginals.delete(id);
+            return newOriginals;
+        });
+        modifiedPlayers.update(modified => {
+            const newModified = new Map(modified);
+            newModified.delete(id);
+            return newModified;
+        });
+        return; // Exit early - no need to mark for deletion
+    }
+    
+    saveOriginalPlayer(id, player);
+    modifiedPlayers.update(modified => {
+        const newModified = new Map(modified);
+        newModified.set(id, null);
+        return newModified;
+    });
+}
+
+export function revertPlayerDeletion(id: number) {
+    removePlayerFromStores(id);
+}
+
+export function removePlayerFromStores(id: number) {
+    originalPlayers.update(originals => {
+        const newOriginals = new Map(originals);
+        newOriginals.delete(id);
+        return newOriginals;
+    });
+    
+    modifiedPlayers.update(modified => {
+        const newModified = new Map(modified);
+        newModified.delete(id);
+        return newModified;
+    });
+}
+
+function revertPlayersByType(type: 'modified' | 'added' | 'deleted') {
+    const idsToRemove: number[] = [];
+    
+    originalPlayers.subscribe(originals => {
+        modifiedPlayers.subscribe(modified => {
+            for (const [id, original] of originals) {
+                const modifiedPlayer = modified.get(id);
+                let shouldRemove = false;
+                
+                switch (type) {
+                    case 'modified':
+                        shouldRemove = original !== null && modifiedPlayer !== null;
+                        break;
+                    case 'added':
+                        shouldRemove = original === null && modifiedPlayer !== null;
+                        break;
+                    case 'deleted':
+                        shouldRemove = original !== null && modifiedPlayer === null;
+                        break;
+                }
+                
+                if (shouldRemove) {
+                    idsToRemove.push(id);
+                }
+            }
+        })();
+    })();
+    
+    idsToRemove.forEach(id => removePlayerFromStores(id));
+}
+
+export function revertModifiedPlayers() {
+    revertPlayersByType('modified');
+}
+
+export function revertAddedPlayers() {
+    revertPlayersByType('added');
+}
+
+export function revertDeletedPlayers() {
+    revertPlayersByType('deleted');
+}
+
 export function clearEditedPlayersStore() { // for saving to file
     originalPlayers.set(new Map());
     modifiedPlayers.set(new Map());
@@ -92,12 +187,19 @@ export function clearAllEditedPlayers() { // for resetting all changes to origin
     clearEditedPlayersStore();
 }
 
-export function toggleShowOnlyEdited() {
-    showOnlyEdited.update(show => !show);
+export function toggleShowOnlyEdited(currentFilter: 'all' | 'modified' | 'added' | 'deleted' = 'all', onFilterReset?: () => void) {
+    showOnlyEdited.update(show => {
+        if (show && currentFilter !== 'all') {
+            // If showing edited players with a specific filter, switch to 'all' instead of toggling off
+            onFilterReset?.(); // Reset filter to 'all'
+            return true; // Keep showing edited players, but switch to 'all' filter
+        }
+        return !show;
+    });
 }
 
-export function getOriginalPlayer(id: number): Player | undefined {
-    let result: Player | undefined;
+export function getOriginalPlayer(id: number): Player | null | undefined {
+    let result: Player | null | undefined;
     originalPlayers.subscribe(originals => {
         result = originals.get(id);
     })();
@@ -106,11 +208,14 @@ export function getOriginalPlayer(id: number): Player | undefined {
 
 export function getModifiedPlayersAsRecords(): PlayerRecord[] {
     let result: PlayerRecord[] = [];
+    
     modifiedPlayers.subscribe(modified => {
-        result = Array.from(modified.entries()).map(([id, player]) => ({
-            id,
-            player
-        }));
+        originalPlayers.subscribe(originals => {
+            result = Array.from(modified.entries()).map(([id, player]) => ({
+                id,
+                player: player || originals.get(id) || {} as Player // Use original data for deleted players
+            }));
+        })();
     })();
     return result;
 }

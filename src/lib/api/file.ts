@@ -24,8 +24,7 @@ export async function selectSaveFile(): Promise<string | null> {
   return path;
 }
 
-export async function savePlayersToFile(players: PlayerRecord[], path: string) {
-  await invoke("update_players", { newPlayers: players });
+export async function savePlayersToFile(path: string) {
   await invoke("save_players_to_file", { path });
 }
 

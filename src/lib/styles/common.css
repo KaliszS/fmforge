@@ -30,6 +30,22 @@
   --color-shadow-light: rgba(0, 0, 0, 0.08);
   --color-shadow-primary: rgba(57, 108, 216, 0.3);
   --color-shadow-primary-hover: rgba(57, 108, 216, 0.6);
+  
+  --color-modified: #3b82f6;
+  --color-modified-bg: rgba(59, 130, 246, 0.05);
+  --color-modified-bg-hover: rgba(59, 130, 246, 0.1);
+  --color-newly-added: #22c55e;
+  --color-newly-added-bg: rgba(34, 197, 94, 0.05);
+  --color-newly-added-bg-hover: rgba(34, 197, 94, 0.1);
+  
+  --color-delete: #dc2626;
+  --color-delete-hover: #b91c1c;
+  --color-delete-bg-hover: #fef2f2;
+  
+  /* Deleted player colors */
+  --color-deleted: #dc2626;
+  --color-deleted-bg: rgba(220, 38, 38, 0.05);
+  --color-deleted-bg-hover: rgba(220, 38, 38, 0.1);
 }
 
 /* Dark Theme */
@@ -60,6 +76,22 @@
   --color-shadow-light: rgba(0, 0, 0, 0.2);
   --color-shadow-primary: rgba(90, 140, 255, 0.3);
   --color-shadow-primary-hover: rgba(90, 140, 255, 0.6);
+  
+  --color-modified: #5a8cff;
+  --color-modified-bg: rgba(90, 140, 255, 0.1);
+  --color-modified-bg-hover: rgba(90, 140, 255, 0.2);
+  --color-newly-added: #22c55e;
+  --color-newly-added-bg: rgba(34, 197, 94, 0.1);
+  --color-newly-added-bg-hover: rgba(34, 197, 94, 0.2);
+  
+  --color-delete: #ef4444;
+  --color-delete-hover: #dc2626;
+  --color-delete-bg-hover: rgba(239, 68, 68, 0.1);
+  
+  /* Deleted player colors - dark theme */
+  --color-deleted: #ef4444;
+  --color-deleted-bg: rgba(239, 68, 68, 0.1);
+  --color-deleted-bg-hover: rgba(239, 68, 68, 0.2);
 }
 
 /* Dark theme specific tag colors */
