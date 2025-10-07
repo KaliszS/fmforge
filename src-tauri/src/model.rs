@@ -31,7 +31,7 @@ pub struct Player {
     pub club_id: Option<i32>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PlayerRecord {
     pub id: usize,
     pub player: Player,
@@ -50,6 +50,36 @@ pub struct PlayerFilters {
     pub birth_year_min: Option<i32>,
     pub birth_year_max: Option<i32>,
     pub sort_by: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct PlayerStatistics {
+    pub count: usize,
+    pub ca_stats: Option<NumberStats>,
+    pub pa_stats: Option<NumberStats>,
+    pub height_stats: Option<NumberStats>,
+    pub weight_stats: Option<NumberStats>,
+    pub position_counts: std::collections::HashMap<String, usize>,
+    pub preferred_foot_counts: std::collections::HashMap<i8, usize>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct NumberStats {
+    pub min: f64,
+    pub max: f64,
+    pub mean: f64,
+    pub median: f64,
+    pub q25: f64,
+    pub q75: f64,
+    pub std_dev: f64,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TopPlayers {
+    pub top_ca: Vec<PlayerRecord>,
+    pub top_pa: Vec<PlayerRecord>,
+    pub top_height: Vec<PlayerRecord>,
+    pub top_weight: Vec<PlayerRecord>,
 }
 
 impl fmt::Display for RecordType {
