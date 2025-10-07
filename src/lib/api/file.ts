@@ -29,5 +29,5 @@ export async function savePlayersToFile(path: string) {
 }
 
 export async function getProblematicRows(): Promise<number[]> {
-  return await invoke("get_problematic_rows");
+  return await invoke("get_problematic_rows_list");
 }
