@@ -11,8 +11,8 @@ Early version -> **work in progress!**
 ### Features
 - players database search
 - edit any player record
-- ~~add new players~~ (TBA)
-- ~~remove players~~ (TBA)
+- add new players
+- remove players
 - save changes to the .edt file
 - search filters
 - analyst module for statistics visualisation)
