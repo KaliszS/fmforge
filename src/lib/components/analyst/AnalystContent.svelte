@@ -4,6 +4,7 @@
     import AbilitiesSection from "./sections/AbilitiesSection.svelte";
     import GeographySection from "./sections/GeographySection.svelte";
     import PhysicalSection from "./sections/PhysicalSection.svelte";
+    import PositionalSection from "./sections/PositionalSection.svelte";
 
     let { 
         activeTab,
@@ -115,11 +116,19 @@
                 {sortBy}
             />
         {:else if activeTab === 'positional'}
-            <div class="placeholder">
-                <div class="placeholder-icon">🏃</div>
-                <h4>Positional Analysis</h4>
-                <p>Position distribution, role-specific statistics, and tactical insights.</p>
-            </div>
+            <PositionalSection 
+                {players}
+                {selectedCountry}
+                {selectedClub}
+                {minCA}
+                {maxCA}
+                {minPA}
+                {maxPA}
+                {preferredFoot}
+                {favouriteNumber}
+                {birthYear}
+                {sortBy}
+            />
         {:else if activeTab === 'appearance'}
             <div class="placeholder">
                 <div class="placeholder-icon">🎨</div>
