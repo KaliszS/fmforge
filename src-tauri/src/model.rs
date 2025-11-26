@@ -62,6 +62,9 @@ pub struct PlayerStatistics {
     pub position_counts: std::collections::HashMap<String, usize>,
     pub preferred_foot_counts: std::collections::HashMap<i8, usize>,
     pub nationality_counts: std::collections::HashMap<i32, usize>,
+    pub ethnicity_counts: std::collections::HashMap<i8, usize>,
+    pub skin_tone_counts: std::collections::HashMap<i8, usize>,
+    pub hair_color_counts: std::collections::HashMap<i8, usize>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

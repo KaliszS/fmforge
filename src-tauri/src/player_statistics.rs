@@ -128,6 +128,21 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
         *nationality_counts.entry(record.player.nationality_id).or_insert(0) += 1;
     }
 
+    let mut ethnicity_counts = std::collections::HashMap::new();
+    for record in &filtered_players {
+        *ethnicity_counts.entry(record.player.ethnicity).or_insert(0) += 1;
+    }
+
+    let mut skin_tone_counts = std::collections::HashMap::new();
+    for record in &filtered_players {
+        *skin_tone_counts.entry(record.player.skin_tone).or_insert(0) += 1;
+    }
+
+    let mut hair_color_counts = std::collections::HashMap::new();
+    for record in &filtered_players {
+        *hair_color_counts.entry(record.player.hair_color).or_insert(0) += 1;
+    }
+
     PlayerStatistics {
         count,
         ca_stats,
@@ -137,6 +152,9 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
         position_counts,
         preferred_foot_counts,
         nationality_counts,
+        ethnicity_counts,
+        skin_tone_counts,
+        hair_color_counts,
     }
 }
 

@@ -5,6 +5,7 @@
     import GeographySection from "./sections/GeographySection.svelte";
     import PhysicalSection from "./sections/PhysicalSection.svelte";
     import PositionalSection from "./sections/PositionalSection.svelte";
+    import AppearanceSection from "./sections/AppearanceSection.svelte";
 
     let { 
         activeTab,
@@ -130,11 +131,19 @@
                 {sortBy}
             />
         {:else if activeTab === 'appearance'}
-            <div class="placeholder">
-                <div class="placeholder-icon">🎨</div>
-                <h4>Appearance Analysis</h4>
-                <p>Ethnicity, skin tone, hair color distributions and diversity metrics.</p>
-            </div>
+            <AppearanceSection 
+                {players}
+                {selectedCountry}
+                {selectedClub}
+                {minCA}
+                {maxCA}
+                {minPA}
+                {maxPA}
+                {preferredFoot}
+                {favouriteNumber}
+                {birthYear}
+                {sortBy}
+            />
         {:else if activeTab === 'temporal'}
             <div class="placeholder">
                 <div class="placeholder-icon">📅</div>
