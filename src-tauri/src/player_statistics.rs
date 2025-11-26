@@ -225,6 +225,8 @@ pub fn get_top_players(filters: Option<PlayerFilters>, limit: usize) -> TopPlaye
         top_pa: pa_players.iter().take(limit).cloned().collect(),
         top_height: height_players.iter().take(limit).cloned().collect(),
         top_weight: weight_players.iter().take(limit).cloned().collect(),
+        top_shortest: height_players.iter().rev().take(limit).cloned().collect(),
+        top_lightest: weight_players.iter().rev().take(limit).cloned().collect(),
     }
 }
 

@@ -81,6 +81,8 @@ pub struct TopPlayers {
     pub top_pa: Vec<PlayerRecord>,
     pub top_height: Vec<PlayerRecord>,
     pub top_weight: Vec<PlayerRecord>,
+    pub top_shortest: Vec<PlayerRecord>,
+    pub top_lightest: Vec<PlayerRecord>,
 }
 
 impl fmt::Display for RecordType {
