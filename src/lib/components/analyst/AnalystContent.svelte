@@ -7,6 +7,7 @@
     import PositionalSection from "./sections/PositionalSection.svelte";
     import AppearanceSection from "./sections/AppearanceSection.svelte";
     import TemporalSection from "./sections/TemporalSection.svelte";
+    import ClubsSection from "./sections/ClubsSection.svelte";
 
     let { 
         activeTab,
@@ -160,11 +161,19 @@
                 {sortBy}
             />
         {:else if activeTab === 'clubs'}
-            <div class="placeholder">
-                <div class="placeholder-icon">🏆</div>
-                <h4>Club Analysis</h4>
-                <p>Club distribution, team performance, and organizational insights.</p>
-            </div>
+            <ClubsSection 
+                {players}
+                {selectedCountry}
+                {selectedClub}
+                {minCA}
+                {maxCA}
+                {minPA}
+                {maxPA}
+                {preferredFoot}
+                {favouriteNumber}
+                {birthYear}
+                {sortBy}
+            />
         {/if}
     </div>
 </div>
