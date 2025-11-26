@@ -2,6 +2,7 @@
     import type { PlayerRecord } from "$lib/types";
     import { getPlayerStatistics } from "$lib/api/player";
     import PositionChart from "../charts/PositionChart.svelte";
+    import SimpleStatCard from "../charts/SimpleStatCard.svelte";
 
     let { 
         players,
@@ -76,45 +77,41 @@
             <h3>Overview Statistics</h3>
             
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">{statistics.count}</div>
-                    <div class="stat-label">Total Players</div>
-                </div>
+                <SimpleStatCard 
+                    value={statistics.count} 
+                    label="Total Players" 
+                />
                 
                 {#if statistics.ca_stats}
-                    <div class="stat-card">
-                        <div class="stat-number">{Math.round(statistics.ca_stats.mean)}</div>
-                        <div class="stat-label">Avg CA</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">{statistics.ca_stats.min} - {statistics.ca_stats.max}</div>
-                        <div class="stat-label">CA Range</div>
-                    </div>
+                    <SimpleStatCard 
+                        value={Math.round(statistics.ca_stats.mean)} 
+                        label="Avg CA" 
+                        subValue={`${statistics.ca_stats.min} - ${statistics.ca_stats.max}`}
+                        subLabel="Range"
+                    />
                 {/if}
                 
                 {#if statistics.pa_stats}
-                    <div class="stat-card">
-                        <div class="stat-number">{Math.round(statistics.pa_stats.mean)}</div>
-                        <div class="stat-label">Avg PA</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">{statistics.pa_stats.min} - {statistics.pa_stats.max}</div>
-                        <div class="stat-label">PA Range</div>
-                    </div>
+                    <SimpleStatCard 
+                        value={Math.round(statistics.pa_stats.mean)} 
+                        label="Avg PA" 
+                        subValue={`${statistics.pa_stats.min} - ${statistics.pa_stats.max}`}
+                        subLabel="Range"
+                    />
                 {/if}
                 
                 {#if statistics.height_stats}
-                    <div class="stat-card">
-                        <div class="stat-number">{Math.round(statistics.height_stats.mean)}cm</div>
-                        <div class="stat-label">Avg Height</div>
-                    </div>
+                    <SimpleStatCard 
+                        value={`${Math.round(statistics.height_stats.mean)}cm`} 
+                        label="Avg Height" 
+                    />
                 {/if}
                 
                 {#if statistics.weight_stats}
-                    <div class="stat-card">
-                        <div class="stat-number">{Math.round(statistics.weight_stats.mean)}kg</div>
-                        <div class="stat-label">Avg Weight</div>
-                    </div>
+                    <SimpleStatCard 
+                        value={`${Math.round(statistics.weight_stats.mean)}kg`} 
+                        label="Avg Weight" 
+                    />
                 {/if}
             </div>
 
@@ -140,30 +137,9 @@
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: var(--spacing-lg);
         margin-top: var(--spacing-xl);
-        max-width: 600px;
+        max-width: 800px;
         margin-left: auto;
         margin-right: auto;
-    }
-
-    .stat-card {
-        background: var(--color-background-light);
-        border: 1px solid var(--color-border-light);
-        border-radius: var(--radius-lg);
-        padding: var(--spacing-lg);
-        text-align: center;
-    }
-
-    .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--color-primary);
-        margin-bottom: var(--spacing-xs);
-    }
-
-    .stat-label {
-        font-size: var(--font-sm);
-        color: var(--color-text-muted);
-        font-weight: 500;
     }
 
     .loading-state, .error-state {
@@ -203,20 +179,14 @@
         font-size: var(--font-sm);
     }
 
-    .position-breakdown, .foot-breakdown {
+    .position-breakdown {
         margin-top: var(--spacing-xl);
     }
 
-    .position-breakdown h4, .foot-breakdown h4 {
+    .position-breakdown h4 {
         margin: 0 0 var(--spacing-md) 0;
         color: var(--color-text);
         font-size: var(--font-base);
         font-weight: 600;
     }
-
-    [data-theme="dark"] .stat-card {
-        background: var(--color-background);
-        border-color: var(--color-border);
-    }
-
 </style>
