@@ -214,6 +214,7 @@
         align-items: center;
         padding: 0.1em 0.5em;
         border-bottom: 0.1em solid var(--color-border-light);
+        border-left: 4px solid transparent;
     }
 
     .player-item.edit-mode {

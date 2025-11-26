@@ -214,7 +214,7 @@
                 bind:editTypeFilter
                 onFilterChange={(type) => editTypeFilter = type}
             />
-            <PlayerTable bind:players={filteredPlayers} />
+            <PlayerTable bind:players={filteredPlayers} bind:sortBy />
             <PaginationSection 
                 bind:currentPage 
                 onPrev={prevPage} 
