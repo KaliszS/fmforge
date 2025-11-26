@@ -61,6 +61,7 @@ pub struct PlayerStatistics {
     pub weight_stats: Option<NumberStats>,
     pub position_counts: std::collections::HashMap<String, usize>,
     pub preferred_foot_counts: std::collections::HashMap<i8, usize>,
+    pub nationality_counts: std::collections::HashMap<i32, usize>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

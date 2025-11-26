@@ -4,8 +4,9 @@
     import { countryMap } from "$lib/countries";
     import { clubMap } from "$lib/clubs";
     import { getFlagComponent } from "$lib/flags";
+    import DetailedStatCard from "../charts/DetailedStatCard.svelte";
 
-    let { 
+    let {  
         players,
         selectedCountry,
         selectedClub,
@@ -176,57 +177,19 @@
             <h3>Ability Distribution Analysis</h3>
             <div class="stats-grid">
                 {#if statistics.ca_stats}
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <h4>Current Ability (CA)</h4>
-                            <span class="stat-icon">⚡</span>
-                        </div>
-                        <div class="stat-values">
-                            <div class="stat-row">
-                                <span class="stat-label">Average:</span>
-                                <span class="stat-value">{Math.round(statistics.ca_stats.mean)}</span>
-                            </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Median:</span>
-                                <span class="stat-value">{Math.round(statistics.ca_stats.median)}</span>
-                            </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Range:</span>
-                                <span class="stat-value">{Math.round(statistics.ca_stats.min)} - {Math.round(statistics.ca_stats.max)}</span>
-                            </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Std Dev:</span>
-                                <span class="stat-value">{Math.round(statistics.ca_stats.std_dev)}</span>
-                            </div>
-                        </div>
-                    </div>
+                    <DetailedStatCard 
+                        title="Current Ability (CA)" 
+                        icon="⚡" 
+                        stats={statistics.ca_stats} 
+                    />
                 {/if}
 
                 {#if statistics.pa_stats}
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <h4>Potential Ability (PA)</h4>
-                            <span class="stat-icon">⭐</span>
-                        </div>
-                        <div class="stat-values">
-                            <div class="stat-row">
-                                <span class="stat-label">Average:</span>
-                                <span class="stat-value">{Math.round(statistics.pa_stats.mean)}</span>
-                            </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Median:</span>
-                                <span class="stat-value">{Math.round(statistics.pa_stats.median)}</span>
-                            </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Range:</span>
-                                <span class="stat-value">{Math.round(statistics.pa_stats.min)} - {Math.round(statistics.pa_stats.max)}</span>
-                            </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Std Dev:</span>
-                                <span class="stat-value">{Math.round(statistics.pa_stats.std_dev)}</span>
-                            </div>
-                        </div>
-                    </div>
+                    <DetailedStatCard 
+                        title="Potential Ability (PA)" 
+                        icon="⭐" 
+                        stats={statistics.pa_stats} 
+                    />
                 {/if}
             </div>
             {#if statistics.ca_stats && statistics.pa_stats}
@@ -406,11 +369,6 @@
         text-shadow: 0 0 8px rgba(232, 232, 232, 0.6);
     }
 
-    [data-theme="light"] .player-name.medal-silver {
-        color: #000000 !important;
-        text-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
-    }
-
     .player-name.medal-bronze {
         color: #cd7f32;
         font-weight: 800;
@@ -428,12 +386,6 @@
         color: #e8e8e8;
         font-weight: 800;
         text-shadow: 0 0 8px rgba(232, 232, 232, 0.6);
-    }
-
-    /* Light theme silver */
-    [data-theme="light"] .player-rank.medal-silver {
-        color: #000000 !important;
-        text-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
     }
 
     .player-rank.medal-bronze {
@@ -499,76 +451,11 @@
         font-size: var(--font-sm);
     }
 
-    [data-theme="dark"] .limit-input {
-        background: var(--color-background-light);
-        border-color: var(--color-border);
-        color: var(--color-text);
-    }
-
-    [data-theme="dark"] .limit-input:focus {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 2px var(--color-primary-light);
-    }
-
-
-
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: var(--spacing-lg);
         margin-bottom: var(--spacing-xl);
-    }
-
-    .stat-card {
-        background: var(--color-background-light);
-        border: 1px solid var(--color-border-light);
-        border-radius: var(--radius-lg);
-        padding: var(--spacing-lg);
-    }
-
-    .stat-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: var(--spacing-md);
-    }
-
-    .stat-header h4 {
-        margin: 0;
-        color: var(--color-text);
-        font-size: var(--font-base);
-        font-weight: 600;
-    }
-
-    .stat-icon {
-        font-size: 1.5rem;
-    }
-
-    .stat-values {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-sm);
-    }
-
-    .stat-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .stat-label {
-        color: var(--color-text-muted);
-        font-size: var(--font-sm);
-        font-weight: 500;
-    }
-
-    .stat-value {
-        color: var(--color-text);
-        font-size: var(--font-sm);
-        font-weight: 600;
-        background: var(--color-background);
-        padding: 0.2rem 0.5rem;
-        border-radius: var(--radius-sm);
     }
 
     .quartile-analysis {

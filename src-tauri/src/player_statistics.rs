@@ -123,6 +123,11 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
         }
     }
 
+    let mut nationality_counts = std::collections::HashMap::new();
+    for record in &filtered_players {
+        *nationality_counts.entry(record.player.nationality_id).or_insert(0) += 1;
+    }
+
     PlayerStatistics {
         count,
         ca_stats,
@@ -131,6 +136,7 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
         weight_stats,
         position_counts,
         preferred_foot_counts,
+        nationality_counts,
     }
 }
 
