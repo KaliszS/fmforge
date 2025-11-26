@@ -1,6 +1,6 @@
 use crate::model::{PlayerFilters, PlayerRecord, PlayerStatistics, NumberStats, TopPlayers};
 use crate::{get_players};
-use crate::utils::get_birth_year;
+use crate::utils::{get_birth_year, get_birth_month};
 
 #[tauri::command]
 pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics {
@@ -143,6 +143,20 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
         *hair_color_counts.entry(record.player.hair_color).or_insert(0) += 1;
     }
 
+    let mut birth_year_counts = std::collections::HashMap::new();
+    for record in &filtered_players {
+        if let Some(year) = get_birth_year(&record.player.birth_date) {
+            *birth_year_counts.entry(year).or_insert(0) += 1;
+        }
+    }
+
+    let mut birth_month_counts = std::collections::HashMap::new();
+    for record in &filtered_players {
+        if let Some(month) = get_birth_month(&record.player.birth_date) {
+            *birth_month_counts.entry(month).or_insert(0) += 1;
+        }
+    }
+
     PlayerStatistics {
         count,
         ca_stats,
@@ -155,6 +169,8 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
         ethnicity_counts,
         skin_tone_counts,
         hair_color_counts,
+        birth_year_counts,
+        birth_month_counts,
     }
 }
 

@@ -6,6 +6,7 @@
     import PhysicalSection from "./sections/PhysicalSection.svelte";
     import PositionalSection from "./sections/PositionalSection.svelte";
     import AppearanceSection from "./sections/AppearanceSection.svelte";
+    import TemporalSection from "./sections/TemporalSection.svelte";
 
     let { 
         activeTab,
@@ -145,11 +146,19 @@
                 {sortBy}
             />
         {:else if activeTab === 'temporal'}
-            <div class="placeholder">
-                <div class="placeholder-icon">📅</div>
-                <h4>Temporal Analysis</h4>
-                <p>Age distribution, birth date patterns, and generational analysis.</p>
-            </div>
+            <TemporalSection 
+                {players}
+                {selectedCountry}
+                {selectedClub}
+                {minCA}
+                {maxCA}
+                {minPA}
+                {maxPA}
+                {preferredFoot}
+                {favouriteNumber}
+                {birthYear}
+                {sortBy}
+            />
         {:else if activeTab === 'clubs'}
             <div class="placeholder">
                 <div class="placeholder-icon">🏆</div>

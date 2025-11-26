@@ -142,3 +142,8 @@ export const HAIR_COLORS = [
 export function getSkinColor(tone: number) {
     return `hsl(30, 30%, ${100 - tone * 2}%)`;
 }
+
+// ==========================================================================
+// GAME CONSTANTS
+// ==========================================================================
+export const GAME_YEAR = 2024;

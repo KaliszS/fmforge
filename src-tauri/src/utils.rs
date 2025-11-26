@@ -10,6 +10,16 @@ pub fn get_birth_year(birth_date: &str) -> Option<i32> {
     }
 }
 
+pub fn get_birth_month(birth_date: &str) -> Option<u32> {
+    // Parse birth date in DD/MM/YYYY format
+    let parts: Vec<&str> = birth_date.split('/').collect();
+    if parts.len() == 3 {
+        parts[1].parse().ok()
+    } else {
+        None
+    }
+}
+
 pub fn sort_players(mut players: Vec<PlayerRecord>, sort_by: &str) -> Vec<PlayerRecord> {
     println!("Sorting players by: {}", sort_by);
     match sort_by {
