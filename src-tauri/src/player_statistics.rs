@@ -157,6 +157,13 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
         }
     }
 
+    let mut club_counts = std::collections::HashMap::new();
+    for record in &filtered_players {
+        if let Some(club_id) = record.player.club_id {
+            *club_counts.entry(club_id).or_insert(0) += 1;
+        }
+    }
+
     PlayerStatistics {
         count,
         ca_stats,
@@ -171,6 +178,7 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
         hair_color_counts,
         birth_year_counts,
         birth_month_counts,
+        club_counts,
     }
 }
 
