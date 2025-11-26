@@ -1,12 +1,10 @@
 <script lang="ts">
+    import { getSkinColor } from "$lib/constants";
+
     let {
         skin_tone = $bindable(),
         edit_mode,
     }: { skin_tone: number; edit_mode: boolean } = $props();
-
-    function getSkinColor(tone: number) {
-        return `hsl(30, 30%, ${100 - tone * 2}%)`;
-    }
 </script>
 
 {#if edit_mode}

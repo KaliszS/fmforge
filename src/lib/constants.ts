@@ -99,3 +99,46 @@ export function getFootOption(value: number) {
 export function getSortOption(value: string) {
     return SORT_OPTIONS.find(option => option.value === value);
 }
+
+// ==========================================================================
+// APPEARANCE CONSTANTS
+// ==========================================================================
+export const ETHNICITY_MAP = new Map<
+    number,
+    { title: string; bg: string; emoji: string }
+>([
+    [-1, { title: "Unknown", bg: "#ccc", emoji: "❓" }],
+    [0, { title: "Northern European", bg: "#d6eaff", emoji: "🧊" }],
+    [1, { title: "Mediterranean / Hispanic", bg: "#ffe4b2", emoji: "🌞" }],
+    [
+        2,
+        {
+            title: "North African / Middle Eastern",
+            bg: "#f8e0a3",
+            emoji: "🐪",
+        },
+    ],
+    [3, { title: "African / Caribbean", bg: "#fdd", emoji: "🌴" }],
+    [4, { title: "Asian", bg: "#f0d9ff", emoji: "🍜" }],
+    [5, { title: "South East Asian", bg: "#ddf4ff", emoji: "🌸" }],
+    [6, { title: "Pacific Islander", bg: "#cceeff", emoji: "🌊" }],
+    [7, { title: "Native American", bg: "#e0c4a8", emoji: "🪶" }],
+    [8, { title: "Native Australian", bg: "#ffcaa6", emoji: "🦘" }],
+    [9, { title: "Mixed Race White / Black", bg: "#bbb", emoji: "♻️" }],
+    [10, { title: "East Asian", bg: "#ffebf0", emoji: "🐼" }],
+]);
+
+export const HAIR_COLORS = [
+    { id: 0, label: "Unknown/Random", color: "#999" },
+    { id: 1, label: "Blond", color: "#f4e08b" },
+    { id: 2, label: "Light brown", color: "#b67d50" },
+    { id: 3, label: "Dark brown", color: "#4e342e" },
+    { id: 4, label: "Red", color: "#c1440e" },
+    { id: 5, label: "Black", color: "#222" },
+    { id: 6, label: "Grey", color: "#aaa" },
+    { id: 7, label: "Bald", color: "#e0c7a5" },
+];
+
+export function getSkinColor(tone: number) {
+    return `hsl(30, 30%, ${100 - tone * 2}%)`;
+}
