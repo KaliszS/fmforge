@@ -288,19 +288,6 @@
                                 class="input input-number birth-year-input"
                             />
                         </div>
-
-                        <div class="filter-item">
-                            <label for="sortBy" class="filter-label">
-                                <span class="filter-icon">📊</span>
-                                Sort By
-                            </label>
-                            <select id="sortBy" bind:value={sortBy} class="input select-input">
-                                <option value={null}>Default Order</option>
-                                {#each SORT_OPTIONS as { value, label, icon }}
-                                    <option value={value}>{icon} {label}</option>
-                                {/each}
-                            </select>
-                        </div>
                     </div>
                 </div>
             {/if}
