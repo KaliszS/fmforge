@@ -9,7 +9,7 @@
         sortBy = $bindable()
     }: { 
         players: PlayerRecord[],
-        sortBy?: string | null
+        sortBy?: string[] | null
     } = $props();
     
     let newlyAddedPlayers = $derived.by(() => {
@@ -23,56 +23,131 @@
         return result;
     });
 
-    type SortField = 'name' | 'age' | 'ca' | 'pa';
+    type SortField = 'name' | 'age' | 'ca' | 'pa' | 'nationality' | 'position' | 'club' | 'height' | 'weight' | 'foot';
 
     function toggleSort(field: SortField) {
-        const isAsc = sortBy === `${field}_asc`;
-        const isDesc = sortBy === `${field}_desc`;
-
-        if (field === 'name') {
-            // Default to Ascending (A-Z) for Name
-            sortBy = isAsc ? 'name_desc' : 'name_asc';
+        let currentSorts = sortBy ? [...sortBy] : [];
+        
+        // Find if this field is already in the sort list
+        const existingIndex = currentSorts.findIndex(s => s.startsWith(field));
+        
+        if (existingIndex !== -1) {
+            const currentSort = currentSorts[existingIndex];
+            const isAsc = currentSort.endsWith('_asc');
+            
+            // Toggle direction or remove
+            if (field === 'name' || field === 'nationality' || field === 'position' || field === 'club') {
+                // String fields: Asc -> Desc -> Remove
+                if (isAsc) {
+                    currentSorts[existingIndex] = `${field}_desc`;
+                } else {
+                    currentSorts.splice(existingIndex, 1);
+                }
+            } else {
+                // Numeric fields: Desc -> Asc -> Remove
+                if (!isAsc) { // is Desc
+                    currentSorts[existingIndex] = `${field}_asc`;
+                } else {
+                    currentSorts.splice(existingIndex, 1);
+                }
+            }
         } else {
-            // Default to Descending (High-Low) for Age, CA, PA
-            sortBy = isDesc ? `${field}_asc` : `${field}_desc`;
+            // Add new sort
+            if (field === 'name' || field === 'nationality' || field === 'position' || field === 'club') {
+                currentSorts.push(`${field}_asc`);
+            } else {
+                currentSorts.push(`${field}_desc`);
+            }
         }
-    }
-
-    function getSortIcon(field: SortField) {
-        if (sortBy === `${field}_asc`) return '▲';
-        if (sortBy === `${field}_desc`) return '▼';
-        return '↕';
+        
+        sortBy = currentSorts.length > 0 ? currentSorts : null;
     }
 
     function isSortActive(field: SortField) {
-        return sortBy?.startsWith(field) ?? false;
+        return sortBy?.some(s => s.startsWith(field)) ?? false;
+    }
+
+    function clearSort() {
+        sortBy = null;
     }
 </script>
 
+{#snippet sortIcon(field: SortField)}
+    {@const sortIndex = sortBy?.findIndex(s => s.startsWith(field))}
+    {@const sortString = sortIndex !== undefined && sortIndex !== -1 ? sortBy![sortIndex] : null}
+    
+    <span class="sort-icon">
+        {#if sortString === `${field}_asc`}
+            <div class="sort-indicator">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+                {#if (sortBy?.length ?? 0) > 1}
+                    <span class="sort-index">{sortIndex! + 1}</span>
+                {/if}
+            </div>
+        {:else if sortString === `${field}_desc`}
+            <div class="sort-indicator">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>
+                {#if (sortBy?.length ?? 0) > 1}
+                    <span class="sort-index">{sortIndex! + 1}</span>
+                {/if}
+            </div>
+        {:else}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg>
+        {/if}
+    </span>
+{/snippet}
+
 <div class="player-table">
     <div class="header-row">
-        <div class="header-cell">Nat</div>
+        <div class="header-cell">
+            <button class="sort-btn" class:active={isSortActive('nationality')} onclick={() => toggleSort('nationality')}>
+                Nat {@render sortIcon('nationality')}
+            </button>
+        </div>
         <div class="header-cell col-personal">
+            <button class="sort-btn" class:active={isSortActive('position')} onclick={() => toggleSort('position')}>
+                Pos {@render sortIcon('position')}
+            </button>
             <button class="sort-btn" class:active={isSortActive('name')} onclick={() => toggleSort('name')}>
-                Name <span class="sort-icon">{getSortIcon('name')}</span>
+                Name {@render sortIcon('name')}
             </button>
             <button class="sort-btn" class:active={isSortActive('age')} onclick={() => toggleSort('age')}>
-                Age <span class="sort-icon">{getSortIcon('age')}</span>
+                Age {@render sortIcon('age')}
             </button>
         </div>
         <div class="header-cell col-ability">
             <button class="sort-btn" class:active={isSortActive('ca')} onclick={() => toggleSort('ca')}>
-                CA <span class="sort-icon">{getSortIcon('ca')}</span>
+                CA {@render sortIcon('ca')}
             </button>
             <button class="sort-btn" class:active={isSortActive('pa')} onclick={() => toggleSort('pa')}>
-                PA <span class="sort-icon">{getSortIcon('pa')}</span>
+                PA {@render sortIcon('pa')}
             </button>
         </div>
-        <div class="header-cell">Ft</div>
-        <div class="header-cell">Club</div>
-        <div class="header-cell">Appearance</div>
-        <div class="header-cell"></div>
-        <div class="header-cell"></div>
+        <div class="header-cell">
+            <button class="sort-btn" class:active={isSortActive('foot')} onclick={() => toggleSort('foot')}>
+                Ft {@render sortIcon('foot')}
+            </button>
+        </div>
+        <div class="header-cell">
+            <button class="sort-btn" class:active={isSortActive('club')} onclick={() => toggleSort('club')}>
+                Club {@render sortIcon('club')}
+            </button>
+        </div>
+        <div class="header-cell col-appearance">
+            <button class="sort-btn" class:active={isSortActive('height')} onclick={() => toggleSort('height')}>
+                H {@render sortIcon('height')}
+            </button>
+            <button class="sort-btn" class:active={isSortActive('weight')} onclick={() => toggleSort('weight')}>
+                W {@render sortIcon('weight')}
+            </button>
+        </div>
+        <div class="header-cell col-actions">
+            {#if sortBy && sortBy.length > 0}
+                <button class="btn-clear" onclick={clearSort} title="Clear sorting">
+                    ✕
+                </button>
+            {/if}
+        </div>
     </div>
 
     <ul class="player-list">
@@ -107,14 +182,13 @@
     .header-row {
         display: grid;
         grid-template-columns:
-            3em
-            22em
-            9em
-            3em
-            13em
-            14.5em
-            5em
-            5em;
+            3.3em
+            22.2em
+            7.5em
+            3.5em
+            24em
+            7em
+            auto;
         gap: var(--spacing-md);
         align-items: center;
         padding: 0.5em 0.5em;
@@ -132,50 +206,87 @@
         gap: var(--spacing-sm);
     }
 
+    .col-actions {
+        display: flex;
+        justify-content: center;
+    }
+
     .col-personal {
-        justify-content: flex-start;
-        gap: var(--spacing-lg);
+        display: grid;
+        grid-template-columns: 4em 5em 3em;
+        gap: var(--spacing-sm);
+        justify-content: start;
     }
 
     .col-ability {
-        justify-content: flex-start;
+        display: grid;
+        grid-template-columns: 3.5em 3.5em;
+        gap: var(--spacing-sm);
+    }
+
+    .col-appearance {
+        display: grid;
+        grid-template-columns: 1em 4.5em;
         gap: var(--spacing-md);
+        justify-items: end;
     }
 
     .sort-btn {
-        background: none;
-        border: none;
+        background: transparent;
+        border: 1px solid transparent;
         cursor: pointer;
         font-family: inherit;
-        font-size: inherit;
-        font-weight: inherit;
-        color: inherit;
-        display: flex;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        display: inline-flex;
         align-items: center;
-        gap: 0.25em;
-        padding: 0.25em 0.5em;
-        border-radius: var(--radius-sm);
-        transition: all var(--transition-fast);
+        gap: 0.35em;
+        padding: 0.35em 0.65em;
+        border-radius: var(--radius-md);
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
     }
 
     .sort-btn:hover {
-        background-color: var(--color-background-hover);
+        background-color: var(--color-background);
+        border-color: var(--color-border);
         color: var(--color-text);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .sort-btn:active {
+        transform: translateY(0);
+        box-shadow: none;
     }
 
     .sort-btn.active {
         color: var(--color-primary);
-        background-color: var(--color-primary-bg);
+        background-color: var(--color-primary-light);
+        border-color: var(--color-primary-light);
     }
 
     .sort-icon {
-        font-size: 0.8em;
-        opacity: 0.3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 12px;
+        height: 12px;
     }
 
-    .sort-btn:hover .sort-icon,
-    .sort-btn.active .sort-icon {
-        opacity: 1;
+    .sort-indicator {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .sort-index {
+        font-size: 0.65em;
+        font-weight: 700;
+        color: var(--color-primary);
+        margin-left: 1px;
     }
 
     .player-list {

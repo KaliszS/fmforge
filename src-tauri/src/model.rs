@@ -49,7 +49,7 @@ pub struct PlayerFilters {
     pub favourite_number: Option<i32>,
     pub birth_year_min: Option<i32>,
     pub birth_year_max: Option<i32>,
-    pub sort_by: Option<String>,
+    pub sort_by: Option<Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

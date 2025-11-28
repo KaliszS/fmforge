@@ -1,8 +1,7 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
     import { getPlayerStatistics } from "$lib/api/player";
-    import { countryMap } from "$lib/countries";
-    import { clubMap } from "$lib/clubs";
+    import { countryMap, clubMap } from "$lib/constants";
 
     let { 
         players = $bindable(),
@@ -28,7 +27,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
-        sortBy: string | null;
+        sortBy: string[] | null;
         activeTab: string;
     } = $props();
 

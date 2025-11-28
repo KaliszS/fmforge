@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { clubMap } from "$lib/clubs";
+    import { clubMap } from "$lib/constants";
     import ClubEdit from "./utils/ClubEdit.svelte";
 
     let {

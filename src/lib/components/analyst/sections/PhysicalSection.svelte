@@ -1,8 +1,7 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
     import { getPlayerStatistics, getTopPlayers } from "$lib/api/player";
-    import { countryMap } from "$lib/countries";
-    import { clubMap } from "$lib/clubs";
+    import { countryMap, clubMap } from "$lib/constants";
     import { getFlagComponent } from "$lib/flags";
     import DetailedStatCard from "../charts/DetailedStatCard.svelte";
 

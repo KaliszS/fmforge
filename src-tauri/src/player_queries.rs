@@ -110,10 +110,10 @@ pub fn get_players_chunk(filters: Option<PlayerFilters>) -> Vec<PlayerRecord> {
         if let Some(ref sort_by) = f.sort_by {
             filtered_players = sort_players(filtered_players, sort_by);
         } else {
-            filtered_players = sort_players(filtered_players, "age_desc");
+            filtered_players = sort_players(filtered_players, &["age_desc".to_string()]);
         }
     } else {
-        filtered_players = sort_players(filtered_players, "age_desc");
+        filtered_players = sort_players(filtered_players, &["age_desc".to_string()]);
     }
 
     println!("Returning {} players chunk", filtered_players.len());

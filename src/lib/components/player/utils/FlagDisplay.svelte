@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { countryMap } from "$lib/countries";
+    import { countryMap } from "$lib/constants";
     import { getFlagComponent } from "$lib/flags";
 
     let {

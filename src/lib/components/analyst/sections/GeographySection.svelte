@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
     import { getPlayerStatistics } from "$lib/api/player";
-    import { countryMap } from "$lib/countries";
+    import { countryMap } from "$lib/constants";
     import { getFlagComponent } from "$lib/flags";
     import SimpleStatCard from "../charts/SimpleStatCard.svelte";
 
