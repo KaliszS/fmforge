@@ -24,3 +24,12 @@ export type PlayerRecord = {
   id: number;
   player: Player;
 };
+
+export type Country = {
+  code: string;
+  name: string;
+};
+
+export type CountryMap = Record<number, Country>;
+
+export type ClubMap = Record<number, string>;

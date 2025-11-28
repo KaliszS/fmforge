@@ -13,7 +13,7 @@ export async function loadPlayersPage(
   preferredFoot: number | null,
   favouriteNumber: number | null,
   birthYear: number | null,
-  sortBy: string | null,
+  sortBy: string[] | null,
 ): Promise<PlayerRecord[]> {
   return await invoke("get_players_page", {
     offset,
@@ -56,7 +56,7 @@ export async function getPlayerStatistics(
   preferredFoot: number | null,
   favouriteNumber: number | null,
   birthYear: number | null,
-  sortBy: string | null,
+  sortBy: string[] | null,
 ): Promise<any> {
   return await invoke("get_player_statistics", {
     filters: {
@@ -85,7 +85,7 @@ export async function getTopPlayers(
   preferredFoot: number | null,
   favouriteNumber: number | null,
   birthYear: number | null,
-  sortBy: string | null,
+  sortBy: string[] | null,
   limit: number = 10,
 ): Promise<any> {
   return await invoke("get_top_players", {

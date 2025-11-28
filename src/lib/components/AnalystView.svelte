@@ -26,7 +26,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
-        sortBy: string | null;
+        sortBy: string[] | null;
     } = $props();
 
     let activeTab = $state('overview');

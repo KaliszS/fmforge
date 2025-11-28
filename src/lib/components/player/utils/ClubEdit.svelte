@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { clubMap } from "$lib/clubs";
+    import { clubMap } from "$lib/constants";
 
     let {
         club_id = $bindable(),

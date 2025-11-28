@@ -333,6 +333,29 @@ body {
   background-color: var(--color-background-hover);
 }
 
+/* Button Clear */
+.btn-clear {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+}
+
+.btn-clear:hover {
+  background: #ffebee;
+  border-color: #f44336;
+  color: #d32f2f;
+  transform: scale(1.1);
+}
+
 /* ==========================================================================
    FORM ELEMENTS
    ========================================================================== */

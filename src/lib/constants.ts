@@ -1,3 +1,7 @@
+import countriesData from '../data/countries.json';
+import clubsData from '../data/clubs.json';
+import type { CountryMap, ClubMap } from './types';
+
 // ==========================================================================
 // PREFERRED FOOT OPTIONS
 // ==========================================================================
@@ -143,7 +147,5 @@ export function getSkinColor(tone: number) {
     return `hsl(30, 30%, ${100 - tone * 2}%)`;
 }
 
-// ==========================================================================
-// GAME CONSTANTS
-// ==========================================================================
-export const GAME_YEAR = 2024;
+export const countryMap: CountryMap = countriesData as CountryMap;
+export const clubMap: ClubMap = clubsData as ClubMap;

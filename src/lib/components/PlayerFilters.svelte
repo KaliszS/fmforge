@@ -1,7 +1,5 @@
 <script lang="ts">
-    import { countryMap } from "$lib/countries";
-    import { clubMap } from "$lib/clubs";
-    import { FOOT_OPTIONS, SORT_OPTIONS } from "$lib/constants";
+    import { countryMap, clubMap, FOOT_OPTIONS, SORT_OPTIONS } from "$lib/constants";
     import { modSettings } from "$lib/stores/modSettings";
 
     let {
@@ -28,7 +26,7 @@
         favouriteNumber: number | null;
         birthYear: number | null;
         effectiveBirthYear: number | null;
-        sortBy: string | null;
+        sortBy: string[] | null;
         disabled?: boolean;
     } = $props();
 
@@ -68,7 +66,6 @@
             preferredFoot = null;
             favouriteNumber = null;
             birthYear = null;
-            sortBy = null;
         }
     }
 
@@ -97,8 +94,7 @@
         maxPA !== null ||
         preferredFoot !== null ||
         favouriteNumber !== null ||
-        birthYear !== null ||
-        sortBy !== null
+        birthYear !== null
     );
 </script>
 
@@ -115,14 +111,14 @@
     >
         <div class="filters-title">
             <span class="filters-icon">🔍</span>
-            <h3>Filters & Sorting</h3>
+            <h3>Filters</h3>
             {#if hasActiveFilters && !disabled}
-                <span class="active-indicator">{[selectedCountry, selectedClub, minCA, maxCA, minPA, maxPA, preferredFoot, favouriteNumber, birthYear, sortBy].filter(v => v !== null).length}</span>
+                <span class="active-indicator">{[selectedCountry, selectedClub, minCA, maxCA, minPA, maxPA, preferredFoot, favouriteNumber, birthYear].filter(v => v !== null).length}</span>
             {/if}
         </div>
         <div class="filters-actions">
             {#if hasActiveFilters && !disabled}
-                <button class="btn-clear" onclick={clearAllFilters} title="Clear all filters">
+                <button class="btn-clear" onclick={(e) => { e.stopPropagation(); clearAllFilters(); }} title="Clear all filters">
                     ✕
                 </button>
             {/if}
@@ -142,151 +138,171 @@
                 </div>
             {:else}
                 <div class="filter-grid">
-                    <!-- Basic Filters Row -->
-                    <div class="filter-group">
-                        <div class="filter-item">
-                            <label for="countrySelect" class="filter-label">
-                                <span class="filter-icon">🌍</span>
-                                Country
-                            </label>
-                            <div class="filter-controls">
-                                <select id="countrySelect" bind:value={selectedCountry} class="input select-input">
-                                    <option value={null}>Any Country</option>
-                                    {#each countryOptions as { id, name }}
-                                        <option value={id}>{name}</option>
-                                    {/each}
-                                </select>
-                                <input
-                                    type="number"
-                                    bind:value={selectedCountry}
-                                    placeholder="ID"
-                                    class="input input-number filter-input"
-                                />
+                    <!-- General Section -->
+                    <div class="filter-section">
+                        <h4 class="section-title">General</h4>
+                        <div class="filter-row">
+                            <div class="filter-item">
+                                <label for="countrySelect" class="filter-label">
+                                    Country
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-icon">🌍</span>
+                                    <select id="countrySelect" bind:value={selectedCountry} class="input select-input">
+                                        <option value={null}>Any Country</option>
+                                        {#each countryOptions as { id, name }}
+                                            <option value={id}>{name}</option>
+                                        {/each}
+                                    </select>
+                                    <input
+                                        type="number"
+                                        bind:value={selectedCountry}
+                                        placeholder="ID"
+                                        class="input input-number id-input"
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="filter-item">
-                            <label for="clubSelect" class="filter-label">
-                                <span class="filter-icon">🏟️</span>
-                                Club
-                            </label>
-                            <div class="filter-controls">
-                                <select id="clubSelect" bind:value={selectedClub} class="input select-input">
-                                    <option value={null}>Any Club</option>
-                                    {#each clubOptions as { id, name }}
-                                        <option value={id}>{name}</option>
-                                    {/each}
-                                </select>
-                                <input
-                                    type="number"
-                                    bind:value={selectedClub}
-                                    placeholder="ID"
-                                    class="input input-number filter-input"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ability Filters Row -->
-                    <div class="filter-group">
-                        <div class="filter-item">
-                            <label for="minCA" class="filter-label">
-                                <span class="filter-icon">⚡</span>
-                                CA Range
-                            </label>
-                            <div class="range-inputs">
-                                <input
-                                    id="minCA"
-                                    type="number"
-                                    bind:value={minCA}
-                                    placeholder="Min"
-                                    class="input input-number range-input"
-                                />
-                                <span class="range-separator">-</span>
-                                <input
-                                    id="maxCA"
-                                    type="number"
-                                    bind:value={maxCA}
-                                    placeholder="Max"
-                                    class="input input-number range-input"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="filter-item">
-                            <label for="minPA" class="filter-label">
-                                <span class="filter-icon">⭐</span>
-                                PA Range
-                            </label>
-                            <div class="range-inputs">
-                                <input
-                                    id="minPA"
-                                    type="number"
-                                    bind:value={minPA}
-                                    placeholder="Min"
-                                    class="input input-number range-input"
-                                />
-                                <span class="range-separator">-</span>
-                                <input
-                                    id="maxPA"
-                                    type="number"
-                                    bind:value={maxPA}
-                                    placeholder="Max"
-                                    class="input input-number range-input"
-                                />
+                            <div class="filter-item">
+                                <label for="clubSelect" class="filter-label">
+                                    Club
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-icon">🏟️</span>
+                                    <select id="clubSelect" bind:value={selectedClub} class="input select-input">
+                                        <option value={null}>Any Club</option>
+                                        {#each clubOptions as { id, name }}
+                                            <option value={id}>{name}</option>
+                                        {/each}
+                                    </select>
+                                    <input
+                                        type="number"
+                                        bind:value={selectedClub}
+                                        placeholder="ID"
+                                        class="input input-number id-input"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Additional Filters Row -->
-                    <div class="filter-group">
-                        <div class="filter-item">
-                            <label for="preferredFoot" class="filter-label">
-                                <span class="filter-icon">🦶</span>
-                                Preferred Foot
-                            </label>
-                            <select id="preferredFoot" bind:value={preferredFoot} class="input select-input">
-                                <option value={null}>Any</option>
-                                {#each FOOT_OPTIONS as { value, label, icon }}
-                                    <option value={value}>{icon} {label}</option>
-                                {/each}
-                            </select>
-                        </div>
+                    <!-- Attributes Section -->
+                    <div class="filter-section">
+                        <h4 class="section-title">Attributes</h4>
+                        <div class="filter-row">
+                            <div class="filter-item">
+                                <label for="minCA" class="filter-label">
+                                    CA Range
+                                </label>
+                                <div class="range-group">
+                                    <div class="input-wrapper">
+                                        <span class="input-icon">⚡</span>
+                                        <input
+                                            id="minCA"
+                                            type="number"
+                                            bind:value={minCA}
+                                            placeholder="Min"
+                                            class="input input-number range-input"
+                                        />
+                                    </div>
+                                    <span class="range-separator">to</span>
+                                    <div class="input-wrapper">
+                                        <input
+                                            id="maxCA"
+                                            type="number"
+                                            bind:value={maxCA}
+                                            placeholder="Max"
+                                            class="input input-number range-input"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="filter-item">
-                            <label for="favouriteNumber" class="filter-label">
-                                <span class="filter-icon">🔢</span>
-                                Favourite Number
-                            </label>
-                            <input
-                                id="favouriteNumber"
-                                type="number"
-                                bind:value={favouriteNumber}
-                                placeholder="e.g. 10"
-                                class="input input-number favourite-number-input"
-                            />
+                            <div class="filter-item">
+                                <label for="minPA" class="filter-label">
+                                    PA Range
+                                </label>
+                                <div class="range-group">
+                                    <div class="input-wrapper">
+                                        <span class="input-icon">⭐</span>
+                                        <input
+                                            id="minPA"
+                                            type="number"
+                                            bind:value={minPA}
+                                            placeholder="Min"
+                                            class="input input-number range-input"
+                                        />
+                                    </div>
+                                    <span class="range-separator">to</span>
+                                    <div class="input-wrapper">
+                                        <input
+                                            id="maxPA"
+                                            type="number"
+                                            bind:value={maxPA}
+                                            placeholder="Max"
+                                            class="input input-number range-input"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Birth Year & Sorting Row -->
-                    <div class="filter-group">
-                        <div class="filter-item">
-                            <label for="birthYear" class="filter-label">
-                                <span class="filter-icon">📅</span>
-                                Birth Year
-                                {#if $modSettings.canToggle}
-                                    <span class="birth-year-mode-indicator">
-                                        ({$modSettings.showRealBirthDates ? 'Real-life' : 'In-game'})
-                                    </span>
-                                {/if}
-                            </label>
-                            <input
-                                id="birthYear"
-                                type="number"
-                                bind:value={birthYear}
-                                placeholder="e.g. 2005"
-                                class="input input-number birth-year-input"
-                            />
+                    <!-- Personal Section -->
+                    <div class="filter-section">
+                        <h4 class="section-title">Personal</h4>
+                        <div class="filter-row three-cols">
+                            <div class="filter-item">
+                                <label for="preferredFoot" class="filter-label">
+                                    Preferred Foot
+                                </label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">🦶</span>
+                                    <select id="preferredFoot" bind:value={preferredFoot} class="input select-input">
+                                        <option value={null}>Any</option>
+                                        {#each FOOT_OPTIONS as { value, label, icon }}
+                                            <option value={value}>{icon} {label}</option>
+                                        {/each}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="filter-item">
+                                <label for="favouriteNumber" class="filter-label">
+                                    Favourite Number
+                                </label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">🔢</span>
+                                    <input
+                                        id="favouriteNumber"
+                                        type="number"
+                                        bind:value={favouriteNumber}
+                                        placeholder="e.g. 10"
+                                        class="input input-number"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="filter-item">
+                                <label for="birthYear" class="filter-label">
+                                    Birth Year
+                                    {#if $modSettings.canToggle}
+                                        <span class="birth-year-mode-indicator">
+                                            ({$modSettings.showRealBirthDates ? 'Real' : 'Game'})
+                                        </span>
+                                    {/if}
+                                </label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">📅</span>
+                                    <input
+                                        id="birthYear"
+                                        type="number"
+                                        bind:value={birthYear}
+                                        placeholder="Year"
+                                        class="input input-number"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -321,7 +337,12 @@
         cursor: pointer;
         user-select: none;
         transition: all var(--transition-fast);
-        min-height: 2.5rem;
+        min-height: 3rem;
+        border-bottom: 1px solid transparent;
+    }
+
+    .filters-header[aria-expanded="true"] {
+        border-bottom-color: var(--color-border-light);
     }
 
     .filters-header.disabled {
@@ -340,7 +361,7 @@
     }
 
     .filters-icon {
-        font-size: 1rem;
+        font-size: 1.1rem;
         opacity: 0.8;
     }
 
@@ -371,28 +392,6 @@
         gap: var(--spacing-sm);
     }
 
-    .btn-clear {
-        background: var(--color-background);
-        border: 1px solid var(--color-border);
-        border-radius: 50%;
-        width: 1.75rem;
-        height: 1.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: var(--font-xs);
-        color: var(--color-text-muted);
-        transition: all var(--transition-fast);
-    }
-
-    .btn-clear:hover {
-        background: #ffebee;
-        border-color: #f44336;
-        color: #d32f2f;
-        transform: scale(1.1);
-    }
-
     .expand-icon {
         font-size: var(--font-sm);
         color: var(--color-text-muted);
@@ -404,6 +403,154 @@
         background: var(--color-background);
     }
 
+    .filter-grid {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xl);
+    }
+
+    .filter-section {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .section-title {
+        margin: 0;
+        font-size: var(--font-sm);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-text-muted);
+        padding-bottom: var(--spacing-xs);
+        border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--spacing-xl);
+    }
+
+    .filter-row.three-cols {
+        /* No special handling needed for flex */
+    }
+
+    .filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .filter-label {
+        font-size: var(--font-sm);
+        font-weight: 500;
+        color: var(--color-text);
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .birth-year-mode-indicator {
+        font-size: var(--font-xs);
+        font-weight: normal;
+        color: var(--color-text-muted);
+        margin-left: var(--spacing-xs);
+    }
+
+    /* Input Groups */
+    .input-group, .input-wrapper {
+        display: flex;
+        align-items: center;
+        position: relative;
+        width: auto;
+    }
+
+    .input-group {
+        gap: var(--spacing-sm);
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 0.75rem;
+        z-index: 1;
+        font-size: 1rem;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    /* Inputs & Selects */
+    .input {
+        width: auto;
+        min-width: 12rem;
+        padding: 0.5rem 0.75rem;
+        font-size: var(--font-sm);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background-color: var(--color-background);
+        color: var(--color-text);
+        transition: all var(--transition-fast);
+    }
+
+    .input-wrapper .input,
+    .input-group .select-input {
+        padding-left: 2.25rem; /* Space for icon */
+    }
+
+    .input:hover {
+        border-color: var(--color-border-focus);
+    }
+
+    .input:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px var(--color-shadow-primary);
+    }
+
+    .select-input {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1em;
+        padding-right: 2.5rem;
+        min-width: 14rem;
+    }
+
+    .id-input {
+        width: 5rem;
+        min-width: 0;
+        flex-shrink: 0;
+        text-align: center;
+        padding-left: 0.75rem !important;
+    }
+
+    /* Range Inputs */
+    .range-group {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .range-separator {
+        font-size: var(--font-xs);
+        color: var(--color-text-muted);
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .range-input {
+        text-align: center;
+        width: 6rem;
+        min-width: 0;
+    }
+
+    .input-wrapper .range-input {
+        padding-left: 2.25rem;
+    }
+
+    /* Disabled State */
     .disabled-message {
         text-align: center;
         padding: var(--spacing-xl) var(--spacing-lg);
@@ -432,134 +579,14 @@
         line-height: 1.5;
     }
 
-    .filter-grid {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-lg);
-    }
-
-    .filter-group {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
-        gap: var(--spacing-lg);
-        align-items: start;
-    }
-
-    .filter-item {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-sm);
-    }
-
-    .filter-label {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-        font-size: var(--font-sm);
-        font-weight: 500;
-        color: var(--color-text-muted);
-        margin-bottom: var(--spacing-xs);
-    }
-
-    .filter-icon {
-        font-size: 0.9rem;
-        opacity: 0.7;
-    }
-
-    .filter-controls {
-        display: flex;
-        gap: var(--spacing-sm);
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .select-input {
-        flex: 1;
-        min-width: 8rem;
-        cursor: pointer;
-        background: var(--color-background);
-        font-size: var(--font-sm);
-        padding: var(--spacing-sm);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-sm);
-        transition: all var(--transition-fast);
-    }
-
-    .filter-input {
-        width: 4rem;
-        text-align: center;
-        font-size: var(--font-sm);
-        padding: var(--spacing-sm);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-sm);
-        transition: all var(--transition-fast);
-    }
-
-    .favourite-number-input {
-        width: 6rem;
-        text-align: center;
-        font-size: var(--font-sm);
-        padding: var(--spacing-sm);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-sm);
-        transition: all var(--transition-fast);
-    }
-
-    .birth-year-input {
-        width: 6rem;
-        text-align: center;
-        font-size: var(--font-sm);
-        padding: var(--spacing-sm);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-sm);
-        transition: all var(--transition-fast);
-    }
-
-    .birth-year-mode-indicator {
-        font-size: var(--font-xs);
-        font-weight: 500;
-        color: var(--color-text-muted);
-        margin-left: var(--spacing-xs);
-    }
-
-    .range-inputs {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-        flex-wrap: wrap;
-    }
-
-    .range-input {
-        width: 4rem;
-        text-align: center;
-        font-size: var(--font-sm);
-        padding: var(--spacing-sm);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-sm);
-        transition: all var(--transition-fast);
-    }
-
-    .range-separator {
-        font-weight: 500;
-        color: var(--color-text-muted);
-        font-size: var(--font-sm);
-        margin: 0 var(--spacing-xs);
-    }
-
-    .input:focus {
-        outline: none;
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 2px var(--color-shadow-primary);
-    }
-
-    .input:hover {
-        border-color: var(--color-primary);
-    }
-
     /* Dark theme improvements */
     [data-theme="dark"] .filters-container {
         border-color: var(--color-border);
         box-shadow: 0 1px 3px var(--color-shadow);
+    }
+
+    [data-theme="dark"] .select-input {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     }
 
     [data-theme="dark"] .btn-clear:hover {
@@ -574,7 +601,7 @@
     }
 
     @media (max-width: 768px) {
-        .filter-grid {
+        .filter-row, .filter-row.three-cols {
             grid-template-columns: 1fr;
             gap: var(--spacing-md);
         }
@@ -587,13 +614,13 @@
             padding: var(--spacing-md);
         }
 
-        .filter-controls {
+        .input-group {
             flex-direction: column;
             align-items: stretch;
         }
 
-        .select-input {
-            min-width: auto;
+        .id-input {
+            width: 100%;
         }
     }
 </style>

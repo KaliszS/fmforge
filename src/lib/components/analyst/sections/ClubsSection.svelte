@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
     import { getPlayerStatistics } from "$lib/api/player";
-    import { clubMap } from "$lib/clubs";
+    import { clubMap } from "$lib/constants";
 
     let { 
         players,
