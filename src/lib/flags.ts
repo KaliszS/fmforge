@@ -208,6 +208,17 @@ import {
   Zw,
   Xk,
   Un,
+  Mq,
+  Ss,
+  Re,
+  Gf,
+  Yt,
+  Pm,
+  Wf,
+  Mf,
+  Sx,
+  Bq,
+  Cw,
 } from "svelte-flag-icons";
 
 export function getFlagComponent(code: string): any {
@@ -423,4 +434,15 @@ const flagMap: Record<string, any> = {
   Zm: Zm,
   Zw: Zw,
   Xk: Xk,
+  Mq: Mq,
+  Ss: Ss,
+  Re: Re,
+  Gf: Gf,
+  Yt: Yt,
+  Pm: Pm,
+  Wf: Wf,
+  Mf: Mf,
+  Sx: Sx,
+  Bq: Bq,
+  Cw: Cw,
 };
