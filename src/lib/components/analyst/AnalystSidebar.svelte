@@ -1,10 +1,11 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
-    import { getPlayerStatistics } from "$lib/api/player";
     import { countryMap, clubMap } from "$lib/constants";
 
     let { 
         players = $bindable(),
+        statistics,
+        loading,
         selectedCountry,
         selectedClub,
         minCA,
@@ -19,6 +20,8 @@
         activeTab = $bindable()
     }: {
         players: PlayerRecord[];
+        statistics: any;
+        loading: boolean;
         selectedCountry: number | null;
         selectedClub: number | null;
         minCA: number | null;
@@ -33,37 +36,7 @@
         activeTab: string;
     } = $props();
 
-    let filteredCount = $state(0);
-    let loadingCount = $state(true);
-
-    // Load the real filtered count when filters change
-    $effect(() => {
-        const loadCount = async () => {
-            loadingCount = true;
-            try {
-                const stats = await getPlayerStatistics(
-                    selectedCountry,
-                    selectedClub,
-                    minCA,
-                    maxCA,
-                    minPA,
-                    maxPA,
-                    preferredFoot,
-                    favouriteNumber,
-                    birthYear,
-                    nameQuery,
-                    sortBy
-                );
-                filteredCount = stats.count;
-            } catch (err) {
-                console.error('Error loading filtered count:', err);
-                filteredCount = players.length; // Fallback to current page count
-            } finally {
-                loadingCount = false;
-            }
-        };
-        loadCount();
-    });
+    let filteredCount = $derived(statistics?.count ?? 0);
 
     const analysisTabs = [
         { id: 'overview', name: 'Overview', icon: '📊' },
@@ -92,7 +65,7 @@
             <div class="stat-item">
                 <span class="stat-label">Players:</span>
                 <span class="stat-value">
-                    {#if loadingCount}
+                    {#if loading}
                         <span class="loading-dots">...</span>
                     {:else}
                         {filteredCount}

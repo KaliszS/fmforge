@@ -1,10 +1,12 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
-    import { getPlayerStatistics } from "$lib/api/player";
     import PositionChart from "../charts/PositionChart.svelte";
     import SimpleStatCard from "../charts/SimpleStatCard.svelte";
 
     let { 
+        statistics,
+        loading,
+        error,
         players,
         selectedCountry,
         selectedClub,
@@ -18,6 +20,9 @@
         nameQuery,
         sortBy
     }: { 
+        statistics: any;
+        loading: boolean;
+        error: string | null;
         players: PlayerRecord[];
         selectedCountry: number | null;
         selectedClub: number | null;
@@ -31,36 +36,6 @@
         nameQuery: string | null;
         sortBy: string[] | null;
     } = $props();
-
-    let statistics = $state<any>(null);
-    let loading = $state(true);
-    let error = $state<string | null>(null);
-
-    // Load statistics when component mounts or filters change
-    $effect(async () => {
-        loading = true;
-        error = null;
-        try {
-            statistics = await getPlayerStatistics(
-                selectedCountry,
-                selectedClub,
-                minCA,
-                maxCA,
-                minPA,
-                maxPA,
-                preferredFoot,
-                favouriteNumber,
-                birthYear,
-                nameQuery,
-                sortBy
-            );
-        } catch (err) {
-            error = err instanceof Error ? err.message : 'Failed to load statistics';
-            console.error('Error loading statistics:', err);
-        } finally {
-            loading = false;
-        }
-    });
 </script>
 
 <div class="analysis-section">

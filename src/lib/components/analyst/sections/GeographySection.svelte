@@ -1,11 +1,13 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
-    import { getPlayerStatistics } from "$lib/api/player";
     import { countryMap } from "$lib/constants";
     import { getFlagComponent } from "$lib/flags";
     import SimpleStatCard from "../charts/SimpleStatCard.svelte";
 
     let { 
+        statistics,
+        loading,
+        error,
         players,
         selectedCountry,
         selectedClub,
@@ -19,6 +21,9 @@
         sortBy,
         nameQuery
     }: { 
+        statistics: any;
+        loading: boolean;
+        error: string | null;
         players: PlayerRecord[];
         selectedCountry: number | null;
         selectedClub: number | null;
@@ -32,35 +37,6 @@
         sortBy: string[] | null;
         nameQuery: string | null;
     } = $props();
-
-    let statistics = $state<any>(null);
-    let loading = $state(true);
-    let error = $state<string | null>(null);
-
-    $effect(async () => {
-        loading = true;
-        error = null;
-        try {
-            statistics = await getPlayerStatistics(
-                selectedCountry,
-                selectedClub,
-                minCA,
-                maxCA,
-                minPA,
-                maxPA,
-                preferredFoot,
-                favouriteNumber,
-                birthYear,
-                nameQuery,
-                sortBy
-            );
-        } catch (err) {
-            error = err instanceof Error ? err.message : 'Failed to load statistics';
-            console.error('Error loading statistics:', err);
-        } finally {
-            loading = false;
-        }
-    });
 
     function getCountryName(id: string): string {
         const countryId = parseInt(id);
