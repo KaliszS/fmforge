@@ -48,11 +48,24 @@
         return countryMap[countryId]?.code || 'Un';
     }
 
-    function getSortedNationalities(counts: Record<string, number>) {
-        return Object.entries(counts)
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 20); // Top 20
-    }
+    const sortedNationalities = $derived.by(() => {
+        if (!statistics?.nationality_counts) return [];
+        
+        const entries = Object.entries(statistics.nationality_counts as Record<string, number>);
+        
+        // 1. Sort by count descending to find the top ones
+        entries.sort(([, a], [, b]) => b - a);
+        
+        // 2. Take top 50
+        const top = entries.slice(0, 50);
+        
+        // 3. Sort the top ones alphabetically by name
+        return top.sort(([idA], [idB]) => {
+            const nameA = getCountryName(idA);
+            const nameB = getCountryName(idB);
+            return nameA.localeCompare(nameB);
+        });
+    });
 </script>
 
 <div class="geography-section">
@@ -79,9 +92,9 @@
             </div>
 
             <div class="nationality-list">
-                <h4>Top Nationalities</h4>
+                <h4>Top Nationalities (A-Z)</h4>
                 <div class="countries-grid">
-                    {#each getSortedNationalities(statistics.nationality_counts) as [id, count]}
+                    {#each sortedNationalities as [id, count]}
                         {@const FlagComponent = getFlagComponent(getCountryCode(id))}
                         <div class="country-card">
                             <div class="country-flag">

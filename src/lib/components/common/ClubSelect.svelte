@@ -185,11 +185,18 @@
 
     .club-input {
         width: 100%;
-        padding: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        font-size: var(--font-sm);
         border: 1px solid var(--color-border);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-md);
         background: var(--color-background);
         color: var(--color-text);
+        transition: all var(--transition-fast);
+    }
+
+    .club-input::placeholder {
+        color: var(--color-placeholder);
+        opacity: 1;
     }
 
     .club-input.has-icon {

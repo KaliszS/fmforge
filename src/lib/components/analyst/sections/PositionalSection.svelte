@@ -48,9 +48,37 @@
         return option ? option.icon : '🦶';
     }
 
-    function getSortedPositions(counts: Record<string, number>) {
-        return Object.entries(counts).sort(([, a], [, b]) => b - a);
-    }
+    const sortedPositions = $derived.by(() => {
+        if (!statistics?.position_counts) return [];
+
+        // Define sort order: GK -> DEF -> MID -> ATT
+        const sortOrder: Record<string, number> = {
+            'GOALKEEPER': 1,
+            'DEFENDER_LEFT_SIDE': 2,
+            'DEFENDER_CENTRAL': 3,
+            'DEFENDER_RIGHT_SIDE': 4,
+            'MIDFIELDER_LEFT_SIDE': 5,
+            'MIDFIELDER_CENTRAL': 6,
+            'MIDFIELDER_RIGHT_SIDE': 7,
+            'ATTACKING_MIDFIELDER_LEFT_SIDE': 8,
+            'ATTACKING_MIDFIELDER_CENTRAL': 9,
+            'ATTACKING_MIDFIELDER_RIGHT_SIDE': 10,
+            'ATTACKER_CENTRAL': 11
+        };
+
+        const entries = Object.entries(statistics.position_counts as Record<string, number>);
+        
+        return entries.sort(([posA], [posB]) => {
+            const orderA = sortOrder[posA] || 99;
+            const orderB = sortOrder[posB] || 99;
+            
+            if (orderA !== orderB) {
+                return orderA - orderB;
+            }
+            
+            return posA.localeCompare(posB);
+        });
+    });
 
     function getSortedFootCounts(counts: Record<string, number>) {
         return Object.entries(counts).sort(([, a], [, b]) => b - a);
@@ -75,7 +103,7 @@
             
             {#if Object.keys(statistics.position_counts).length > 0}
                 <div class="positions-grid">
-                    {#each getSortedPositions(statistics.position_counts) as [position, count]}
+                    {#each sortedPositions as [position, count]}
                         <div class="position-card">
                             <div class="position-badge-container">
                                 <span class="badge badge-{POSITION_MAP[position]?.group || 'unknown'} position-badge">

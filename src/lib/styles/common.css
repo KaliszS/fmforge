@@ -16,6 +16,7 @@
   --color-text-light: #444;
   --color-text-muted: #666;
   --color-text-disabled: #999;
+  --color-placeholder: #888;
   
   --color-background: #ffffff;
   --color-background-light: #f9f9f9;
@@ -62,6 +63,7 @@
   --color-text-light: #d0d0d0;
   --color-text-muted: #a0a0a0;
   --color-text-disabled: #666;
+  --color-placeholder: #777;
   
   --color-background: #1a1a1a;
   --color-background-light: #2a2a2a;
