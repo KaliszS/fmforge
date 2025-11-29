@@ -159,9 +159,6 @@
                     <div class="filter-section">
                         <div class="filter-row three-cols">
                             <div class="filter-item">
-                                <label for="nameSearch" class="filter-label">
-                                    Name
-                                </label>
                                 <div class="input-group">
                                     <span class="input-icon">👤</span>
                                     <input
@@ -172,18 +169,16 @@
                                         placeholder="Search by name..."
                                         class="input"
                                         style="width: 100%"
+                                        aria-label="Search by name"
                                     />
                                 </div>
                             </div>
 
                             <div class="filter-item">
-                                <label for="countrySelect" class="filter-label">
-                                    Country
-                                </label>
                                 <div class="input-group">
                                     <span class="input-icon">🌍</span>
-                                    <select id="countrySelect" bind:value={selectedCountry} class="input select-input">
-                                        <option value={null}>Any Country</option>
+                                    <select id="countrySelect" bind:value={selectedCountry} class="input select-input" aria-label="Select Country">
+                                        <option value={null}>Select Country...</option>
                                         {#each countryOptions as { id, name }}
                                             <option value={id}>{name}</option>
                                         {/each}
@@ -193,18 +188,16 @@
                                         bind:value={selectedCountry}
                                         placeholder="ID"
                                         class="input input-number id-input"
+                                        aria-label="Country ID"
                                     />
                                 </div>
                             </div>
 
                             <div class="filter-item">
-                                <label for="clubSelect" class="filter-label">
-                                    Club
-                                </label>
                                 <div class="input-group">
                                     <span class="input-icon">🏟️</span>
-                                    <select id="clubSelect" bind:value={selectedClub} class="input select-input">
-                                        <option value={null}>Any Club</option>
+                                    <select id="clubSelect" bind:value={selectedClub} class="input select-input" aria-label="Select Club">
+                                        <option value={null}>Select Club...</option>
                                         {#each clubOptions as { id, name }}
                                             <option value={id}>{name}</option>
                                         {/each}
@@ -214,6 +207,7 @@
                                         bind:value={selectedClub}
                                         placeholder="ID"
                                         class="input input-number id-input"
+                                        aria-label="Club ID"
                                     />
                                 </div>
                             </div>
@@ -224,9 +218,6 @@
                     <div class="filter-section">
                         <div class="filter-row">
                             <div class="filter-item">
-                                <label for="minCA" class="filter-label">
-                                    CA Range
-                                </label>
                                 <div class="range-group">
                                     <div class="input-wrapper">
                                         <span class="input-icon">⚡</span>
@@ -234,8 +225,9 @@
                                             id="minCA"
                                             type="number"
                                             bind:value={minCA}
-                                            placeholder="Min"
+                                            placeholder="Min CA"
                                             class="input input-number range-input"
+                                            aria-label="Minimum CA"
                                         />
                                     </div>
                                     <span class="range-separator">to</span>
@@ -244,17 +236,15 @@
                                             id="maxCA"
                                             type="number"
                                             bind:value={maxCA}
-                                            placeholder="Max"
+                                            placeholder="Max CA"
                                             class="input input-number range-input"
+                                            aria-label="Maximum CA"
                                         />
                                     </div>
                                 </div>
                             </div>
 
                             <div class="filter-item">
-                                <label for="minPA" class="filter-label">
-                                    PA Range
-                                </label>
                                 <div class="range-group">
                                     <div class="input-wrapper">
                                         <span class="input-icon">⭐</span>
@@ -262,8 +252,9 @@
                                             id="minPA"
                                             type="number"
                                             bind:value={minPA}
-                                            placeholder="Min"
+                                            placeholder="Min PA"
                                             class="input input-number range-input"
+                                            aria-label="Minimum PA"
                                         />
                                     </div>
                                     <span class="range-separator">to</span>
@@ -272,8 +263,9 @@
                                             id="maxPA"
                                             type="number"
                                             bind:value={maxPA}
-                                            placeholder="Max"
+                                            placeholder="Max PA"
                                             class="input input-number range-input"
+                                            aria-label="Maximum PA"
                                         />
                                     </div>
                                 </div>
@@ -285,13 +277,10 @@
                     <div class="filter-section">
                         <div class="filter-row three-cols">
                             <div class="filter-item">
-                                <label for="preferredFoot" class="filter-label">
-                                    Preferred Foot
-                                </label>
                                 <div class="input-wrapper">
                                     <span class="input-icon">🦶</span>
-                                    <select id="preferredFoot" bind:value={preferredFoot} class="input select-input">
-                                        <option value={null}>Any</option>
+                                    <select id="preferredFoot" bind:value={preferredFoot} class="input select-input" aria-label="Select Preferred Foot">
+                                        <option value={null}>Preferred Foot...</option>
                                         {#each FOOT_OPTIONS as { value, label, icon }}
                                             <option value={value}>{icon} {label}</option>
                                         {/each}
@@ -300,38 +289,29 @@
                             </div>
 
                             <div class="filter-item">
-                                <label for="favouriteNumber" class="filter-label">
-                                    Favourite Number
-                                </label>
                                 <div class="input-wrapper">
                                     <span class="input-icon">🔢</span>
                                     <input
                                         id="favouriteNumber"
                                         type="number"
                                         bind:value={favouriteNumber}
-                                        placeholder="e.g. 10"
+                                        placeholder="Favourite Number"
                                         class="input input-number"
+                                        aria-label="Favourite Number"
                                     />
                                 </div>
                             </div>
 
                             <div class="filter-item">
-                                <label for="birthYear" class="filter-label">
-                                    Birth Year
-                                    {#if $modSettings.canToggle}
-                                        <span class="birth-year-mode-indicator">
-                                            ({$modSettings.showRealBirthDates ? 'Real' : 'Game'})
-                                        </span>
-                                    {/if}
-                                </label>
                                 <div class="input-wrapper">
                                     <span class="input-icon">📅</span>
                                     <input
                                         id="birthYear"
                                         type="number"
                                         bind:value={birthYear}
-                                        placeholder="Year"
+                                        placeholder={$modSettings.canToggle ? `Birth Year (${$modSettings.showRealBirthDates ? 'Real' : 'Game'})` : "Birth Year"}
                                         class="input input-number"
+                                        aria-label="Birth Year"
                                     />
                                 </div>
                             </div>
@@ -564,7 +544,7 @@
 
     .range-input {
         text-align: center;
-        width: 6rem;
+        width: 8rem;
         min-width: 0;
     }
 
