@@ -5,6 +5,7 @@
     import ThemeToggle from "./ThemeToggle.svelte";
     import ModSettings from "./ModSettings.svelte";
     import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount, modifiedPlayers } from "$lib/stores/editedPlayers";
+    import { modSettings } from "$lib/stores/modSettings";
 
     let {
         players = $bindable(),
@@ -50,6 +51,8 @@
 
     let source_path = $state("");
     let save_path = $state("");
+    let saveFilteredOnly = $state(false);
+    let convertBirthdates = $state(false);
 
     async function selectSaveLocation() {
         const path = await selectSaveFile();
@@ -79,7 +82,25 @@
             await updatePlayers(playersToUpdate);
         }
         
-        await savePlayersToFile(save_path);
+        let filters = null;
+        if (saveFilteredOnly) {
+            filters = {
+                country: selectedCountry || null,
+                club: selectedClub ? selectedClub : null,
+                min_ca: minCA || null,
+                max_ca: maxCA || null,
+                min_pa: minPA || null,
+                max_pa: maxPA || null,
+                preferred_foot: preferredFoot,
+                favourite_number: favouriteNumber || null,
+                birth_year_min: birthYear || null,
+                birth_year_max: birthYear || null,
+                name_query: nameQuery || null,
+                sort_by: sortBy || null,
+            };
+        }
+        
+        await savePlayersToFile(save_path, filters);
         
         clearEditedPlayersStore();
         
@@ -87,10 +108,16 @@
     }
 
     async function selectFile() {
-        const path = await selectFileAndLoad();
+        const fmYear = parseInt($modSettings.fmEdition);
+        const modYear = parseInt($modSettings.retroYear);
+        const shouldConvert = convertBirthdates && !isNaN(fmYear) && !isNaN(modYear);
+
+        const path = await selectFileAndLoad(shouldConvert, fmYear || 0, modYear || 0);
         if (path) {
             source_path = path;
-            save_path = path;
+            // If multiple files are loaded, we don't set a default save path to avoid overwriting one of them by mistake
+            // The user will be forced to choose a save location
+            save_path = path === "Multiple files loaded" ? "" : path;
             
             clearAllEditedPlayers();
             
@@ -101,28 +128,67 @@
             currentPage = 0;
         }
     }
+
+    function incrementPageSize() {
+        pageSize += 1;
+    }
+
+    function decrementPageSize() {
+        if (pageSize > 1) pageSize -= 1;
+    }
+
+    $effect(() => {
+        if (!$modSettings.canToggle) {
+            convertBirthdates = false;
+        }
+    });
 </script>
 
 <section class="top-bar">
     <div class="top-bar-left">
-        <button class="btn" onclick={selectFile}>Load file</button>
+        <div class="load-group">
+            <button class="btn-load-main" onclick={selectFile} title="Load one or multiple .edt files">
+                <span class="icon">📂</span>
+                <span class="text">Load Files</span>
+            </button>
+            <div 
+                class="load-toggle" 
+                aria-disabled={!$modSettings.canToggle}
+                data-tooltip="Set FM Edition & Mod Year first"
+            >
+                <label class="toggle-switch small">
+                    <input type="checkbox" bind:checked={convertBirthdates} disabled={!$modSettings.canToggle}>
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label">Convert Dates</span>
+            </div>
+        </div>
     </div>
     
     <div class="top-bar-center">
         <div class="file-actions">
-            <button 
-                class="btn-save" 
-                class:has-edits={$editedCount > 0}
-                onclick={saveToFile} 
-                disabled={!save_path}
-                title={!save_path ? "Please select a save location first" : "Save changes to file"}
-            >
-                <span class="icon">💾</span>
-                <span class="label">Save</span>
-                {#if $editedCount > 0}
-                    <span class="count-badge">{$editedCount}</span>
-                {/if}
-            </button>
+            <div class="save-group">
+                <button 
+                    class="btn-save-main" 
+                    class:has-edits={$editedCount > 0}
+                    onclick={saveToFile} 
+                    disabled={!save_path}
+                    title={!save_path ? "Please select a save location first" : "Save changes to file"}
+                >
+                    <span class="icon">💾</span>
+                    <span class="label">Save</span>
+                    {#if $editedCount > 0}
+                        <span class="count-badge">{$editedCount}</span>
+                    {/if}
+                </button>
+                <div class="save-toggle" title="Save only filtered players">
+                    <label class="toggle-switch small">
+                        <input type="checkbox" bind:checked={saveFilteredOnly}>
+                        <span class="slider"></span>
+                    </label>
+                    <span class="toggle-label">Filtered</span>
+                </div>
+            </div>
 
             <button class="file-location" onclick={selectSaveLocation} title={save_path || "Click to choose save location"}>
                 <span class="icon">📁</span>
@@ -142,13 +208,23 @@
         <div class="controls-group">
             <div class="page-size-control">
                 <label for="pageSizeInput" class="label">Players per page:</label>
-                <input
-                    id="pageSizeInput"
-                    type="number"
-                    min="1"
-                    bind:value={pageSize}
-                    class="input input-number page-size-input"
-                />
+                <div class="page-size-wrapper">
+                    <input
+                        id="pageSizeInput"
+                        type="number"
+                        min="1"
+                        bind:value={pageSize}
+                        class="input input-number page-size-input"
+                    />
+                    <div class="page-size-spinners">
+                        <button class="spinner-btn" onclick={incrementPageSize} aria-label="Increase">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+                        </button>
+                        <button class="spinner-btn" onclick={decrementPageSize} aria-label="Decrease">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                    </div>
+                </div>
             </div>
             <ThemeToggle />
         </div>
@@ -178,6 +254,118 @@
         align-items: center;
     }
 
+    .load-group {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        height: auto;
+        box-shadow: 0 1px 2px var(--color-shadow-light);
+        transition: all 0.2s ease;
+    }
+
+    .load-group:hover {
+        border-color: var(--color-primary);
+        box-shadow: 0 2px 4px var(--color-shadow-light);
+    }
+
+    .btn-load-main {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+        padding: 2px var(--spacing-md);
+        background: transparent;
+        border: none;
+        color: var(--color-text);
+        font-weight: 600;
+        font-size: var(--font-sm);
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+        height: 22px;
+    }
+
+    .btn-load-main:hover {
+        background-color: var(--color-background-hover);
+        color: var(--color-primary);
+    }
+
+    .btn-load-main .icon {
+        font-size: 0.9em;
+    }
+
+    .load-toggle {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: 0 var(--spacing-sm);
+        background-color: var(--color-background-light);
+        min-width: 70px;
+        cursor: default;
+        border-left: none;
+        border-top: 1px solid var(--color-border-light);
+        position: relative;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+        height: 20px;
+    }
+
+    .load-toggle[aria-disabled="true"] {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    /* Tooltip for disabled state */
+    .load-toggle[aria-disabled="true"]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        transform: none;
+        margin-top: 8px;
+        padding: 6px 10px;
+        background-color: var(--color-background);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        font-size: 0.7rem;
+        white-space: nowrap;
+        z-index: 9999;
+        box-shadow: 0 4px 12px var(--color-shadow);
+        pointer-events: none;
+    }
+
+    .toggle-switch.small {
+        width: 18px;
+        height: 10px;
+        margin-bottom: 0;
+    }
+    
+    .toggle-switch.small .slider:before {
+        height: 6px;
+        width: 6px;
+        left: 2px;
+        bottom: 2px;
+    }
+    
+    .toggle-switch.small input:checked + .slider:before {
+        transform: translateX(8px);
+    }
+
+    .toggle-label {
+        font-size: 0.5rem;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+        font-weight: 700;
+        line-height: 1;
+        white-space: nowrap;
+        letter-spacing: 0.5px;
+    }
+
     .top-bar-center {
         display: flex;
         align-items: center;
@@ -205,7 +393,7 @@
         align-items: center;
         gap: var(--spacing-sm);
         background-color: var(--color-background-light);
-        padding: 4px 12px;
+        padding: 4px 8px 4px 12px;
         border-radius: var(--radius-md);
         border: 1px solid var(--color-border);
     }
@@ -219,85 +407,215 @@
         margin: 0;
     }
 
-    .page-size-input {
-        width: 3.5rem;
-        text-align: center;
+    .page-size-wrapper {
+        display: flex;
+        align-items: stretch;
+        background-color: var(--color-background);
         border: 1px solid var(--color-border);
         border-radius: var(--radius-sm);
-        padding: 2px 4px;
+        padding: 0;
+        overflow: hidden;
+        height: 26px;
+    }
+
+    .page-size-input {
+        width: 2.5rem;
+        text-align: center;
+        border: none;
+        padding: 0;
         font-size: var(--font-sm);
         font-weight: 600;
-        background-color: var(--color-background);
+        background-color: transparent;
         color: var(--color-text);
+        -moz-appearance: textfield;
+    }
+
+    .page-size-input::-webkit-outer-spin-button,
+    .page-size-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
 
     .page-size-input:focus {
-        border-color: var(--color-primary);
         outline: none;
-        box-shadow: 0 0 0 2px var(--color-shadow-primary);
+    }
+
+    .page-size-spinners {
+        display: flex;
+        flex-direction: column;
+        border-left: 1px solid var(--color-border);
+        width: 16px;
+    }
+
+    .spinner-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        flex: 1;
+        background: var(--color-background-light);
+        border: none;
+        cursor: pointer;
+        color: var(--color-text-muted);
+        padding: 0;
+        transition: all 0.1s;
+        line-height: 0;
+    }
+
+    .spinner-btn:hover {
+        background-color: var(--color-background-hover);
+        color: var(--color-primary);
+    }
+
+    .spinner-btn:first-child {
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .spinner-btn svg {
+        width: 8px;
+        height: 8px;
+        display: block;
     }
 
     .file-actions {
         display: flex;
         align-items: stretch;
         gap: var(--spacing-sm);
-        background-color: var(--color-background-light);
-        padding: 4px;
-        border-radius: var(--radius-md);
-        border: 1px solid var(--color-border);
         margin-right: var(--spacing-lg);
     }
 
-    .btn-save {
+
+
+    .save-group {
         display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-        padding: var(--spacing-xs) var(--spacing-md);
+        flex-direction: column;
+        align-items: stretch;
         background-color: var(--color-background);
         border: 1px solid var(--color-border);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-md);
+        height: auto;
+        box-shadow: 0 1px 2px var(--color-shadow-light);
+        transition: all 0.2s ease;
+    }
+
+    .save-group:hover {
+        border-color: var(--color-primary);
+        box-shadow: 0 2px 4px var(--color-shadow-light);
+    }
+
+    .btn-save-main {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+        padding: 2px var(--spacing-md);
+        background: transparent;
+        border: none;
         color: var(--color-text);
         font-weight: 600;
         font-size: var(--font-sm);
         cursor: pointer;
         transition: all 0.2s ease;
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+        height: 22px;
         position: relative;
     }
 
-    .btn-save:hover:not(:disabled) {
+    .btn-save-main:hover:not(:disabled) {
         background-color: var(--color-background-hover);
-        border-color: var(--color-primary);
         color: var(--color-primary);
     }
 
-    .btn-save:disabled {
+    .btn-save-main:disabled {
         opacity: 0.5;
         cursor: not-allowed;
         background-color: var(--color-background-light);
     }
 
-    .btn-save .icon {
-        font-size: 1.1em;
+    .btn-save-main .icon {
+        font-size: 0.9em;
     }
 
-    .btn-save.has-edits {
+    .btn-save-main.has-edits {
         background: var(--color-primary);
         color: white !important;
-        border-color: var(--color-primary-hover);
-        box-shadow: 0 2px 4px var(--color-shadow-primary);
     }
 
     /* Force white text on children elements to override global styles */
-    .btn-save.has-edits .label,
-    .btn-save.has-edits .icon {
+    .btn-save-main.has-edits .label,
+    .btn-save-main.has-edits .icon {
         color: white !important;
     }
 
-    .btn-save.has-edits:hover {
+    .btn-save-main.has-edits:hover {
         background: var(--color-primary-hover);
         color: white !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px var(--color-shadow-primary);
+    }
+
+    .save-toggle {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: 0 var(--spacing-sm);
+        background-color: var(--color-background-light);
+        min-width: 70px;
+        cursor: default;
+        border-left: none;
+        border-top: 1px solid var(--color-border-light);
+        position: relative;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+        height: 20px;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 28px;
+        height: 16px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--color-border);
+        transition: .4s;
+        border-radius: 16px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 12px;
+        width: 12px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: var(--color-primary);
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px var(--color-primary);
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(12px);
     }
 
     .count-badge {
