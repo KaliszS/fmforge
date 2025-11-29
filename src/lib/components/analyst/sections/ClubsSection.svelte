@@ -71,7 +71,7 @@
     }
 
     function getClubName(id: number) {
-        return clubMap[id] || `Club ${id}`;
+        return clubMap[id]?.name || `Club ${id}`;
     }
 </script>
 

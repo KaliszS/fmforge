@@ -1,5 +1,6 @@
 <script lang="ts">
     import { clubMap } from "$lib/constants";
+    import ClubSelect from "$lib/components/common/ClubSelect.svelte";
 
     let {
         club_id = $bindable(),
@@ -9,22 +10,14 @@
         favourite_team_id?: number | null;
     } = $props();
 
-    const clubOptions = Object.entries(clubMap).map(([id, name]) => ({
-        id: +id, // Ensure numeric ID
-        name,
-    }));
-
 </script>
 
 <div class="club-edit">
     <label title="current club">
         <span class="icon">🏟️</span>
-        <select bind:value={club_id}>
-            <option disabled value={-1}>— wybierz klub —</option>
-            {#each clubOptions as { id, name }}
-                <option value={id}>{name}</option>
-            {/each}
-        </select>
+        <div class="select-wrapper">
+            <ClubSelect bind:value={club_id} emptyValue={-1} placeholder="Select Club..." />
+        </div>
         <input
             type="number"
             min="0"
@@ -40,11 +33,9 @@
 
     <label title="favourite team">
         <span class="icon">❤️</span>
-        <select bind:value={favourite_team_id}>
-            {#each clubOptions as { id, name }}
-                <option value={+id}>{name}</option>
-            {/each}
-        </select>
+        <div class="select-wrapper">
+            <ClubSelect bind:value={favourite_team_id} emptyValue={null} placeholder="Select Favourite Team..." />
+        </div>
         <input
             type="number"
             min="0"
@@ -85,7 +76,7 @@
         border-color: var(--color-primary);
     }
 
-    .club-edit select {
+    .select-wrapper {
         flex: 1;
         min-width: 8rem;
     }

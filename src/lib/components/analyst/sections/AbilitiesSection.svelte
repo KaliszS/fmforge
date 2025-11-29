@@ -105,7 +105,7 @@
 
     function getClubName(clubId: number | null): string {
         if (clubId === null) return 'No Club';
-        return clubMap[clubId] || `Club ${clubId}`;
+        return clubMap[clubId]?.name || `Club ${clubId}`;
     }
 
     function getCountryCode(countryId: number): string {

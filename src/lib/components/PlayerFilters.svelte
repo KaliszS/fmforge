@@ -1,6 +1,7 @@
 <script lang="ts">
     import { countryMap, clubMap, FOOT_OPTIONS, SORT_OPTIONS } from "$lib/constants";
     import { modSettings } from "$lib/stores/modSettings";
+    import ClubSelect from "$lib/components/common/ClubSelect.svelte";
 
     let {
         selectedCountry = $bindable(),
@@ -47,11 +48,6 @@
     }
 
     const countryOptions = Object.entries(countryMap).map(([id, { name }]) => ({
-        id: +id,
-        name,
-    }));
-
-    const clubOptions = Object.entries(clubMap).map(([id, name]) => ({
         id: +id,
         name,
     }));
@@ -195,13 +191,14 @@
 
                             <div class="filter-item">
                                 <div class="input-group">
-                                    <span class="input-icon">🏟️</span>
-                                    <select id="clubSelect" bind:value={selectedClub} class="input select-input" aria-label="Select Club">
-                                        <option value={null}>Select Club...</option>
-                                        {#each clubOptions as { id, name }}
-                                            <option value={id}>{name}</option>
-                                        {/each}
-                                    </select>
+                                    <div style="flex: 1; min-width: 12rem;">
+                                        <ClubSelect 
+                                            bind:value={selectedClub} 
+                                            emptyValue={null} 
+                                            placeholder="Select Club..." 
+                                            icon="🏟️"
+                                        />
+                                    </div>
                                     <input
                                         type="number"
                                         bind:value={selectedClub}
