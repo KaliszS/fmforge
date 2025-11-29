@@ -20,6 +20,7 @@
         favouriteNumber = $bindable(),
         birthYear = $bindable(),
         effectiveBirthYear = $bindable(),
+        nameQuery = $bindable(),
         sortBy = $bindable(),
         problematicRows = $bindable(),
         showProblematicDetails = $bindable(),
@@ -39,7 +40,8 @@
         favouriteNumber: number | null;
         birthYear: number | null;
         effectiveBirthYear: number | null;
-        sortBy: string | null;
+        nameQuery: string | null;
+        sortBy: string[] | null;
         problematicRows: number[];
         showProblematicDetails: boolean;
         isLastPage: boolean;

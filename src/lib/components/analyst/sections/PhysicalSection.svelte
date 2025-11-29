@@ -16,7 +16,8 @@
         preferredFoot,
         favouriteNumber,
         birthYear,
-        sortBy
+        sortBy,
+        nameQuery
     }: { 
         players: PlayerRecord[];
         selectedCountry: number | null;
@@ -28,7 +29,8 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
-        sortBy: string | null;
+        sortBy: string[] | null;
+        nameQuery: string | null;
     } = $props();
 
     let statistics = $state<any>(null);
@@ -63,6 +65,7 @@
                         preferredFoot,
                         favouriteNumber,
                         birthYear,
+                        nameQuery,
                         sortBy
                     ),
                     getTopPlayers(
@@ -75,6 +78,7 @@
                         preferredFoot,
                         favouriteNumber,
                         birthYear,
+                        nameQuery,
                         sortBy,
                         topPlayersLimit
                     )

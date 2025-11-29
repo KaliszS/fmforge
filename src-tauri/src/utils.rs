@@ -161,3 +161,67 @@ pub fn sort_players(mut players: Vec<PlayerRecord>, sort_criteria: &[String]) ->
     println!("Sorted {} players", players.len());
     players
 }
+
+pub fn remove_accents(s: &str) -> String {
+    s.chars()
+        .map(|c| match c {
+            'á' | 'à' | 'â' | 'ä' | 'ã' | 'å' | 'ą' => 'a',
+            'Á' | 'À' | 'Â' | 'Ä' | 'Ã' | 'Å' | 'Ą' => 'A',
+            'ć' | 'č' | 'ç' => 'c',
+            'Ć' | 'Č' | 'Ç' => 'C',
+            'é' | 'è' | 'ê' | 'ë' | 'ę' => 'e',
+            'É' | 'È' | 'Ê' | 'Ë' | 'Ę' => 'E',
+            'í' | 'ì' | 'î' | 'ï' => 'i',
+            'Í' | 'Ì' | 'Î' | 'Ï' => 'I',
+            'ł' => 'l',
+            'Ł' => 'L',
+            'ñ' | 'ń' => 'n',
+            'Ñ' | 'Ń' => 'N',
+            'ó' | 'ò' | 'ô' | 'ö' | 'õ' | 'ø' => 'o',
+            'Ó' | 'Ò' | 'Ô' | 'Ö' | 'Õ' | 'Ø' => 'O',
+            'ś' | 'š' => 's',
+            'Ś' | 'Š' => 'S',
+            'ú' | 'ù' | 'û' | 'ü' => 'u',
+            'Ú' | 'Ù' | 'Û' | 'Ü' => 'U',
+            'ý' | 'ÿ' => 'y',
+            'Ý' | 'Ÿ' => 'Y',
+            'ź' | 'ż' | 'ž' => 'z',
+            'Ź' | 'Ż' | 'Ž' => 'Z',
+            _ => c,
+        })
+        .collect()
+}
+
+pub fn matches_search_query(player: &crate::model::Player, query: &str) -> bool {
+    if query.is_empty() {
+        return true;
+    }
+
+    let normalized_query = remove_accents(query).to_lowercase();
+    let full_name = remove_accents(&format!(
+        "{} {} {}",
+        player.first_name,
+        player.last_name,
+        player.common_name.as_deref().unwrap_or("")
+    ))
+    .to_lowercase();
+
+    if normalized_query.contains('*') {
+        let parts: Vec<&str> = normalized_query.split('*').collect();
+        let mut current_search_text = full_name.as_str();
+
+        for part in parts {
+            if part.is_empty() {
+                continue;
+            }
+            if let Some(idx) = current_search_text.find(part) {
+                current_search_text = &current_search_text[idx + part.len()..];
+            } else {
+                return false;
+            }
+        }
+        true
+    } else {
+        full_name.contains(&normalized_query)
+    }
+}

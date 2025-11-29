@@ -14,6 +14,7 @@
         preferredFoot,
         favouriteNumber,
         birthYear,
+        nameQuery,
         sortBy,
         activeTab = $bindable()
     }: {
@@ -27,6 +28,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
+        nameQuery: string | null;
         sortBy: string[] | null;
         activeTab: string;
     } = $props();
@@ -49,6 +51,7 @@
                     preferredFoot,
                     favouriteNumber,
                     birthYear,
+                    nameQuery,
                     sortBy
                 );
                 filteredCount = stats.count;
