@@ -109,27 +109,31 @@
     </div>
     
     <div class="top-bar-center">
-        <div class="save-section">
-            <div class="save-buttons">
-                <button class="btn btn-sm" onclick={selectSaveLocation}>Choose save location</button>
-                <button 
-                    class="btn btn-sm" 
-                    class:has-edits={$editedCount > 0}
-                    onclick={saveToFile} 
-                    disabled={!save_path}
-                >
-                    Save changes
-                    {#if $editedCount > 0}
-                        <span class="edit-count">({$editedCount})</span>
-                    {/if}
-                </button>
-            </div>
-            {#if save_path}
-                <div class="save-path-info">
-                    <span class="save-label">Save to:</span>
-                    <span class="save-path">{save_path}</span>
+        <div class="file-actions">
+            <button 
+                class="btn-save" 
+                class:has-edits={$editedCount > 0}
+                onclick={saveToFile} 
+                disabled={!save_path}
+                title={!save_path ? "Please select a save location first" : "Save changes to file"}
+            >
+                <span class="icon">💾</span>
+                <span class="label">Save</span>
+                {#if $editedCount > 0}
+                    <span class="count-badge">{$editedCount}</span>
+                {/if}
+            </button>
+
+            <button class="file-location" onclick={selectSaveLocation} title={save_path || "Click to choose save location"}>
+                <span class="icon">📁</span>
+                <div class="file-info">
+                    <span class="label">Target File</span>
+                    <span class="filename">
+                        {save_path ? save_path.split(/[/\\]/).pop() : "Select file..."}
+                    </span>
                 </div>
-            {/if}
+                <span class="edit-icon">▼</span>
+            </button>
         </div>
         <ModSettings />
     </div>
@@ -198,125 +202,167 @@
 
     .page-size-control {
         display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xs);
         align-items: center;
-    }
-
-    .save-section {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xs);
-        align-items: center;
-    }
-
-    .save-buttons {
-        display: flex;
         gap: var(--spacing-sm);
-        align-items: center;
+        background-color: var(--color-background-light);
+        padding: 4px 12px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--color-border);
+    }
+
+    .page-size-control .label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin: 0;
     }
 
     .page-size-input {
-        width: 4rem;
+        width: 3.5rem;
+        text-align: center;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: 2px 4px;
+        font-size: var(--font-sm);
+        font-weight: 600;
+        background-color: var(--color-background);
+        color: var(--color-text);
     }
 
-    .btn:disabled {
+    .page-size-input:focus {
+        border-color: var(--color-primary);
+        outline: none;
+        box-shadow: 0 0 0 2px var(--color-shadow-primary);
+    }
+
+    .file-actions {
+        display: flex;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+        background-color: var(--color-background-light);
+        padding: 4px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--color-border);
+        margin-right: var(--spacing-lg);
+    }
+
+    .btn-save {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-xs) var(--spacing-md);
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        color: var(--color-text);
+        font-weight: 600;
+        font-size: var(--font-sm);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .btn-save:hover:not(:disabled) {
+        background-color: var(--color-background-hover);
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+    }
+
+    .btn-save:disabled {
         opacity: 0.5;
         cursor: not-allowed;
         background-color: var(--color-background-light);
-        color: var(--color-text-muted);
     }
 
-    .btn-sm {
-        padding: var(--spacing-xs) var(--spacing-sm);
-        font-size: var(--font-sm);
-        min-height: auto;
+    .btn-save .icon {
+        font-size: 1.1em;
     }
 
-    .save-path-info {
+    .btn-save.has-edits {
+        background: var(--color-primary);
+        color: white !important;
+        border-color: var(--color-primary-hover);
+        box-shadow: 0 2px 4px var(--color-shadow-primary);
+    }
+
+    /* Force white text on children elements to override global styles */
+    .btn-save.has-edits .label,
+    .btn-save.has-edits .icon {
+        color: white !important;
+    }
+
+    .btn-save.has-edits:hover {
+        background: var(--color-primary-hover);
+        color: white !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px var(--color-shadow-primary);
+    }
+
+    .count-badge {
+        background-color: white;
+        color: var(--color-primary);
+        font-size: 0.75em;
+        padding: 1px 5px;
+        border-radius: 10px;
+        font-weight: 800;
+        margin-left: 4px;
+    }
+
+    .file-location {
         display: flex;
-        flex-direction: row;
         align-items: center;
         gap: var(--spacing-sm);
-        max-width: 20rem;
-    }
-
-    .save-label {
-        font-size: var(--font-xs);
-        color: var(--color-text-muted);
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .save-path {
-        font-size: var(--font-xs);
-        color: var(--color-primary);
-        background-color: var(--color-background-light);
-        padding: var(--spacing-xs) var(--spacing-sm);
+        padding: var(--spacing-xs) var(--spacing-md);
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
         border-radius: var(--radius-sm);
-        border: 1px solid var(--color-primary);
-        max-width: 100%;
+        cursor: pointer;
+        text-align: left;
+        min-width: 180px;
+        max-width: 240px;
+        transition: all 0.2s ease;
+    }
+
+    .file-location:hover {
+        background-color: var(--color-background-hover);
+        border-color: var(--color-text-muted);
+    }
+
+    .file-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    .file-info .label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        line-height: 1;
+        margin-bottom: 2px;
+    }
+
+    .file-info .filename {
+        font-size: var(--font-sm);
+        font-weight: 500;
+        color: var(--color-text);
+        white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
-        text-align: right;
-        font-weight: 500;
-        box-shadow: 0 1px 3px var(--color-shadow-light);
     }
 
-    .btn.has-edits {
-        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
-        color: white;
-        font-weight: 700;
-        font-size: var(--font-sm);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        box-shadow: 0 0.25rem 1rem var(--color-shadow-primary);
-        border: 2px solid var(--color-primary);
-        animation: pulse 1.5s infinite;
-        position: relative;
-        overflow: hidden;
+    .file-location .edit-icon {
+        font-size: 0.7em;
+        color: var(--color-text-muted);
+        opacity: 0.5;
     }
 
-    .btn.has-edits::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        animation: shine 2s infinite;
-    }
-
-    .btn.has-edits:hover {
-        background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
-        transform: translateY(-2px) scale(1.05);
-        box-shadow: 0 0.5rem 1.5rem var(--color-shadow-primary);
-    }
-
-    .edit-count {
-        margin-left: var(--spacing-xs);
-        font-size: var(--font-xs);
-        opacity: 0.9;
-    }
-
-    @keyframes pulse {
-        0%, 100% {
-            box-shadow: 0 0.25rem 1rem var(--color-shadow-primary);
-        }
-        50% {
-            box-shadow: 0 0.5rem 1.5rem var(--color-shadow-primary), 0 0 0 0.5rem rgba(var(--color-primary-rgb), 0.4);
-        }
-    }
-
-    @keyframes shine {
-        0% {
-            left: -100%;
-        }
-        100% {
-            left: 100%;
-        }
+    .file-location:hover .edit-icon {
+        opacity: 1;
     }
 </style>
