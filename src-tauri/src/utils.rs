@@ -16,12 +16,28 @@ static COUNTRY_MAP: Lazy<HashMap<i32, String>> = Lazy::new(|| {
         .collect()
 });
 
+#[derive(Deserialize)]
+struct ClubData {
+    name: String,
+    #[serde(rename = "gameName", default)]
+    game_name: String,
+}
+
 static CLUB_MAP: Lazy<HashMap<i32, String>> = Lazy::new(|| {
     let json_str = include_str!("../../src/data/clubs.json");
-    let map: HashMap<String, String> = serde_json::from_str(json_str).expect("Failed to parse clubs.json");
-    map.into_iter()
-        .filter_map(|(k, v)| k.parse::<i32>().ok().map(|id| (id, v)))
-        .collect()
+    // Try parsing as the new format first
+    match serde_json::from_str::<HashMap<String, ClubData>>(json_str) {
+        Ok(map) => map.into_iter()
+            .filter_map(|(k, v)| k.parse::<i32>().ok().map(|id| (id, v.name)))
+            .collect(),
+        Err(_) => {
+            // Fallback to old format if parsing fails (just in case)
+            let map: HashMap<String, String> = serde_json::from_str(json_str).expect("Failed to parse clubs.json");
+            map.into_iter()
+                .filter_map(|(k, v)| k.parse::<i32>().ok().map(|id| (id, v)))
+                .collect()
+        }
+    }
 });
 
 pub fn get_birth_year(birth_date: &str) -> Option<i32> {
@@ -41,6 +57,25 @@ pub fn get_birth_month(birth_date: &str) -> Option<u32> {
         parts[1].parse().ok()
     } else {
         None
+    }
+}
+
+fn get_position_rank(position: &str) -> i32 {
+    // Extract base position if it has modifiers (though current data seems to be exact strings)
+    // But let's match exact strings first as per constants.ts
+    match position {
+        "GOALKEEPER" => 1,
+        "DEFENDER_LEFT_SIDE" => 2,
+        "DEFENDER_CENTRAL" => 3,
+        "DEFENDER_RIGHT_SIDE" => 4,
+        "MIDFIELDER_LEFT_SIDE" => 5,
+        "MIDFIELDER_CENTRAL" => 6,
+        "MIDFIELDER_RIGHT_SIDE" => 7,
+        "ATTACKING_MIDFIELDER_LEFT_SIDE" => 8,
+        "ATTACKING_MIDFIELDER_CENTRAL" => 9,
+        "ATTACKING_MIDFIELDER_RIGHT_SIDE" => 10,
+        "ATTACKER_CENTRAL" => 11,
+        _ => 99,
     }
 }
 
@@ -119,12 +154,24 @@ pub fn sort_players(mut players: Vec<PlayerRecord>, sort_criteria: &[String]) ->
                 "position_asc" => {
                     let pos_a = a.player.position.as_deref().unwrap_or("");
                     let pos_b = b.player.position.as_deref().unwrap_or("");
-                    pos_a.cmp(pos_b)
+                    let rank_a = get_position_rank(pos_a);
+                    let rank_b = get_position_rank(pos_b);
+                    if rank_a != rank_b {
+                        rank_a.cmp(&rank_b)
+                    } else {
+                        pos_a.cmp(pos_b)
+                    }
                 },
                 "position_desc" => {
                     let pos_a = a.player.position.as_deref().unwrap_or("");
                     let pos_b = b.player.position.as_deref().unwrap_or("");
-                    pos_b.cmp(pos_a)
+                    let rank_a = get_position_rank(pos_a);
+                    let rank_b = get_position_rank(pos_b);
+                    if rank_a != rank_b {
+                        rank_b.cmp(&rank_a)
+                    } else {
+                        pos_b.cmp(pos_a)
+                    }
                 },
                 "height_asc" => {
                     a.player.height.cmp(&b.player.height)

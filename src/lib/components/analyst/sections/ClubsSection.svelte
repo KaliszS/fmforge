@@ -38,11 +38,25 @@
 
     let limit = $state(30);
 
-    function getSortedClubs(counts: Record<string, number>) {
-        return Object.entries(counts)
-            .map(([id, count]) => [parseInt(id), count] as [number, number])
-            .sort(([, a], [, b]) => b - a);
-    }
+    const displayClubs = $derived.by(() => {
+        if (!statistics?.club_counts) return [];
+        
+        const entries = Object.entries(statistics.club_counts)
+            .map(([id, count]) => [parseInt(id), count] as [number, number]);
+            
+        // 1. Sort by count descending to find the top ones
+        entries.sort(([, a], [, b]) => b - a);
+        
+        // 2. Take top N
+        const top = entries.slice(0, limit);
+        
+        // 3. Sort alphabetically by name
+        return top.sort(([idA], [idB]) => {
+            const nameA = getClubName(idA);
+            const nameB = getClubName(idB);
+            return nameA.localeCompare(nameB);
+        });
+    });
 
     function getClubName(id: number) {
         return clubMap[id]?.name || `Club ${id}`;
@@ -79,7 +93,7 @@
             
             {#if statistics.club_counts && Object.keys(statistics.club_counts).length > 0}
                 <div class="stats-grid">
-                    {#each getSortedClubs(statistics.club_counts).slice(0, limit) as [id, count]}
+                    {#each displayClubs as [id, count]}
                         <div class="stat-card">
                             <div class="stat-info">
                                 <div class="stat-name">{getClubName(id)}</div>

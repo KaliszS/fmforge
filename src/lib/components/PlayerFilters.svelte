@@ -173,7 +173,13 @@
                             <div class="filter-item">
                                 <div class="input-group">
                                     <span class="input-icon">🌍</span>
-                                    <select id="countrySelect" bind:value={selectedCountry} class="input select-input" aria-label="Select Country">
+                                    <select 
+                                        id="countrySelect" 
+                                        bind:value={selectedCountry} 
+                                        class="input select-input" 
+                                        class:placeholder={selectedCountry === null}
+                                        aria-label="Select Country"
+                                    >
                                         <option value={null}>Select Country...</option>
                                         {#each countryOptions as { id, name }}
                                             <option value={id}>{name}</option>
@@ -276,7 +282,13 @@
                             <div class="filter-item">
                                 <div class="input-wrapper">
                                     <span class="input-icon">🦶</span>
-                                    <select id="preferredFoot" bind:value={preferredFoot} class="input select-input" aria-label="Select Preferred Foot">
+                                    <select 
+                                        id="preferredFoot" 
+                                        bind:value={preferredFoot} 
+                                        class="input select-input" 
+                                        class:placeholder={preferredFoot === null}
+                                        aria-label="Select Preferred Foot"
+                                    >
                                         <option value={null}>Preferred Foot...</option>
                                         {#each FOOT_OPTIONS as { value, label, icon }}
                                             <option value={value}>{icon} {label}</option>
@@ -489,6 +501,19 @@
         background-color: var(--color-background);
         color: var(--color-text);
         transition: all var(--transition-fast);
+    }
+
+    .input::placeholder {
+        color: var(--color-placeholder);
+        opacity: 1;
+    }
+
+    .input.placeholder {
+        color: var(--color-placeholder);
+    }
+
+    .input option {
+        color: var(--color-text);
     }
 
     .input-wrapper .input,
