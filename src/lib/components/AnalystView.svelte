@@ -1,5 +1,7 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
+    import { getPlayerStatistics } from "$lib/api/player";
+    import { analystStore } from "$lib/stores/analystStore";
     import AnalystSidebar from "./analyst/AnalystSidebar.svelte";
     import AnalystContent from "./analyst/AnalystContent.svelte";
 
@@ -32,6 +34,74 @@
     } = $props();
 
     let activeTab = $state('overview');
+    let statistics = $state<any>(null);
+    let loading = $state(true);
+    let error = $state<string | null>(null);
+
+    // Helper to ensure consistent params object structure
+    const getParams = () => ({
+        selectedCountry,
+        selectedClub,
+        minCA,
+        maxCA,
+        minPA,
+        maxPA,
+        preferredFoot,
+        favouriteNumber,
+        birthYear,
+        nameQuery,
+        sortBy
+    });
+
+    // Initialize from cache if available
+    const initialParams = getParams();
+    const cachedInitial = analystStore.getCache(initialParams);
+    if (cachedInitial) {
+        statistics = cachedInitial;
+        loading = false;
+    }
+
+    $effect(() => {
+        const params = getParams();
+
+        // Check cache first
+        const cachedData = analystStore.getCache(params);
+        if (cachedData) {
+            statistics = cachedData;
+            loading = false;
+            error = null;
+            return;
+        }
+
+        const loadStats = async () => {
+            loading = true;
+            error = null;
+            try {
+                const stats = await getPlayerStatistics(
+                    selectedCountry,
+                    selectedClub,
+                    minCA,
+                    maxCA,
+                    minPA,
+                    maxPA,
+                    preferredFoot,
+                    favouriteNumber,
+                    birthYear,
+                    nameQuery,
+                    sortBy
+                );
+                // Cache the result
+                analystStore.setCache(params, stats);
+                statistics = stats;
+            } catch (err) {
+                error = err instanceof Error ? err.message : 'Failed to load statistics';
+                console.error('Error loading statistics:', err);
+            } finally {
+                loading = false;
+            }
+        };
+        loadStats();
+    });
 </script>
 
 <div class="analyst-view">
@@ -39,6 +109,8 @@
         <AnalystSidebar 
             bind:players 
             bind:activeTab
+            {statistics}
+            {loading}
             {selectedCountry}
             {selectedClub}
             {minCA}
@@ -54,6 +126,9 @@
         
         <AnalystContent 
             {activeTab} 
+            {statistics}
+            {loading}
+            {error}
             {players}
             {selectedCountry}
             {selectedClub}

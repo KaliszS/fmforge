@@ -1,11 +1,14 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
-    import { getPlayerStatistics, getTopPlayers } from "$lib/api/player";
+    import { getTopPlayers } from "$lib/api/player";
     import { countryMap, clubMap } from "$lib/constants";
     import { getFlagComponent } from "$lib/flags";
     import DetailedStatCard from "../charts/DetailedStatCard.svelte";
 
     let { 
+        statistics,
+        loading: loadingStats,
+        error: errorStats,
         players,
         selectedCountry,
         selectedClub,
@@ -19,6 +22,9 @@
         sortBy,
         nameQuery
     }: { 
+        statistics: any;
+        loading: boolean;
+        error: string | null;
         players: PlayerRecord[];
         selectedCountry: number | null;
         selectedClub: number | null;
@@ -33,11 +39,9 @@
         nameQuery: string | null;
     } = $props();
 
-    let statistics = $state<any>(null);
     let topPlayers = $state<any>(null);
-    let loading = $state(true);
     let loadingTopPlayers = $state(true);
-    let error = $state<string | null>(null);
+    let errorTopPlayers = $state<string | null>(null);
     let topPlayersLimit = $state(5);
     let showTallest = $state(true);
     let showHeaviest = $state(true);
@@ -50,51 +54,35 @@
     $effect(() => {
         topPlayersLimit;
         const loadData = async () => {
-            loading = true;
             loadingTopPlayers = true;
-            error = null;
+            errorTopPlayers = null;
             try {
-                const [statsResult, topPlayersResult] = await Promise.all([
-                    getPlayerStatistics(
-                        selectedCountry,
-                        selectedClub,
-                        minCA,
-                        maxCA,
-                        minPA,
-                        maxPA,
-                        preferredFoot,
-                        favouriteNumber,
-                        birthYear,
-                        nameQuery,
-                        sortBy
-                    ),
-                    getTopPlayers(
-                        selectedCountry,
-                        selectedClub,
-                        minCA,
-                        maxCA,
-                        minPA,
-                        maxPA,
-                        preferredFoot,
-                        favouriteNumber,
-                        birthYear,
-                        nameQuery,
-                        sortBy,
-                        topPlayersLimit
-                    )
-                ]);
-                statistics = statsResult;
-                topPlayers = topPlayersResult;
+                topPlayers = await getTopPlayers(
+                    selectedCountry,
+                    selectedClub,
+                    minCA,
+                    maxCA,
+                    minPA,
+                    maxPA,
+                    preferredFoot,
+                    favouriteNumber,
+                    birthYear,
+                    nameQuery,
+                    sortBy,
+                    topPlayersLimit
+                );
             } catch (err) {
-                error = err instanceof Error ? err.message : 'Failed to load data';
+                errorTopPlayers = err instanceof Error ? err.message : 'Failed to load data';
                 console.error('Error loading data:', err);
             } finally {
-                loading = false;
                 loadingTopPlayers = false;
             }
         };
         loadData();
     });
+
+    let loading = $derived(loadingStats || loadingTopPlayers);
+    let error = $derived(errorStats || errorTopPlayers);
 
     function getPlayerName(player: any): string {
         if (player.player.common_name && player.player.common_name.trim() !== '') {

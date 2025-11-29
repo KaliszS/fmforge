@@ -11,6 +11,9 @@
 
     let { 
         activeTab,
+        statistics,
+        loading,
+        error,
         players,
         selectedCountry,
         selectedClub,
@@ -25,6 +28,9 @@
         sortBy
     }: { 
         activeTab: string;
+        statistics: any;
+        loading: boolean;
+        error: string | null;
         players: PlayerRecord[];
         selectedCountry: number | null;
         selectedClub: number | null;
@@ -66,6 +72,7 @@
     <div class="content-body">
         {#if activeTab === 'overview'}
             <OverviewSection 
+                {statistics} {loading} {error}
                 {players}
                 {selectedCountry}
                 {selectedClub}
@@ -81,6 +88,7 @@
             />
         {:else if activeTab === 'abilities'}
             <AbilitiesSection 
+                {statistics} {loading} {error}
                 {players}
                 {selectedCountry}
                 {selectedClub}
@@ -96,6 +104,7 @@
             />
         {:else if activeTab === 'geography'}
             <GeographySection 
+                {statistics} {loading} {error}
                 {players}
                 {selectedCountry}
                 {selectedClub}
@@ -111,6 +120,7 @@
             />
         {:else if activeTab === 'physical'}
             <PhysicalSection 
+                {statistics} {loading} {error}
                 {players}
                 {selectedCountry}
                 {selectedClub}
@@ -126,6 +136,7 @@
             />
         {:else if activeTab === 'positional'}
             <PositionalSection 
+                {statistics} {loading} {error}
                 {players}
                 {selectedCountry}
                 {selectedClub}
@@ -141,6 +152,7 @@
             />
         {:else if activeTab === 'appearance'}
             <AppearanceSection 
+                {statistics} {loading} {error}
                 {players}
                 {selectedCountry}
                 {selectedClub}
@@ -156,6 +168,7 @@
             />
         {:else if activeTab === 'temporal'}
             <TemporalSection 
+                {statistics} {loading} {error}
                 {players}
                 {selectedCountry}
                 {selectedClub}
@@ -171,6 +184,7 @@
             />
         {:else if activeTab === 'clubs'}
             <ClubsSection 
+                {statistics} {loading} {error}
                 {players}
                 {selectedCountry}
                 {selectedClub}
