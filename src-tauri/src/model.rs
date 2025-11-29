@@ -50,6 +50,7 @@ pub struct PlayerFilters {
     pub birth_year_min: Option<i32>,
     pub birth_year_max: Option<i32>,
     pub sort_by: Option<Vec<String>>,
+    pub name_query: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

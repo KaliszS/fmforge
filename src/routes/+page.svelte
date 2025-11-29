@@ -37,6 +37,7 @@
     let favouriteNumber: number | null = $state(null);
     let birthYear: number | null = $state(null);
     let effectiveBirthYear: number | null = $state(null);
+    let nameQuery: string | null = $state(null);
     let sortBy: string[] | null = $state(null);
     let problematicRows: number[] = $state([]);
     let showProblematicDetails = $state(false);
@@ -77,6 +78,7 @@
             preferredFoot,
             favouriteNumber,
             effectiveBirthYear,
+            nameQuery,
             sortBy,
         );
 
@@ -107,6 +109,7 @@
         void favouriteNumber;
         void birthYear;
         void effectiveBirthYear;
+        void nameQuery;
         void sortBy;
         void currentPage;
         void pageSize;
@@ -178,6 +181,7 @@
         bind:favouriteNumber
         bind:birthYear
         bind:effectiveBirthYear
+        bind:nameQuery
         bind:sortBy
         bind:problematicRows 
         bind:showProblematicDetails 
@@ -198,6 +202,7 @@
             bind:favouriteNumber
             bind:birthYear
             bind:effectiveBirthYear
+            bind:nameQuery
             bind:sortBy
             disabled={$showOnlyEdited}
         />
@@ -236,6 +241,7 @@
                 {preferredFoot}
                 {favouriteNumber}
                 {birthYear}
+                {nameQuery}
                 {sortBy}
             />
         {/if}

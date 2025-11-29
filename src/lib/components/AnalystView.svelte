@@ -14,6 +14,7 @@
         preferredFoot,
         favouriteNumber,
         birthYear,
+        nameQuery,
         sortBy
     }: {
         players: PlayerRecord[];
@@ -26,6 +27,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
+        nameQuery: string | null;
         sortBy: string[] | null;
     } = $props();
 
@@ -46,6 +48,7 @@
             {preferredFoot}
             {favouriteNumber}
             {birthYear}
+            {nameQuery}
             {sortBy}
         />
         
@@ -61,6 +64,7 @@
             {preferredFoot}
             {favouriteNumber}
             {birthYear}
+            {nameQuery}
             {sortBy}
         />
     </div>

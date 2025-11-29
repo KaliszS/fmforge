@@ -13,6 +13,7 @@ export async function loadPlayersPage(
   preferredFoot: number | null,
   favouriteNumber: number | null,
   birthYear: number | null,
+  nameQuery: string | null,
   sortBy: string[] | null,
 ): Promise<PlayerRecord[]> {
   return await invoke("get_players_page", {
@@ -29,6 +30,7 @@ export async function loadPlayersPage(
       favourite_number: favouriteNumber || null,
       birth_year_min: birthYear || null,
       birth_year_max: birthYear || null,
+      name_query: nameQuery || null,
       sort_by: sortBy || null,
     },
   });
@@ -56,6 +58,7 @@ export async function getPlayerStatistics(
   preferredFoot: number | null,
   favouriteNumber: number | null,
   birthYear: number | null,
+  nameQuery: string | null,
   sortBy: string[] | null,
 ): Promise<any> {
   return await invoke("get_player_statistics", {
@@ -70,6 +73,7 @@ export async function getPlayerStatistics(
       favourite_number: favouriteNumber || null,
       birth_year_min: birthYear || null,
       birth_year_max: birthYear || null,
+      name_query: nameQuery || null,
       sort_by: sortBy || null,
     },
   });
@@ -85,6 +89,7 @@ export async function getTopPlayers(
   preferredFoot: number | null,
   favouriteNumber: number | null,
   birthYear: number | null,
+  nameQuery: string | null,
   sortBy: string[] | null,
   limit: number = 10,
 ): Promise<any> {
@@ -100,6 +105,7 @@ export async function getTopPlayers(
       favourite_number: favouriteNumber || null,
       birth_year_min: birthYear || null,
       birth_year_max: birthYear || null,
+      name_query: nameQuery || null,
       sort_by: sortBy || null,
     },
     limit,

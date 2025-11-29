@@ -21,6 +21,7 @@
         preferredFoot,
         favouriteNumber,
         birthYear,
+        nameQuery,
         sortBy
     }: { 
         activeTab: string;
@@ -34,7 +35,8 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
-        sortBy: string | null;
+        nameQuery: string | null;
+        sortBy: string[] | null;
     } = $props();
 </script>
 
@@ -75,21 +77,23 @@
                 {favouriteNumber}
                 {birthYear}
                 {sortBy}
+                {nameQuery}
             />
-                {:else if activeTab === 'abilities'}
-                    <AbilitiesSection 
-                        {players}
-                        {selectedCountry}
-                        {selectedClub}
-                        {minCA}
-                        {maxCA}
-                        {minPA}
-                        {maxPA}
-                        {preferredFoot}
-                        {favouriteNumber}
-                        {birthYear}
-                        {sortBy}
-                    />
+        {:else if activeTab === 'abilities'}
+            <AbilitiesSection 
+                {players}
+                {selectedCountry}
+                {selectedClub}
+                {minCA}
+                {maxCA}
+                {minPA}
+                {maxPA}
+                {preferredFoot}
+                {favouriteNumber}
+                {birthYear}
+                {sortBy}
+                {nameQuery}
+            />
         {:else if activeTab === 'geography'}
             <GeographySection 
                 {players}
@@ -103,6 +107,7 @@
                 {favouriteNumber}
                 {birthYear}
                 {sortBy}
+                {nameQuery}
             />
         {:else if activeTab === 'physical'}
             <PhysicalSection 
@@ -117,6 +122,7 @@
                 {favouriteNumber}
                 {birthYear}
                 {sortBy}
+                {nameQuery}
             />
         {:else if activeTab === 'positional'}
             <PositionalSection 
@@ -131,6 +137,7 @@
                 {favouriteNumber}
                 {birthYear}
                 {sortBy}
+                {nameQuery}
             />
         {:else if activeTab === 'appearance'}
             <AppearanceSection 
@@ -145,6 +152,7 @@
                 {favouriteNumber}
                 {birthYear}
                 {sortBy}
+                {nameQuery}
             />
         {:else if activeTab === 'temporal'}
             <TemporalSection 
@@ -159,6 +167,7 @@
                 {favouriteNumber}
                 {birthYear}
                 {sortBy}
+                {nameQuery}
             />
         {:else if activeTab === 'clubs'}
             <ClubsSection 
@@ -173,6 +182,7 @@
                 {favouriteNumber}
                 {birthYear}
                 {sortBy}
+                {nameQuery}
             />
         {/if}
     </div>

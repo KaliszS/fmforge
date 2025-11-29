@@ -1,6 +1,6 @@
 use crate::model::{PlayerFilters, PlayerRecord};
 use crate::{get_players};
-use crate::utils::{get_birth_year, sort_players};
+use crate::utils::{get_birth_year, sort_players, remove_accents, matches_search_query};
 
 #[tauri::command]
 pub fn get_players_chunk(filters: Option<PlayerFilters>) -> Vec<PlayerRecord> {
@@ -15,6 +15,13 @@ pub fn get_players_chunk(filters: Option<PlayerFilters>) -> Vec<PlayerRecord> {
         .iter()
         .filter(|(_, player)| {
             if let Some(ref f) = filters {
+                // Name filter
+                if let Some(ref query) = f.name_query {
+                    if !matches_search_query(player, query) {
+                        return false;
+                    }
+                }
+
                 // Country filter
                 if let Some(c) = f.country {
                     if player.nationality_id != c {

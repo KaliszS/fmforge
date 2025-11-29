@@ -1,6 +1,6 @@
 use crate::model::{PlayerFilters, PlayerRecord, PlayerStatistics, NumberStats, TopPlayers};
 use crate::{get_players};
-use crate::utils::{get_birth_year, get_birth_month};
+use crate::utils::{get_birth_year, get_birth_month, remove_accents, matches_search_query};
 
 #[tauri::command]
 pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics {
@@ -11,6 +11,13 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
         .iter()
         .filter(|(_, player)| {
             if let Some(ref f) = filters {
+                // Name filter
+                if let Some(ref query) = f.name_query {
+                    if !matches_search_query(player, query) {
+                        return false;
+                    }
+                }
+
                 // Apply same filtering logic as get_players_chunk
                 if let Some(c) = f.country {
                     if player.nationality_id != c {
@@ -191,6 +198,13 @@ pub fn get_top_players(filters: Option<PlayerFilters>, limit: usize) -> TopPlaye
         .iter()
         .filter(|(_, player)| {
             if let Some(ref f) = filters {
+                // Name filter
+                if let Some(ref query) = f.name_query {
+                    if !matches_search_query(player, query) {
+                        return false;
+                    }
+                }
+
                 // Apply same filtering logic
                 if let Some(c) = f.country {
                     if player.nationality_id != c { return false; }

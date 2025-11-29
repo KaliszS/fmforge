@@ -13,6 +13,7 @@
         favouriteNumber = $bindable(),
         birthYear = $bindable(),
         effectiveBirthYear = $bindable(),
+        nameQuery = $bindable(),
         sortBy = $bindable(),
         disabled = false,
     }: {
@@ -26,11 +27,24 @@
         favouriteNumber: number | null;
         birthYear: number | null;
         effectiveBirthYear: number | null;
+        nameQuery: string | null;
         sortBy: string[] | null;
         disabled?: boolean;
     } = $props();
 
     let isExpanded = $state(false);
+    let searchInput = $state(nameQuery ?? "");
+    let debounceTimer: ReturnType<typeof setTimeout>;
+
+    function handleSearchInput(event: Event) {
+        const value = (event.target as HTMLInputElement).value;
+        searchInput = value;
+        
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            nameQuery = value.trim() === "" ? null : value.trim();
+        }, 300);
+    }
 
     const countryOptions = Object.entries(countryMap).map(([id, { name }]) => ({
         id: +id,
@@ -66,6 +80,8 @@
             preferredFoot = null;
             favouriteNumber = null;
             birthYear = null;
+            nameQuery = null;
+            searchInput = "";
         }
     }
 
@@ -94,7 +110,8 @@
         maxPA !== null ||
         preferredFoot !== null ||
         favouriteNumber !== null ||
-        birthYear !== null
+        birthYear !== null ||
+        nameQuery !== null
     );
 </script>
 
@@ -113,7 +130,7 @@
             <span class="filters-icon">🔍</span>
             <h3>Filters</h3>
             {#if hasActiveFilters && !disabled}
-                <span class="active-indicator">{[selectedCountry, selectedClub, minCA, maxCA, minPA, maxPA, preferredFoot, favouriteNumber, birthYear].filter(v => v !== null).length}</span>
+                <span class="active-indicator">{[selectedCountry, selectedClub, minCA, maxCA, minPA, maxPA, preferredFoot, favouriteNumber, birthYear, nameQuery].filter(v => v !== null).length}</span>
             {/if}
         </div>
         <div class="filters-actions">
@@ -140,8 +157,25 @@
                 <div class="filter-grid">
                     <!-- General Section -->
                     <div class="filter-section">
-                        <h4 class="section-title">General</h4>
-                        <div class="filter-row">
+                        <div class="filter-row three-cols">
+                            <div class="filter-item">
+                                <label for="nameSearch" class="filter-label">
+                                    Name
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-icon">👤</span>
+                                    <input
+                                        id="nameSearch"
+                                        type="text"
+                                        value={searchInput}
+                                        oninput={handleSearchInput}
+                                        placeholder="Search by name..."
+                                        class="input"
+                                        style="width: 100%"
+                                    />
+                                </div>
+                            </div>
+
                             <div class="filter-item">
                                 <label for="countrySelect" class="filter-label">
                                     Country
@@ -188,7 +222,6 @@
 
                     <!-- Attributes Section -->
                     <div class="filter-section">
-                        <h4 class="section-title">Attributes</h4>
                         <div class="filter-row">
                             <div class="filter-item">
                                 <label for="minCA" class="filter-label">
@@ -250,7 +283,6 @@
 
                     <!-- Personal Section -->
                     <div class="filter-section">
-                        <h4 class="section-title">Personal</h4>
                         <div class="filter-row three-cols">
                             <div class="filter-item">
                                 <label for="preferredFoot" class="filter-label">
@@ -415,17 +447,6 @@
         gap: var(--spacing-md);
     }
 
-    .section-title {
-        margin: 0;
-        font-size: var(--font-sm);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--color-text-muted);
-        padding-bottom: var(--spacing-xs);
-        border-bottom: 1px solid var(--color-border-light);
-    }
-
     .filter-row {
         display: flex;
         flex-wrap: wrap;
@@ -494,7 +515,8 @@
     }
 
     .input-wrapper .input,
-    .input-group .select-input {
+    .input-group .select-input,
+    .input-group input[type="text"] {
         padding-left: 2.25rem; /* Space for icon */
     }
 
