@@ -2,11 +2,17 @@ import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import type { PlayerRecord } from "$lib/types";
 
-export async function selectFileAndLoad(): Promise<string | null> {
-  const path = await open({ multiple: false });
-  if (typeof path === "string") {
-    await invoke("load_players_from_file", { path });
-    return path;
+export async function selectFileAndLoad(convertBirthdates: boolean = false, gameYear: number = 0, modStartYear: number = 0): Promise<string | null> {
+  const paths = await open({ multiple: true });
+  if (paths) {
+    const pathList = Array.isArray(paths) ? paths : [paths];
+    await invoke("load_players_from_file", { 
+      paths: pathList,
+      convertBirthdates,
+      gameYear,
+      modStartYear
+    });
+    return pathList.length > 1 ? "Multiple files loaded" : pathList[0];
   }
   return null;
 }
@@ -24,8 +30,8 @@ export async function selectSaveFile(): Promise<string | null> {
   return path;
 }
 
-export async function savePlayersToFile(path: string) {
-  await invoke("save_players_to_file", { path });
+export async function savePlayersToFile(path: string, filters?: any) {
+  await invoke("save_players_to_file", { path, filters });
 }
 
 export async function getProblematicRows(): Promise<number[]> {
