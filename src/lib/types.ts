@@ -32,4 +32,9 @@ export type Country = {
 
 export type CountryMap = Record<number, Country>;
 
-export type ClubMap = Record<number, string>;
+export type ClubData = {
+  name: string;
+  gameName: string;
+};
+
+export type ClubMap = Record<number, ClubData>;

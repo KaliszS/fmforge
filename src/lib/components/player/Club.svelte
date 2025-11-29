@@ -14,7 +14,7 @@
 
     function getClubName(id: number | null): string | null {
         if (id === null) return null;
-        return clubMap[id] ?? `${id}`;
+        return clubMap[id]?.name ?? `${id}`;
     }
 </script>
 
