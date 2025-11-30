@@ -1,9 +1,27 @@
 <script lang="ts">
+    import QuickEditModal from "$lib/components/common/QuickEditModal.svelte";
+
     let {
         height = $bindable(),
         weight = $bindable(),
         edit_mode,
     }: { height: number; weight: number; edit_mode: boolean } = $props();
+
+    let quickEdit = $state(false);
+    let temp_height = $state(0);
+    let temp_weight = $state(0);
+
+    function openQuickEdit() {
+        if (edit_mode) return;
+        temp_height = height;
+        temp_weight = weight;
+        quickEdit = true;
+    }
+
+    function saveQuickEdit() {
+        height = temp_height;
+        weight = temp_weight;
+    }
 </script>
 
 {#if edit_mode}
@@ -18,15 +36,42 @@
         </label>
     </div>
 {:else}
-    <section class="height-icon" title={`Height: ${height} cm`}>
-        📏 <span>{height}</span>
-    </section>
-    <section class="weidth-icon" title={`Weight: ${weight} kg`}>
-        🏋️ <span>{weight}</span>
-    </section>
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div style="display:contents" ondblclick={openQuickEdit}>
+        <section class="height-icon" title={`Height: ${height} cm`}>
+            📏 <span>{height}</span>
+        </section>
+        <section class="weidth-icon" title={`Weight: ${weight} kg`}>
+            🏋️ <span>{weight}</span>
+        </section>
+    </div>
+
+    <QuickEditModal title="Edit Height & Weight" bind:isOpen={quickEdit} onSave={saveQuickEdit}>
+        <div class="quick-edit-fields">
+            <label>
+                <span>Height (cm)</span>
+                <input type="number" class="input" bind:value={temp_height} />
+            </label>
+            <label>
+                <span>Weight (kg)</span>
+                <input type="number" class="input" bind:value={temp_weight} />
+            </label>
+        </div>
+    </QuickEditModal>
 {/if}
 
 <style>
+    .quick-edit-fields {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    .quick-edit-fields label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+    }
     .height-icon,
     .weidth-icon {
         display: inline-flex;

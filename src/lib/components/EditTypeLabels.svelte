@@ -52,70 +52,79 @@
         return count;
     });
     
-    function filterModified() {
-        if ($showOnlyEdited && editTypeFilter === 'modified') {
+    function filter(type: 'modified' | 'added' | 'deleted') {
+        if ($showOnlyEdited && editTypeFilter === type) {
             showOnlyEdited.set(false);
         } else {
             showOnlyEdited.set(true);
-            editTypeFilter = 'modified';
-            onFilterChange('modified');
+            editTypeFilter = type;
+            onFilterChange(type);
         }
     }
-    
-    function filterAdded() {
-        if ($showOnlyEdited && editTypeFilter === 'added') {
+
+    function handleRevert(type: 'modified' | 'added' | 'deleted') {
+        if (type === 'modified') revertModifiedPlayers();
+        if (type === 'added') revertAddedPlayers();
+        if (type === 'deleted') revertDeletedPlayers();
+        if ($showOnlyEdited && editTypeFilter === type) {
             showOnlyEdited.set(false);
-        } else {
-            showOnlyEdited.set(true);
-            editTypeFilter = 'added';
-            onFilterChange('added');
-        }
-    }
-    
-    function filterDeleted() {
-        if ($showOnlyEdited && editTypeFilter === 'deleted') {
-            showOnlyEdited.set(false);
-        } else {
-            showOnlyEdited.set(true);
-            editTypeFilter = 'deleted';
-            onFilterChange('deleted');
+            editTypeFilter = 'all';
+            onFilterChange('all');
         }
     }
 </script>
 
 <div class="edit-labels">
     {#if modifiedCount > 0}
-        <button 
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div 
             class="label modified" 
             class:active={$showOnlyEdited && editTypeFilter === 'modified'}
             title={$showOnlyEdited && editTypeFilter === 'modified' ? 'Show all players' : 'Show only modified players'} 
-            onclick={filterModified}
+            onclick={() => filter('modified')}
+            role="button"
+            tabindex="0"
         >
             <span>Modified ({modifiedCount})</span>
-            <RefreshButton title="Revert modified players" onClick={revertModifiedPlayers} />
-        </button>
+            <span onclick={(e) => e.stopPropagation()} role="none">
+                <RefreshButton title="Revert modified players" onClick={() => handleRevert('modified')} />
+            </span>
+        </div>
     {/if}
     {#if addedCount > 0}
-        <button 
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div 
             class="label added" 
             class:active={$showOnlyEdited && editTypeFilter === 'added'}
             title={$showOnlyEdited && editTypeFilter === 'added' ? 'Show all players' : 'Show only added players'} 
-            onclick={filterAdded}
+            onclick={() => filter('added')}
+            role="button"
+            tabindex="0"
         >
             <span>Added ({addedCount})</span>
-            <RefreshButton title="Revert added players" onClick={revertAddedPlayers} />
-        </button>
+            <span onclick={(e) => e.stopPropagation()} role="none">
+                <RefreshButton title="Revert added players" onClick={() => handleRevert('added')} />
+            </span>
+        </div>
     {/if}
     {#if deletedCount > 0}
-        <button 
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div 
             class="label deleted" 
             class:active={$showOnlyEdited && editTypeFilter === 'deleted'}
             title={$showOnlyEdited && editTypeFilter === 'deleted' ? 'Show all players' : 'Show only deleted players'} 
-            onclick={filterDeleted}
+            onclick={() => filter('deleted')}
+            role="button"
+            tabindex="0"
         >
             <span>Deleted ({deletedCount})</span>
-            <RefreshButton title="Revert deleted players" onClick={revertDeletedPlayers} />
-        </button>
+            <span onclick={(e) => e.stopPropagation()} role="none">
+                <RefreshButton title="Revert deleted players" onClick={() => handleRevert('deleted')} />
+            </span>
+        </div>
     {/if}
 </div>
 

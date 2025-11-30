@@ -172,8 +172,8 @@
                     class="btn-save-main" 
                     class:has-edits={$editedCount > 0}
                     onclick={saveToFile} 
-                    disabled={!save_path}
-                    title={!save_path ? "Please select a save location first" : "Save changes to file"}
+                    disabled={!save_path || $editedCount === 0}
+                    title={!save_path ? "Please select a save location first" : $editedCount === 0 ? "No changes to save" : "Save changes to file"}
                 >
                     <span class="icon">💾</span>
                     <span class="label">Save</span>

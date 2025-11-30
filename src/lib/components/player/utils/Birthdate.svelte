@@ -1,4 +1,5 @@
 <script lang="ts">
+    import QuickEditModal from "$lib/components/common/QuickEditModal.svelte";
     import { modSettings, type ModSettings } from '$lib/stores/modSettings';
     
     let {
@@ -98,6 +99,52 @@
         }
         return "";
     });
+
+    let quickEdit = $state(false);
+    let temp_birthdate = $state('');
+
+    function openQuickEdit() {
+        if (edit_mode) return;
+        temp_birthdate = birthdate;
+        quickEdit = true;
+    }
+
+    function saveQuickEdit() {
+        birthdate = temp_birthdate;
+    }
+
+    const tempDateInputValue = $derived.by(() => {
+        if (!temp_birthdate) return "";
+        const dateToShow = $modSettings.showRealBirthDates && $modSettings.canToggle 
+            ? calculateRealBirthdate(temp_birthdate, $modSettings) 
+            : temp_birthdate;
+        const [day, month, year] = dateToShow.split("/");
+        if (day && month && year) {
+            const paddedDay = day.padStart(2, "0");
+            const paddedMonth = month.padStart(2, "0");
+            return `${year}-${paddedMonth}-${paddedDay}`;
+        }
+        return "";
+    });
+
+    function handleTempDateChange(event: Event) {
+        const target = event.target as HTMLInputElement;
+        const dateValue = target.value;
+        
+        if (dateValue) {
+            const [year, month, day] = dateValue.split("-");
+            const newDate = `${day}/${month}/${year}`;
+            
+            if ($modSettings.showRealBirthDates && $modSettings.canToggle) {
+                const inGameDate = calculateInGameBirthdate(newDate, $modSettings);
+                temp_birthdate = inGameDate;
+            } else {
+                temp_birthdate = newDate;
+            }
+        } else {
+            temp_birthdate = "";
+        }
+    }
 </script>
 
 {#if edit_mode}
@@ -109,9 +156,23 @@
         title="Birthdate"
     />
 {:else}
-    <section title="birthdate (DD/MM/YYYY)">
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <section title="birthdate (DD/MM/YYYY)" ondblclick={openQuickEdit}>
         <strong>{formattedDate}</strong>
     </section>
+
+    <QuickEditModal title="Edit Birthdate" bind:isOpen={quickEdit} onSave={saveQuickEdit}>
+        <label style="display:flex; flex-direction:column; gap:0.5em;">
+            <span>Birthdate</span>
+            <input
+                type="date"
+                value={tempDateInputValue}
+                onchange={handleTempDateChange}
+                class="input"
+            />
+        </label>
+    </QuickEditModal>
 {/if}
 
 <style>
