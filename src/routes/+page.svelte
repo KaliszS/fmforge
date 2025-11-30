@@ -3,12 +3,13 @@
     import PaginationSection from "$lib/components/PaginationSection.svelte";
     import AppHeader from "$lib/components/AppHeader.svelte";
     import PlayerFilters from "$lib/components/PlayerFilters.svelte";
-    import ProblematicRows from "$lib/components/ProblematicRows.svelte";
+    import InvalidRows from "$lib/components/InvalidRows.svelte";
     import ViewSwitcher from "$lib/components/ViewSwitcher.svelte";
     import AnalystView from "$lib/components/AnalystView.svelte";
     import type { PlayerRecord } from "$lib/types";
     import { showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers, modifiedPlayers } from "$lib/stores/editedPlayers";
     import { loadPlayersPage } from "$lib/api/player";
+    import type { InvalidRow } from "$lib/api/file";
     import { onMount } from 'svelte';
 
     onMount(() => {
@@ -39,8 +40,8 @@
     let effectiveBirthYear: number | null = $state(null);
     let nameQuery: string | null = $state(null);
     let sortBy: string[] | null = $state(null);
-    let problematicRows: number[] = $state([]);
-    let showProblematicDetails = $state(false);
+    let invalidRows: InvalidRow[] = $state([]);
+    let showInvalidDetails = $state(false);
     let currentView: 'scout' | 'analyst' = $state('scout');
     let editTypeFilter: 'all' | 'modified' | 'added' | 'deleted' = $state('all');
 
@@ -183,14 +184,14 @@
         bind:effectiveBirthYear
         bind:nameQuery
         bind:sortBy
-        bind:problematicRows 
-        bind:showProblematicDetails 
+        bind:invalidRows 
+        bind:showInvalidDetails 
         bind:isLastPage
         {triggerRefresh}
     />
     
     <article class="content">
-        <ProblematicRows bind:problematicRows bind:showProblematicDetails />
+        <InvalidRows bind:invalidRows bind:showInvalidDetails />
         <PlayerFilters 
             bind:selectedCountry 
             bind:selectedClub 

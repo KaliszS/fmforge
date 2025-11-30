@@ -2,8 +2,8 @@ use std::collections::{BTreeMap, HashSet};
 use std::fs;
 use std::io::{BufRead, BufReader, Write};
 
-use crate::model::{Player, RecordType, PlayerFilters};
-use crate::{get_players, get_problematic_rows};
+use crate::model::{Player, RecordType, PlayerFilters, InvalidRow};
+use crate::{get_players, get_invalid_rows};
 use crate::utils::{get_birth_year, matches_search_query};
 
 #[tauri::command]
@@ -24,8 +24,8 @@ pub fn load_players_from_file(
     };
     
     {
-        let mut problematic_rows = get_problematic_rows().lock().unwrap();
-        problematic_rows.clear();
+        let mut invalid_rows = get_invalid_rows().lock().unwrap();
+        invalid_rows.clear();
     }
 
     for path in paths {
@@ -44,14 +44,18 @@ pub fn load_players_from_file(
 
             if fields.len() < 19 {
                 let row_number = line_idx + 1;
-                // We only track problematic rows for the first file or we need a better way to report them
+                // We only track invalid rows for the first file or we need a better way to report them
                 // For now, let's just log them to console or ignore for subsequent files to avoid confusion
                 // Or maybe we can store them with file index? 
                 // For simplicity, let's just add them to the list, but user won't know which file.
                 // Ideally we should improve this later.
                 {
-                    let mut problematic_rows = get_problematic_rows().lock().unwrap();
-                    problematic_rows.push(row_number);
+                    let mut invalid_rows = get_invalid_rows().lock().unwrap();
+                    invalid_rows.push(InvalidRow {
+                        row_number,
+                        content: line.to_string(),
+                        file_path: path.clone(),
+                    });
                 }
                 continue;
             }

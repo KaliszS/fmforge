@@ -1,6 +1,6 @@
 use crate::model::{PlayerFilters, PlayerRecord};
 use crate::{get_players};
-use crate::utils::{get_birth_year, sort_players, remove_accents, matches_search_query};
+use crate::utils::{get_birth_year, sort_players, matches_search_query};
 
 #[tauri::command]
 pub fn get_players_chunk(filters: Option<PlayerFilters>) -> Vec<PlayerRecord> {

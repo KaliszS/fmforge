@@ -34,6 +34,12 @@ export async function savePlayersToFile(path: string, filters?: any) {
   await invoke("save_players_to_file", { path, filters });
 }
 
-export async function getProblematicRows(): Promise<number[]> {
-  return await invoke("get_problematic_rows_list");
+export interface InvalidRow {
+    row_number: number;
+    content: string;
+    file_path: string;
+}
+
+export async function getInvalidRows(): Promise<InvalidRow[]> {
+  return await invoke("get_invalid_rows_list");
 }

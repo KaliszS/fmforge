@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { selectFileAndLoad, selectSaveFile, savePlayersToFile, getProblematicRows } from "$lib/api/file";
+    import { selectFileAndLoad, selectSaveFile, savePlayersToFile, getInvalidRows, type InvalidRow } from "$lib/api/file";
     import { removePlayer, updatePlayers } from "$lib/api/player";
     import type { PlayerRecord } from "$lib/types";
     import ThemeToggle from "./ThemeToggle.svelte";
@@ -23,8 +23,8 @@
         effectiveBirthYear = $bindable(),
         nameQuery = $bindable(),
         sortBy = $bindable(),
-        problematicRows = $bindable(),
-        showProblematicDetails = $bindable(),
+        invalidRows = $bindable(),
+        showInvalidDetails = $bindable(),
         isLastPage = $bindable(),
         triggerRefresh,
     }: {
@@ -43,8 +43,8 @@
         effectiveBirthYear: number | null;
         nameQuery: string | null;
         sortBy: string[] | null;
-        problematicRows: number[];
-        showProblematicDetails: boolean;
+        invalidRows: InvalidRow[];
+        showInvalidDetails: boolean;
         isLastPage: boolean;
         triggerRefresh: () => void;
     } = $props();
@@ -122,7 +122,7 @@
             clearAllEditedPlayers();
             
             setTimeout(async () => {
-                problematicRows = await getProblematicRows();
+                invalidRows = await getInvalidRows();
             }, 100);
             
             currentPage = 0;
