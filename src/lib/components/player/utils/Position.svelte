@@ -8,7 +8,7 @@
 </script>
 
 {#if edit_mode}
-    <select class="select" bind:value={position}>
+    <select class="input input-select position-select" bind:value={position}>
         {#each Object.entries(POSITION_MAP) as [key, value]}
             <option value={key}>{value.label}</option>
         {/each}
@@ -24,8 +24,9 @@
 
 <style>
     /* Edit mode styling */
-    :global(.edit-mode) select {
+    :global(.edit-mode) .position-select {
         min-width: 6rem;
+        width: 100%;
     }
 </style>
 

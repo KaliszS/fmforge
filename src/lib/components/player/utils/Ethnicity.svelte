@@ -8,7 +8,7 @@
 </script>
 
 {#if edit_mode}
-    <select class="select" bind:value={ethnicity} title="Ethnicity">
+    <select class="input input-select ethnicity-select" bind:value={ethnicity} title="Ethnicity">
         {#each Array.from(ETHNICITY_MAP.entries()) as [id, e]}
             <option value={id}>{e.title}</option>
         {/each}
@@ -44,7 +44,7 @@
     }
 
     /* Edit mode styling */
-    :global(.edit-mode) select {
+    :global(.edit-mode) .ethnicity-select {
         min-width: 8rem;
     }
 </style>

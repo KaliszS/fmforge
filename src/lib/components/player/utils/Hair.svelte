@@ -8,7 +8,7 @@
 </script>
 
 {#if edit_mode}
-    <select class="select" bind:value={hair_color} title="Hair colour">
+    <select class="input input-select hair-select" bind:value={hair_color} title="Hair colour">
         {#each HAIR_COLORS as hc}
             <option value={hc.id}>{hc.label}</option>
         {/each}
@@ -43,7 +43,7 @@
     }
 
     /* Edit mode styling */
-    :global(.edit-mode) select {
+    :global(.edit-mode) .hair-select {
         min-width: 6rem;
     }
 </style>

@@ -20,8 +20,11 @@
 
 <style>
     .city-input {
-        width: 10em;
-        text-align: center;
+        width: 100%;
+        text-align: left;
+        min-width: 6rem;
+        max-width: 100%; /* Override global .input-text limit */
+        flex: 1;
     }
 
     .city-box {
@@ -38,11 +41,5 @@
     .empty-city {
         color: var(--color-text-disabled);
         font-style: italic;
-    }
-
-    /* Edit mode styling */
-    :global(.edit-mode) .city-input {
-        min-width: 6rem;
-        max-width: 10rem;
     }
 </style>

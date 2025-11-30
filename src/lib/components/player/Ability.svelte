@@ -4,6 +4,18 @@
         pa = $bindable(),
         edit_mode = false,
     }: { ca: number; pa: number; edit_mode: boolean } = $props();
+
+    function handleInput(e: Event, type: 'ca' | 'pa') {
+        const target = e.target as HTMLInputElement;
+        let val = parseInt(target.value);
+        
+        if (isNaN(val)) val = 0;
+        if (val < 0) val = 0;
+        if (val > 200) val = 200;
+        
+        if (type === 'ca') ca = val;
+        else pa = val;
+    }
 </script>
 
 {#if edit_mode}
@@ -12,7 +24,8 @@
             CA:
             <input
                 type="number"
-                bind:value={ca}
+                value={ca}
+                oninput={(e) => handleInput(e, 'ca')}
                 min="0"
                 max="200"
                 class="input input-number ability-input"
@@ -22,7 +35,8 @@
             PA:
             <input
                 type="number"
-                bind:value={pa}
+                value={pa}
+                oninput={(e) => handleInput(e, 'pa')}
                 min="0"
                 max="200"
                 class="input input-number ability-input"
@@ -44,23 +58,37 @@
 <style>
     .ability-edit {
         display: flex;
-        gap: var(--spacing-xs);
-        padding: var(--spacing-xs);
-        background-color: var(--color-background-light);
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--color-border-light);
+        gap: var(--spacing-md);
     }
 
     .ability-edit label {
         display: flex;
-        flex-direction: column;
+        align-items: center;
         gap: var(--spacing-xs);
         font-size: var(--font-sm);
-        font-weight: 500;
-        color: var(--color-text-light);
+        font-weight: 700;
+        color: var(--color-text-muted);
+        background-color: var(--color-background);
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border);
+    }
+    
+    .ability-edit label:focus-within {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
     }
 
     .ability-input {
-        width: 4.375rem;
+        width: 3.5rem;
+        border: none;
+        background: transparent;
+        font-weight: normal;
+        text-align: center;
+        padding: 0;
+    }
+    
+    .ability-input:focus {
+        box-shadow: none;
     }
 </style>

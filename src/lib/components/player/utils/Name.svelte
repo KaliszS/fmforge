@@ -20,9 +20,11 @@
 </script>
 
 {#if edit_mode}
-    <input type="text" class="input input-text" bind:value={first_name} placeholder="First name" />
-    <input type="text" class="input input-text" bind:value={common_name} placeholder="Common name" />
-    <input type="text" class="input input-text" bind:value={last_name} placeholder="Last name" />
+    <div class="name-inputs">
+        <input type="text" class="input input-text" bind:value={first_name} placeholder="First name" title="First Name" />
+        <input type="text" class="input input-text" bind:value={common_name} placeholder="Common name" title="Common Name" />
+        <input type="text" class="input input-text" bind:value={last_name} placeholder="Last name" title="Last Name" />
+    </div>
 {:else}
     <span class="name" title={full_name}>
         {#if common_name}
@@ -42,5 +44,16 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .name-inputs {
+        display: flex;
+        gap: var(--spacing-xs);
+        flex-wrap: wrap;
+    }
+    
+    .name-inputs input {
+        flex: 1;
+        min-width: 80px;
     }
 </style>

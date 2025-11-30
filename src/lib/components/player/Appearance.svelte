@@ -23,8 +23,10 @@
 
 <div class="appearance">
     <Ethnicity bind:ethnicity {edit_mode} />
-    <Skin bind:skin_tone {edit_mode} />
-    <Hair bind:hair_color {edit_mode} />
+    <div class="skin-hair-group">
+        <Skin bind:skin_tone {edit_mode} />
+        <Hair bind:hair_color {edit_mode} />
+    </div>
     <HeightWeight bind:height bind:weight {edit_mode} />
 </div>
 
@@ -36,12 +38,19 @@
         align-items: center;
     }
 
+    .skin-hair-group {
+        display: contents;
+    }
+
     /* Edit mode styling */
     :global(.edit-mode) .appearance {
-        padding: var(--spacing-xs);
-        background-color: var(--color-background-light);
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--color-border-light);
-        gap: var(--spacing-xs);
+        gap: var(--spacing-md);
+        justify-content: center;
+    }
+
+    :global(.edit-mode) .skin-hair-group {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
     }
 </style>

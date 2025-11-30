@@ -54,26 +54,23 @@
     .club-edit {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-xs);
-        padding: var(--spacing-xs);
-        background-color: var(--color-background-light);
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--color-border-light);
+        gap: var(--spacing-sm);
     }
 
     .club-edit label {
         display: flex;
         align-items: center;
-        gap: var(--spacing-xs);
+        gap: var(--spacing-sm);
         padding: var(--spacing-xs);
         background-color: var(--color-background);
         border-radius: var(--radius-sm);
         border: 1px solid var(--color-border);
-        transition: border-color var(--transition-fast);
+        transition: all var(--transition-fast);
     }
 
-    .club-edit label:hover {
+    .club-edit label:hover, .club-edit label:focus-within {
         border-color: var(--color-primary);
+        box-shadow: 0 2px 4px var(--color-shadow-light);
     }
 
     .select-wrapper {
@@ -84,6 +81,15 @@
     .club-input {
         width: 4rem;
         text-align: center;
+        border: none;
+        background: transparent;
+        font-weight: 600;
+        color: var(--color-text-muted);
+    }
+    
+    .club-input:focus {
+        color: var(--color-primary);
+        outline: none;
     }
 
     .icon {
