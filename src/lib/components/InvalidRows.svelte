@@ -1,68 +1,66 @@
 <script lang="ts">
-    import type { ProblematicRow } from "$lib/api/file";
+    import type { InvalidRow } from "$lib/api/file";
     import { save } from "@tauri-apps/plugin-dialog";
     import { writeTextFile } from "@tauri-apps/plugin-fs";
 
     let {
-        problematicRows = $bindable(),
-        showProblematicDetails = $bindable(),
+        invalidRows = $bindable(),
+        showInvalidDetails = $bindable(),
     }: {
-        problematicRows: ProblematicRow[];
-        showProblematicDetails: boolean;
+        invalidRows: InvalidRow[];
+        showInvalidDetails: boolean;
     } = $props();
 
-    function toggleProblematicDetails() {
-        showProblematicDetails = !showProblematicDetails;
+    function toggleInvalidDetails() {
+        showInvalidDetails = !showInvalidDetails;
     }
 
-    async function exportProblematicRows() {
+    async function exportInvalidRows() {
         try {
             const path = await save({
                 filters: [{
-                    name: "Text File",
-                    extensions: ["txt"]
+                    name: "EDT File",
+                    extensions: ["edt"]
                 }],
-                defaultPath: "problematic_rows.txt"
+                defaultPath: "invalid_rows.edt"
             });
 
             if (path) {
-                const content = problematicRows.map(row => 
-                    `File: ${row.file_path}\nRow: ${row.row_number}\nContent: ${row.content}\n-------------------`
-                ).join("\n");
+                const content = invalidRows.map(row => row.content).join("\n");
                 
                 await writeTextFile(path, content);
                 alert("Export successful!");
             }
         } catch (error) {
             console.error("Failed to export:", error);
-            alert("Failed to export problematic rows.");
+            alert("Failed to export invalid rows.");
         }
     }
 </script>
 
-{#if problematicRows && problematicRows.length > 0}
-    <section class="problematic-rows">
-        <article class="problematic-header" onclick={toggleProblematicDetails}>
-            <span class="problematic-title">
-                ⚠️ {problematicRows.length} rows have invalid data (need 19 fields)
+{#if invalidRows && invalidRows.length > 0}
+    <section class="invalid-rows">
+        <article class="invalid-header" onclick={toggleInvalidDetails}>
+            <span class="invalid-title">
+                ⚠️ {invalidRows.length} rows have invalid data (need 19 fields)
             </span>
             <div class="header-actions">
-                <button class="btn-export" onclick={(e) => { e.stopPropagation(); exportProblematicRows(); }}>
+                <button class="btn-export" onclick={(e) => { e.stopPropagation(); exportInvalidRows(); }}>
                     Export
                 </button>
-                <span class="problematic-toggle">
-                    {showProblematicDetails ? "▼" : "▶"}
+                <span class="invalid-toggle">
+                    {showInvalidDetails ? "▼" : "▶"}
                 </span>
             </div>
         </article>
-        {#if showProblematicDetails}
-            <div class="problematic-details">
-                <p class="problematic-description">
+        {#if showInvalidDetails}
+            <div class="invalid-details">
+                <p class="invalid-description">
                     The following rows in the source file have fewer than 19 fields and were skipped:
                 </p>
-                <div class="problematic-list">
-                    {#each problematicRows as row}
-                        <div class="problematic-row-item">
+                <div class="invalid-list">
+                    {#each invalidRows as row}
+                        <div class="invalid-row-item">
                             <div class="row-meta">
                                 <span class="row-file">{row.file_path.split(/[/\\]/).pop()}</span>
                                 <span class="row-number">Row {row.row_number}</span>
@@ -77,7 +75,7 @@
 {/if}
 
 <style>
-    .problematic-rows {
+    .invalid-rows {
         background-color: #fff3cd;
         border: 1px solid #ffeaa7;
         border-radius: var(--radius-md);
@@ -85,7 +83,7 @@
         overflow: hidden;
     }
 
-    .problematic-header {
+    .invalid-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -94,11 +92,11 @@
         transition: background-color var(--transition-fast);
     }
 
-    .problematic-header:hover {
+    .invalid-header:hover {
         background-color: #ffeaa7;
     }
 
-    .problematic-title {
+    .invalid-title {
         font-weight: 600;
         color: #856404;
         font-size: var(--font-sm);
@@ -127,26 +125,26 @@
         transform: translateY(-1px);
     }
 
-    .problematic-toggle {
+    .invalid-toggle {
         font-size: var(--font-sm);
         color: #856404;
         font-weight: bold;
         transition: transform var(--transition-fast);
     }
 
-    .problematic-details {
+    .invalid-details {
         padding: 0 var(--spacing-md) var(--spacing-md);
         border-top: 1px solid #ffeaa7;
         background-color: #fffbf0;
     }
 
-    .problematic-description {
+    .invalid-description {
         margin: var(--spacing-sm) 0;
         font-size: var(--font-sm);
         color: #856404;
     }
 
-    .problematic-list {
+    .invalid-list {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-xs);
@@ -158,7 +156,7 @@
         border: 1px solid var(--color-border-light);
     }
 
-    .problematic-row-item {
+    .invalid-row-item {
         display: flex;
         flex-direction: column;
         gap: 2px;
@@ -187,26 +185,26 @@
     }
 
     /* Dark theme styling */
-    :global([data-theme="dark"]) .problematic-rows {
+    :global([data-theme="dark"]) .invalid-rows {
         background-color: #3a2a1a;
         border: 1px solid #5f3a1e;
     }
 
-    :global([data-theme="dark"]) .problematic-header:hover {
+    :global([data-theme="dark"]) .invalid-header:hover {
         background-color: #5f3a1e;
     }
 
-    :global([data-theme="dark"]) .problematic-title,
-    :global([data-theme="dark"]) .problematic-toggle {
+    :global([data-theme="dark"]) .invalid-title,
+    :global([data-theme="dark"]) .invalid-toggle {
         color: #ffb366;
     }
 
-    :global([data-theme="dark"]) .problematic-details {
+    :global([data-theme="dark"]) .invalid-details {
         border-top: 1px solid #5f3a1e;
         background-color: #2a1a0f;
     }
 
-    :global([data-theme="dark"]) .problematic-description {
+    :global([data-theme="dark"]) .invalid-description {
         color: #ffb366;
     }
 

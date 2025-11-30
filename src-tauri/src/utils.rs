@@ -19,8 +19,6 @@ static COUNTRY_MAP: Lazy<HashMap<i32, String>> = Lazy::new(|| {
 #[derive(Deserialize)]
 struct ClubData {
     name: String,
-    #[serde(rename = "gameName", default)]
-    game_name: String,
 }
 
 static CLUB_MAP: Lazy<HashMap<i32, String>> = Lazy::new(|| {

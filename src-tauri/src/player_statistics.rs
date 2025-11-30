@@ -1,6 +1,6 @@
 use crate::model::{PlayerFilters, PlayerRecord, PlayerStatistics, NumberStats, TopPlayers};
 use crate::{get_players};
-use crate::utils::{get_birth_year, get_birth_month, remove_accents, matches_search_query};
+use crate::utils::{get_birth_year, get_birth_month, matches_search_query};
 
 #[tauri::command]
 pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics {

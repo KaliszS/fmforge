@@ -92,6 +92,13 @@ pub struct TopPlayers {
     pub top_lightest: Vec<PlayerRecord>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct InvalidRow {
+    pub row_number: usize,
+    pub content: String,
+    pub file_path: String,
+}
+
 impl fmt::Display for RecordType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let value = match self {
