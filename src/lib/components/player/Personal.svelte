@@ -26,7 +26,7 @@
 {#if edit_mode}
     <Position bind:position {edit_mode} />
     <Name bind:first_name bind:common_name bind:last_name {edit_mode} />
-    <section>
+    <section class="birth-city-row">
         <Birthdate bind:birthdate {edit_mode} />
         <City bind:city {edit_mode} />
     </section>
@@ -48,15 +48,23 @@
         gap: var(--spacing-md);
     }
 
+    .birth-city-row {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        width: 100%;
+    }
+
     /* Edit mode styling */
     :global(.edit-mode) section {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: row;
+        align-items: center;
         gap: var(--spacing-xs);
-        padding: var(--spacing-xs);
-        background-color: var(--color-background-light);
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--color-border-light);
+        /* Removed background and border as requested */
+    }
+
+    :global(.edit-mode) .birth-city-row {
+        width: 100%;
     }
 
 </style>

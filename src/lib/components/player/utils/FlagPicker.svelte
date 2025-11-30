@@ -9,7 +9,7 @@
     // const setEditMode = (val: boolean) => (edit_mode = val);
 </script>
 
-<select bind:value={nation}>
+<select bind:value={nation} class="input input-select flag-select">
     <!-- onchange={(e) =>
         handleSelectChange(
             e,
@@ -22,3 +22,10 @@
         </option>
     {/each}
 </select>
+
+<style>
+    .flag-select {
+        width: 100%;
+        min-width: 10rem;
+    }
+</style>

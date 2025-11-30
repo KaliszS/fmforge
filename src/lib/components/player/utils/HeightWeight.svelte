@@ -7,8 +7,16 @@
 </script>
 
 {#if edit_mode}
-    <input type="number" class="input input-number" bind:value={height} title="Height in cm" />
-    <input type="number" class="input input-number" bind:value={weight} title="Weight in kg" />
+    <div class="hw-edit">
+        <label title="Height in cm">
+            <span>📏</span>
+            <input type="number" class="input input-number" bind:value={height} />
+        </label>
+        <label title="Weight in kg">
+            <span>🏋️</span>
+            <input type="number" class="input input-number" bind:value={weight} />
+        </label>
+    </div>
 {:else}
     <section class="height-icon" title={`Height: ${height} cm`}>
         📏 <span>{height}</span>
@@ -38,10 +46,37 @@
         font-size: var(--font-base);
         line-height: 1;
     }
+    
+    .hw-edit {
+        display: flex;
+        gap: var(--spacing-sm);
+    }
+    
+    .hw-edit label {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: 2px 6px;
+    }
+    
+    .hw-edit label:focus-within {
+        border-color: var(--color-primary);
+    }
 
     /* Edit mode styling */
     :global(.edit-mode) input[type="number"] {
-        min-width: 3rem;
+        min-width: 2.5rem;
+        width: 3rem;
         text-align: center;
+        border: none;
+        background: transparent;
+        padding: 0;
+    }
+    
+    :global(.edit-mode) input[type="number"]:focus {
+        box-shadow: none;
     }
 </style>

@@ -124,8 +124,10 @@
         white-space: nowrap;
     }
 
-    :global(.edit-mode) input[type="date"] {
-        min-width: 6rem;
+    input[type="date"] {
+        min-width: 7.5rem;
+        width: 7.5rem;
         text-align: center;
+        flex: 0 0 auto;
     }
 </style>

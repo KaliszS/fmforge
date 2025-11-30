@@ -14,11 +14,9 @@
 </script>
 
 {#if edit_mode}
-    <div class="details-grid">
-        <div class="column">
-            <Foot bind:preferred_foot {edit_mode} />
-            <Number bind:favourite_number {edit_mode} />
-        </div>
+    <div class="details-grid edit-mode">
+        <Foot bind:preferred_foot {edit_mode} />
+        <Number bind:favourite_number {edit_mode} />
     </div>
 {:else}
     <div class="details-grid">
@@ -36,6 +34,12 @@
         align-items: flex-start;
         flex-wrap: wrap;
     }
+    
+    .details-grid.edit-mode {
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
 
     .column {
         display: flex;
@@ -51,10 +55,8 @@
 
     /* Edit mode styling */
     :global(.edit-mode) .details-grid {
-        padding: var(--spacing-xs);
-        background-color: var(--color-background-light);
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--color-border-light);
+        /* Removed background and border as requested */
+        justify-content: center;
     }
 
     :global(.edit-mode) .column {

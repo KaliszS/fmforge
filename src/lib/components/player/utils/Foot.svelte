@@ -8,7 +8,7 @@
 </script>
 
 {#if edit_mode}
-    <select class="select" bind:value={preferred_foot}>
+    <select class="input input-select foot-select" bind:value={preferred_foot}>
         {#each FOOT_OPTIONS as foot}
             <option value={foot.value}>
                 {foot.icon}
@@ -28,7 +28,8 @@
 
 <style>
     /* Edit mode styling */
-    :global(.edit-mode) select {
-        min-width: 6rem;
+    :global(.edit-mode) .foot-select {
+        min-width: 4rem;
+        width: auto;
     }
 </style>
