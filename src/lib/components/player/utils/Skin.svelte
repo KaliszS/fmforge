@@ -1,5 +1,6 @@
 <script lang="ts">
     import { getSkinColor } from "$lib/constants";
+    import QuickEditModal from "$lib/components/common/QuickEditModal.svelte";
 
     let {
         skin_tone = $bindable(),
@@ -11,22 +12,38 @@
         let val = parseInt(target.value);
         if (isNaN(val)) return;
         
-        // Allow typing but clamp on blur or if out of bounds significantly?
-        // User asked for validation: "moge wpisac cokolwiek... a to musi byc integer z zakresu 1-20"
-        // Strict clamping on input might be annoying if typing "10" (typing 1 then 0).
-        // But 1-20 is small.
-        
         if (val < 1) val = 1;
         if (val > 20) val = 20;
         
-        // Only update if changed to avoid cursor jumping if possible, though with simple number input it might be ok
         if (skin_tone !== val) {
             skin_tone = val;
         }
-        // Force value back to clamped
         if (parseInt(target.value) !== val) {
             target.value = val.toString();
         }
+    }
+
+    let quickEdit = $state(false);
+    let temp_skin = $state(0);
+
+    function openQuickEdit() {
+        if (edit_mode) return;
+        temp_skin = skin_tone;
+        quickEdit = true;
+    }
+
+    function saveQuickEdit() {
+        skin_tone = temp_skin;
+    }
+
+    function handleTempInput(e: Event) {
+        const target = e.target as HTMLInputElement;
+        let val = parseInt(target.value);
+        if (isNaN(val)) return;
+        if (val < 1) val = 1;
+        if (val > 20) val = 20;
+        if (temp_skin !== val) temp_skin = val;
+        if (parseInt(target.value) !== val) target.value = val.toString();
     }
 </script>
 
@@ -43,13 +60,30 @@
         />
     </div>
 {:else}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
         class="skin-circle"
         title={`Skin tone: ${skin_tone}` + "/ 20"}
         style="background-color: {getSkinColor(skin_tone)}"
+        ondblclick={openQuickEdit}
     >
         S
     </div>
+
+    <QuickEditModal title="Edit Skin Tone" bind:isOpen={quickEdit} onSave={saveQuickEdit}>
+        <label style="display:flex; flex-direction:column; gap:0.5em;">
+            <span>Skin Tone (1-20)</span>
+            <input
+                type="number"
+                min="1"
+                max="20"
+                value={temp_skin}
+                oninput={handleTempInput}
+                class="input"
+            />
+        </label>
+    </QuickEditModal>
 {/if}
 
 <style>

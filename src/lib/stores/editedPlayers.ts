@@ -133,34 +133,43 @@ export function removePlayerFromStores(id: number) {
 }
 
 function revertPlayersByType(type: 'modified' | 'added' | 'deleted') {
-    const idsToRemove: number[] = [];
+    const idsToRevert: number[] = [];
     
     originalPlayers.subscribe(originals => {
         modifiedPlayers.subscribe(modified => {
             for (const [id, original] of originals) {
                 const modifiedPlayer = modified.get(id);
-                let shouldRemove = false;
+                let shouldRevert = false;
                 
                 switch (type) {
                     case 'modified':
-                        shouldRemove = original !== null && modifiedPlayer !== null;
+                        shouldRevert = original !== null && modifiedPlayer !== null;
                         break;
                     case 'added':
-                        shouldRemove = original === null && modifiedPlayer !== null;
+                        shouldRevert = original === null && modifiedPlayer !== null;
                         break;
                     case 'deleted':
-                        shouldRemove = original !== null && modifiedPlayer === null;
+                        shouldRevert = original !== null && modifiedPlayer === null;
                         break;
                 }
                 
-                if (shouldRemove) {
-                    idsToRemove.push(id);
+                if (shouldRevert) {
+                    idsToRevert.push(id);
                 }
             }
         })();
     })();
     
-    idsToRemove.forEach(id => removePlayerFromStores(id));
+    // Dispatch restore event for each player before removing from stores
+    idsToRevert.forEach(id => {
+        const event = new CustomEvent('restoreOriginalValues', { detail: { playerId: id } });
+        document.dispatchEvent(event);
+    });
+    
+    // Wait for components to restore values, then clean up stores
+    setTimeout(() => {
+        idsToRevert.forEach(id => removePlayerFromStores(id));
+    }, 50);
 }
 
 export function revertModifiedPlayers() {
@@ -183,8 +192,13 @@ export function clearEditedPlayersStore() { // for saving to file
 
 
 export function clearAllEditedPlayers() { // for resetting all changes to original values
-    document.dispatchEvent(new CustomEvent('restoreOriginalValues'));
-    clearEditedPlayersStore();
+    const event = new CustomEvent('restoreOriginalValues');
+    document.dispatchEvent(event);
+    
+    // Clear after a short delay to allow components to restore values
+    setTimeout(() => {
+        clearEditedPlayersStore();
+    }, 50);
 }
 
 export function toggleShowOnlyEdited(currentFilter: 'all' | 'modified' | 'added' | 'deleted' = 'all', onFilterReset?: () => void) {

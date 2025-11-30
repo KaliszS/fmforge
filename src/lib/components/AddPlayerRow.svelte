@@ -2,12 +2,8 @@
     import type { Player } from "$lib/types";
     import { addNewPlayer } from "$lib/api/player";
     import { addNewPlayerToStore } from "$lib/stores/editedPlayers";
-    import Citizenship from "./player/Citizenship.svelte";
-    import Personal from "./player/Personal.svelte";
-    import Ability from "./player/Ability.svelte";
-    import Club from "./player/Club.svelte";
-    import FootNumber from "./player/FootNumber.svelte";
-    import Appearance from "./player/Appearance.svelte";
+    import PlayerEditFields from "./player/PlayerEditFields.svelte";
+    import EditActions from "./player/EditActions.svelte";
 
     let isAdding = $state(false);
     let newPlayer: Player = $state({
@@ -121,40 +117,15 @@
 
 <article class="add-player-row">
     {#if isAdding}
-        <div class="add-player-form">
-            <div class="form-fields">
-                <Citizenship bind:nation={newPlayer.nationality_id} edit_mode={true} />
-                <Personal
-                    bind:first_name={newPlayer.first_name}
-                    bind:common_name={newPlayer.common_name}
-                    bind:last_name={newPlayer.last_name}
-                    bind:birthdate={newPlayer.birth_date}
-                    bind:position={newPlayer.position}
-                    edit_mode={true}
-                />
-                <Ability bind:ca={newPlayer.ca} bind:pa={newPlayer.pa} edit_mode={true} />
-                <Club bind:club_id={newPlayer.club_id} bind:favourite_team_id={newPlayer.favourite_team_id} edit_mode={true} />
-                <FootNumber bind:preferred_foot={newPlayer.preferred_foot} bind:favourite_number={newPlayer.favourite_number} edit_mode={true} />
-                <Appearance 
-                    bind:ethnicity={newPlayer.ethnicity}
-                    bind:skin_tone={newPlayer.skin_tone}
-                    bind:hair_color={newPlayer.hair_color}
-                    bind:height={newPlayer.height}
-                    bind:weight={newPlayer.weight}
-                    edit_mode={true}
-                />
-            </div>
-            <div class="form-actions">
-                <button class="btn btn-sm" onclick={cancelAdding}>Cancel</button>
-                <button 
-                    class="btn btn-sm" 
-                    class:disabled={!isValid}
-                    onclick={saveNewPlayer}
-                    disabled={!isValid}
-                >
-                    Save
-                </button>
-            </div>
+        <div class="add-player-form edit-mode">
+            <PlayerEditFields bind:player={newPlayer} />
+            <EditActions 
+                onSave={saveNewPlayer} 
+                onDiscard={cancelAdding} 
+                saveDisabled={!isValid}
+                saveTitle="Save new player"
+                discardTitle="Cancel adding"
+            />
         </div>
     {:else}
         <div class="add-player-content">
@@ -192,29 +163,22 @@
 
     .add-player-form {
         width: 100%;
-        padding: var(--spacing-md);
-    }
-
-    .form-fields {
         display: flex;
-        flex-wrap: wrap;
-        gap: var(--spacing-md);
-        align-items: center;
-        margin-bottom: var(--spacing-md);
+        flex-direction: row;
+        align-items: stretch;
+        gap: var(--spacing-lg);
+        padding: var(--spacing-lg);
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border-focus);
+        border-radius: var(--radius-md);
+        box-shadow: 0 8px 24px var(--color-shadow);
+        position: relative;
+        z-index: 10;
     }
 
-    .form-actions {
-        display: flex;
-        justify-content: center;
-        gap: var(--spacing-md);
-    }
+    /* edit-fields styles removed as they are now in PlayerEditFields.svelte */
 
-    .btn.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background-color: var(--color-background-light);
-        color: var(--color-text-muted);
-    }
+    /* edit-actions styles removed as they are now in EditActions.svelte */
 
     .add-player-btn {
         display: flex;
@@ -242,40 +206,5 @@
         box-shadow: 0 0.25rem 0.75rem var(--color-shadow-primary);
     }
 
-    .add-player-btn:active {
-        transform: scale(0.98);
-        box-shadow: 0 0.125rem 0.375rem var(--color-shadow-primary);
-    }
-
-    .add-icon {
-        font-size: 1.4em;
-        font-weight: 700;
-        line-height: 1;
-    }
-
-    .add-text {
-        font-size: 1em;
-        font-weight: 600;
-    }
-
-    /* Dark theme adjustments */
-    [data-theme="dark"] .add-player-row {
-        background-color: var(--color-background);
-        border-color: var(--color-border);
-    }
-
-    [data-theme="dark"] .add-player-row:hover {
-        background-color: var(--color-background-hover);
-    }
-
-    [data-theme="dark"] .add-player-btn {
-        border-color: var(--color-primary);
-        color: var(--color-primary);
-    }
-
-    [data-theme="dark"] .add-player-btn:hover {
-        background-color: var(--color-primary-light);
-        border-color: var(--color-primary-hover);
-        color: var(--color-primary-hover);
-    }
 </style>
+

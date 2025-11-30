@@ -1,6 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
-import type { PlayerRecord } from "$lib/types";
 
 export async function selectFileAndLoad(convertBirthdates: boolean = false, gameYear: number = 0, modStartYear: number = 0): Promise<string | null> {
   const paths = await open({ multiple: true });
@@ -18,15 +17,12 @@ export async function selectFileAndLoad(convertBirthdates: boolean = false, game
 }
 
 export async function selectSaveFile(): Promise<string | null> {
-  const path = await save({
-    filters: [
-      {
-        name: "EDT Files",
-        extensions: ["edt"]
-      }
-    ],
-    defaultPath: "regens_modified.edt"
+  const path = await open({
+    multiple: false,
+    directory: false,
   });
+  
+  if (Array.isArray(path)) return path[0];
   return path;
 }
 

@@ -1,8 +1,23 @@
 <script lang="ts">
+    import QuickEditModal from "$lib/components/common/QuickEditModal.svelte";
+
     let {
         city = $bindable(),
         edit_mode,
     }: { city?: string; edit_mode: boolean } = $props();
+
+    let quickEdit = $state(false);
+    let temp_city = $state('');
+
+    function openQuickEdit() {
+        if (edit_mode) return;
+        temp_city = city || '';
+        quickEdit = true;
+    }
+
+    function saveQuickEdit() {
+        city = temp_city;
+    }
 </script>
 
 {#if edit_mode}
@@ -13,9 +28,18 @@
         placeholder="Enter city name"
     />
 {:else}
-    <span class="city-box" class:empty-city={!city} title="Birth city">
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <span class="city-box" class:empty-city={!city} title="Birth city" ondblclick={openQuickEdit}>
         🏠 <strong>{city || "empty"}</strong>
     </span>
+
+    <QuickEditModal title="Edit City" bind:isOpen={quickEdit} onSave={saveQuickEdit}>
+        <label style="display:flex; flex-direction:column; gap:0.5em;">
+            <span>City Name</span>
+            <input type="text" class="input" bind:value={temp_city} placeholder="Enter city name" />
+        </label>
+    </QuickEditModal>
 {/if}
 
 <style>
