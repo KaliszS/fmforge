@@ -4,7 +4,8 @@
     import type { PlayerRecord } from "$lib/types";
     import ThemeToggle from "./ThemeToggle.svelte";
     import ModSettings from "./ModSettings.svelte";
-    import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount, modifiedPlayers } from "$lib/stores/editedPlayers";
+    import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount, modifiedPlayers, showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers } from "$lib/stores/editedPlayers";
+    import { selectedPlayers, showOnlySelected } from "$lib/stores/selectionStore";
     import { modSettings } from "$lib/stores/modSettings";
 
     let {
@@ -26,6 +27,7 @@
         invalidRows = $bindable(),
         showInvalidDetails = $bindable(),
         isLastPage = $bindable(),
+        editTypeFilter = $bindable(),
         triggerRefresh,
     }: {
         players: PlayerRecord[];
@@ -46,6 +48,7 @@
         invalidRows: InvalidRow[];
         showInvalidDetails: boolean;
         isLastPage: boolean;
+        editTypeFilter: 'all' | 'modified' | 'added' | 'deleted';
         triggerRefresh: () => void;
     } = $props();
 
@@ -53,6 +56,13 @@
     let save_path = $state("");
     let saveFilteredOnly = $state(false);
     let convertBirthdates = $state(false);
+    
+    $effect(() => {
+        // When saveFilteredOnly is enabled and showOnlySelected is active, 
+        // the Save button should be enabled even without edits
+        void $showOnlySelected;
+        void saveFilteredOnly;
+    });
 
     async function selectSaveLocation() {
         const path = await selectSaveFile();
@@ -84,7 +94,52 @@
         
         let filters = null;
         if (saveFilteredOnly) {
+            // Determine player_ids based on active Group 2 filters
+            let playerIds: number[] | null = null;
+            
+            // Start with edited players if that filter is active
+            if ($showOnlyEdited) {
+                const allEditedPlayers = getModifiedPlayersAsRecords();
+                
+                if (editTypeFilter === 'all') {
+                    playerIds = allEditedPlayers.map(p => p.id);
+                } else {
+                    // Filter by edit type
+                    playerIds = allEditedPlayers.filter(record => {
+                        const original = $originalPlayers.get(record.id);
+                        const modified = $modifiedPlayers.get(record.id);
+                        switch (editTypeFilter) {
+                            case 'modified':
+                                return original !== null && modified !== null;
+                            case 'added':
+                                return original === null && modified !== null;
+                            case 'deleted':
+                                return original !== null && modified === null;
+                            default:
+                                return true;
+                        }
+                    }).map(p => p.id);
+                }
+                console.log('[SAVE] Base: edited players (', editTypeFilter, '):', playerIds?.length);
+            }
+            
+            // Then narrow down by selected if there are any selected players
+            // (User expects selection to act as a filter for saving, even if "Show Selected" view is not active)
+            if ($selectedPlayers.size > 0) {
+                const selectedIds = Array.from($selectedPlayers);
+                if (playerIds) {
+                    // Intersection: only players that are both edited AND selected
+                    playerIds = playerIds.filter(id => selectedIds.includes(id));
+                    console.log('[SAVE] Narrowed by selected:', playerIds.length);
+                } else {
+                    // Only selected filter is active
+                    playerIds = selectedIds;
+                    console.log('[SAVE] Filtering by selected players:', playerIds.length);
+                }
+            }
+            
             filters = {
+                // Group 1 filters (always apply if set)
                 country: selectedCountry || null,
                 club: selectedClub ? selectedClub : null,
                 min_ca: minCA || null,
@@ -97,7 +152,13 @@
                 birth_year_max: birthYear || null,
                 name_query: nameQuery || null,
                 sort_by: sortBy || null,
+                // Group 2 filter: player IDs from selected/edited
+                player_ids: playerIds,
             };
+            
+            console.log('[SAVE] Filters:', filters);
+        } else {
+            console.log('[SAVE] No filters (saveFilteredOnly = false)');
         }
         
         await savePlayersToFile(save_path, filters);
@@ -172,8 +233,8 @@
                     class="btn-save-main" 
                     class:has-edits={$editedCount > 0}
                     onclick={saveToFile} 
-                    disabled={!save_path || $editedCount === 0}
-                    title={!save_path ? "Please select a save location first" : $editedCount === 0 ? "No changes to save" : "Save changes to file"}
+                    disabled={!save_path}
+                    title={!save_path ? "Please select a save location first" : "Save to file"}
                 >
                     <span class="icon">💾</span>
                     <span class="label">Save</span>
@@ -483,8 +544,6 @@
         gap: var(--spacing-sm);
         margin-right: var(--spacing-lg);
     }
-
-
 
     .save-group {
         display: flex;

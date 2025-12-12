@@ -25,7 +25,8 @@
         favouriteNumber,
         birthYear,
         nameQuery,
-        sortBy
+        sortBy,
+        allFilteredIds = null
     }: { 
         activeTab: string;
         statistics: any;
@@ -43,6 +44,7 @@
         birthYear: number | null;
         nameQuery: string | null;
         sortBy: string[] | null;
+        allFilteredIds?: number[] | null;
     } = $props();
 </script>
 
@@ -101,6 +103,7 @@
                 {birthYear}
                 {sortBy}
                 {nameQuery}
+                {allFilteredIds}
             />
         {:else if activeTab === 'geography'}
             <GeographySection 
@@ -133,6 +136,7 @@
                 {birthYear}
                 {sortBy}
                 {nameQuery}
+                {allFilteredIds}
             />
         {:else if activeTab === 'positional'}
             <PositionalSection 

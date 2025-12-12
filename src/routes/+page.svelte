@@ -8,7 +8,8 @@
     import AnalystView from "$lib/components/AnalystView.svelte";
     import type { PlayerRecord } from "$lib/types";
     import { showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers, modifiedPlayers } from "$lib/stores/editedPlayers";
-    import { loadPlayersPage } from "$lib/api/player";
+    import { loadPlayersPage, getFilteredPlayerIds } from "$lib/api/player";
+    import { selectedPlayers, setSelection, deselectAll, showOnlySelected } from '$lib/stores/selectionStore';
     import type { InvalidRow } from "$lib/api/file";
     import { onMount } from 'svelte';
 
@@ -86,17 +87,62 @@
         isLastPage = players.length < pageSize;
     }
 
-    let filteredPlayers = $derived(
-        $showOnlyEdited
-            ? (() => {
+    let allFilteredIds = $derived(
+        (() => {
+            let ids: number[] | null = null;
+            
+            if ($showOnlyEdited) {
                 void editTypeFilter;
+                void $modifiedPlayers;
                 const allEditedPlayers = getModifiedPlayersAsRecords();
-                const filtered = filterEditedPlayersByType(allEditedPlayers);
+                const filteredEdited = filterEditedPlayersByType(allEditedPlayers);
+                ids = filteredEdited.map(p => p.id);
+            }
+            
+            if ($showOnlySelected && $selectedPlayers.size > 0) {
+                const selectedIds = Array.from($selectedPlayers);
+                if (ids) {
+                    ids = ids.filter(id => selectedIds.includes(id));
+                } else {
+                    ids = selectedIds;
+                }
+            }
+            
+            return ids;
+        })()
+    );
+
+    let filteredPlayers = $derived(
+        (() => {
+            // Start with base data
+            let result: PlayerRecord[];
+            
+            if ($showOnlyEdited) {
+                // Show edited players (with optional type filter)
+                void editTypeFilter;
+                void $modifiedPlayers; // Ensure reactivity when players are edited
+                const allEditedPlayers = getModifiedPlayersAsRecords();
+                result = filterEditedPlayersByType(allEditedPlayers);
+            } else {
+                // Show regular players (with Group 1 filters from backend)
+                result = players;
+            }
+            
+            // Apply selected filter ON TOP of current result (narrowing down)
+            if ($showOnlySelected && $selectedPlayers.size > 0) {
+                const selectedIds = $selectedPlayers;
+                result = result.filter(p => selectedIds.has(p.id));
+            }
+            
+            // Pagination for edited players
+            if ($showOnlyEdited) {
                 const startIndex = currentPage * pageSize;
                 const endIndex = startIndex + pageSize;
-                return filtered.slice(startIndex, endIndex);
-            })()
-            : players
+                return result.slice(startIndex, endIndex);
+            }
+            
+            return result;
+        })()
     );
 
     $effect(() => {
@@ -123,13 +169,28 @@
     $effect(() => {
         if ($showOnlyEdited) {
             void editTypeFilter;
+            void $showOnlySelected;
             const allEditedPlayers = getModifiedPlayersAsRecords();
-            const filtered = filterEditedPlayersByType(allEditedPlayers);
+            let filtered = filterEditedPlayersByType(allEditedPlayers);
+            
+            // Apply selected filter on top
+            if ($showOnlySelected && $selectedPlayers.size > 0) {
+                const selectedIds = $selectedPlayers;
+                filtered = filtered.filter(p => selectedIds.has(p.id));
+            }
+            
             const totalEdited = filtered.length;
             const startIndex = currentPage * pageSize;
             isLastPage = startIndex + pageSize >= totalEdited;
         } else {
-            isLastPage = players.length < pageSize;
+            // For regular view, check if selected filter is active
+            if ($showOnlySelected && $selectedPlayers.size > 0) {
+                const selectedIds = $selectedPlayers;
+                const filteredCount = players.filter(p => selectedIds.has(p.id)).length;
+                isLastPage = filteredCount < pageSize;
+            } else {
+                isLastPage = players.length < pageSize;
+            }
         }
     });
 
@@ -165,6 +226,35 @@
             currentPage = 0;
         }
     }
+
+    async function handleGlobalSelection() {
+        if ($selectedPlayers.size > 0) {
+            // If any selection exists, clear it (user request: "odznaczyć przy ponowym kliknieciu", but implies if all selected.
+            // But simpler logic as per typical checkbox "indeterminate -> checked" or "checked -> unchecked".
+            // User said: "ta globalna ma zaznaczyć (i odznaczyć przy ponowym kliknieciu)"
+            // If we strictly follow "select all if not all selected", we need to know total count.
+            // But simpler UX: if selection > 0, assume user might want to clear.
+            // Or if selection == 0, select all.
+            // Let's try: if selection > 0, clear. If selection == 0, select all.
+            deselectAll();
+        } else {
+            // Select all filtered
+            const ids = await getFilteredPlayerIds(
+                selectedCountry,
+                selectedClub,
+                minCA,
+                maxCA,
+                minPA,
+                maxPA,
+                preferredFoot,
+                favouriteNumber,
+                effectiveBirthYear,
+                nameQuery,
+                sortBy
+            );
+            setSelection(ids);
+        }
+    }
 </script>
 
 <main>
@@ -187,6 +277,7 @@
         bind:invalidRows 
         bind:showInvalidDetails 
         bind:isLastPage
+        bind:editTypeFilter
         {triggerRefresh}
     />
     
@@ -220,7 +311,11 @@
                 bind:editTypeFilter
                 onFilterChange={(type) => editTypeFilter = type}
             />
-            <PlayerTable bind:players={filteredPlayers} bind:sortBy />
+            <PlayerTable 
+                bind:players={filteredPlayers} 
+                bind:sortBy 
+                onToggleGlobalSelection={handleGlobalSelection}
+            />
             <PaginationSection 
                 bind:currentPage 
                 onPrev={prevPage} 
@@ -232,7 +327,7 @@
             />
         {:else if currentView === 'analyst'}
             <AnalystView 
-                bind:players
+                bind:players={filteredPlayers}
                 {selectedCountry}
                 {selectedClub}
                 {minCA}
@@ -244,6 +339,8 @@
                 {birthYear}
                 {nameQuery}
                 {sortBy}
+                {filteredPlayers}
+                {allFilteredIds}
             />
         {/if}
     </article>

@@ -146,3 +146,14 @@ pub fn get_players_page(
     println!("Returning {} players for page", result.len());
     result
 }
+
+#[tauri::command]
+pub fn get_filtered_player_ids(filters: Option<PlayerFilters>) -> Vec<usize> {
+    println!("Getting filtered player IDs");
+    let filtered_players = get_players_chunk(filters);
+    
+    filtered_players
+        .into_iter()
+        .map(|record| record.id)
+        .collect()
+}

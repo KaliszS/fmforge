@@ -128,20 +128,44 @@ pub fn load_players_from_file(
 pub fn save_players_to_file(path: String, filters: Option<PlayerFilters>) -> Result<(), String> {
     let players = get_players().lock().map_err(|e| e.to_string())?;
     let mut file = fs::File::create(path).unwrap();
+    let mut saved_count = 0;
 
-    for (_, player) in players.values().enumerate() {
+    // Debug: print filters
+    if let Some(ref f) = filters {
+        println!("[SAVE] Filters active:");
+        if let Some(ref ids) = f.player_ids {
+            println!("  - player_ids: {} players", ids.len());
+        }
+        if f.country.is_some() {
+            println!("  - country: {:?}", f.country);
+        }
+        if f.club.is_some() {
+            println!("  - club: {:?}", f.club);
+        }
+    } else {
+        println!("[SAVE] No filters - saving all players");
+    }
+
+    for (id, player) in players.iter() {
         // Apply filters if present
         if let Some(ref f) = filters {
+            // Player IDs filter (for selected players) - check this first for performance
+            if let Some(ref ids) = f.player_ids {
+                if !ids.contains(id) {
+                    continue;
+                }
+            }
+
             // Name filter
             if let Some(ref query) = f.name_query {
                 if !matches_search_query(player, query) {
                     continue;
                 }
             }
-
+            
             // Country filter
-            if let Some(c) = f.country {
-                if player.nationality_id != c {
+            if let Some(cid) = f.country {
+                if player.nationality_id != cid {
                     continue;
                 }
             }
@@ -243,9 +267,10 @@ pub fn save_players_to_file(path: String, filters: Option<PlayerFilters>) -> Res
         );
 
         file.write_all(line.as_bytes()).unwrap();
+        saved_count += 1;
     }
 
-    println!("[SAVE] Successfully saved {} players", players.len());
+    println!("[SAVE] Successfully saved {} out of {} players", saved_count, players.len());
     Ok(())
 }
 

@@ -60,8 +60,41 @@ export async function getPlayerStatistics(
   birthYear: number | null,
   nameQuery: string | null,
   sortBy: string[] | null,
+  playerIds: number[] | null = null,
 ): Promise<any> {
   return await invoke("get_player_statistics", {
+    filters: {
+      player_ids: playerIds,
+      country: countryId || null,
+      club: clubId ? clubId : null,
+      min_ca: minCA || null,
+      max_ca: maxCA || null,
+      min_pa: minPA || null,
+      max_pa: maxPA || null,
+      preferred_foot: preferredFoot,
+      favourite_number: favouriteNumber || null,
+      birth_year_min: birthYear || null,
+      birth_year_max: birthYear || null,
+      name_query: nameQuery || null,
+      sort_by: sortBy || null,
+    },
+  });
+}
+
+export async function getFilteredPlayerIds(
+  countryId: number | null,
+  clubId: number | null,
+  minCA: number | null,
+  maxCA: number | null,
+  minPA: number | null,
+  maxPA: number | null,
+  preferredFoot: number | null,
+  favouriteNumber: number | null,
+  birthYear: number | null,
+  nameQuery: string | null,
+  sortBy: string[] | null,
+): Promise<number[]> {
+  return await invoke("get_filtered_player_ids", {
     filters: {
       country: countryId || null,
       club: clubId ? clubId : null,
@@ -91,6 +124,7 @@ export async function getTopPlayers(
   birthYear: number | null,
   nameQuery: string | null,
   sortBy: string[] | null,
+  playerIds: number[] | null = null,
   limit: number = 10,
 ): Promise<any> {
   return await invoke("get_top_players", {
@@ -107,6 +141,7 @@ export async function getTopPlayers(
       birth_year_max: birthYear || null,
       name_query: nameQuery || null,
       sort_by: sortBy || null,
+      player_ids: playerIds,
     },
     limit,
   });

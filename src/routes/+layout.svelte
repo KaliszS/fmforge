@@ -1,7 +1,7 @@
 <script lang="ts">
   import '../lib/styles/common.css';
   
-  const VERSION = "0.10.1";
+  const VERSION = "0.10.2";
 </script>
 
 <slot />

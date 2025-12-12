@@ -17,7 +17,9 @@
         favouriteNumber,
         birthYear,
         nameQuery,
-        sortBy
+        sortBy,
+        filteredPlayers,
+        allFilteredIds = null
     }: {
         players: PlayerRecord[];
         selectedCountry: number | null;
@@ -31,6 +33,8 @@
         birthYear: number | null;
         nameQuery: string | null;
         sortBy: string[] | null;
+        filteredPlayers: PlayerRecord[];
+        allFilteredIds?: number[] | null;
     } = $props();
 
     let activeTab = $state('overview');
@@ -50,7 +54,8 @@
         favouriteNumber,
         birthYear,
         nameQuery,
-        sortBy
+        sortBy,
+        playerIds: allFilteredIds
     });
 
     // Initialize from cache if available
@@ -62,6 +67,9 @@
     }
 
     $effect(() => {
+        // Explicitly track filteredPlayers to ensure updates when filter changes
+        void filteredPlayers;
+        void allFilteredIds;
         const params = getParams();
 
         // Check cache first
@@ -88,7 +96,8 @@
                     favouriteNumber,
                     birthYear,
                     nameQuery,
-                    sortBy
+                    sortBy,
+                    allFilteredIds
                 );
                 // Cache the result
                 analystStore.setCache(params, stats);
@@ -141,6 +150,7 @@
             {birthYear}
             {nameQuery}
             {sortBy}
+            {allFilteredIds}
         />
     </div>
 </div>

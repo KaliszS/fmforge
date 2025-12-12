@@ -20,7 +20,8 @@
         favouriteNumber,
         birthYear,
         sortBy,
-        nameQuery
+        nameQuery,
+        allFilteredIds = null
     }: { 
         statistics: any;
         loading: boolean;
@@ -37,6 +38,7 @@
         birthYear: number | null;
         sortBy: string[] | null;
         nameQuery: string | null;
+        allFilteredIds?: number[] | null;
     } = $props();
 
     let topPlayers = $state<any>(null);
@@ -69,6 +71,7 @@
                     birthYear,
                     nameQuery,
                     sortBy,
+                    allFilteredIds,
                     topPlayersLimit
                 );
             } catch (err) {

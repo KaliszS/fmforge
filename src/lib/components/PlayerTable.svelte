@@ -2,21 +2,24 @@
     import type { PlayerRecord } from "$lib/types";
     import PlayerItem from "./PlayerItem.svelte";
     import AddPlayerRow from "./AddPlayerRow.svelte";
+    import GlobalSelectionTrigger from "./player/GlobalSelectionTrigger.svelte";
     import { modifiedPlayers, originalPlayers, showOnlyEdited } from "$lib/stores/editedPlayers";
 
     let { 
         players = $bindable(),
-        sortBy = $bindable()
+        sortBy = $bindable(),
+        onToggleGlobalSelection
     }: { 
         players: PlayerRecord[],
-        sortBy?: string[] | null
+        sortBy?: string[] | null,
+        onToggleGlobalSelection?: () => void
     } = $props();
     
     let newlyAddedPlayers = $derived.by(() => {
         let result: PlayerRecord[] = [];
         $modifiedPlayers.forEach((player, id) => {
             const original = $originalPlayers.get(id);
-            if (original === null) {
+            if (original === null && player) {
                 result.push({ id, player });
             }
         });
@@ -99,6 +102,9 @@
 
 <div class="player-table">
     <div class="header-row">
+        {#if onToggleGlobalSelection}
+            <GlobalSelectionTrigger onToggle={onToggleGlobalSelection} />
+        {/if}
         <div class="header-cell">
             <button class="sort-btn" class:active={isSortActive('nationality')} onclick={() => toggleSort('nationality')}>
                 Nat {@render sortIcon('nationality')}
@@ -174,7 +180,7 @@
         border-radius: var(--radius-xl);
         background-color: var(--color-background);
         box-shadow: 0 0.1875rem 0.625rem var(--color-shadow-light);
-        overflow: hidden;
+        overflow: visible; /* Allow selection triggers to overflow */
         display: flex;
         flex-direction: column;
     }
@@ -198,6 +204,8 @@
         font-size: 0.85rem;
         font-weight: 600;
         color: var(--color-text-muted);
+        position: relative; /* For absolute positioning of global selection trigger */
+        overflow: visible;
     }
 
     .header-cell {
