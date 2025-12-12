@@ -39,6 +39,7 @@ pub struct PlayerRecord {
 
 #[derive(Deserialize)]
 pub struct PlayerFilters {
+    pub player_ids: Option<Vec<usize>>,
     pub country: Option<i32>,
     pub club: Option<i32>,
     pub min_ca: Option<i32>,

@@ -20,8 +20,9 @@
         favouriteNumber,
         birthYear,
         nameQuery,
-        sortBy
-    }: { 
+        sortBy,
+        allFilteredIds = null
+    }: {
         statistics: any;
         loading: boolean;
         error: string | null;
@@ -37,9 +38,8 @@
         birthYear: number | null;
         nameQuery: string | null;
         sortBy: string[] | null;
-    } = $props();
-
-    let topPlayers = $state<any>(null);
+        allFilteredIds?: number[] | null;
+    } = $props();    let topPlayers = $state<any>(null);
     let loadingTopPlayers = $state(true);
     let errorTopPlayers = $state<string | null>(null);
     let topPlayersLimit = $state(10);
@@ -69,6 +69,7 @@
                 birthYear,
                 nameQuery,
                 sortBy,
+                allFilteredIds,
                 topPlayersLimit
             );
         } catch (err) {

@@ -1,6 +1,7 @@
 <script lang="ts">
     import PaginationControls from "./PaginationControls.svelte";
     import EditedPlayersInfo from "./EditedPlayersInfo.svelte";
+    import SelectedPlayersInfo from "./SelectedPlayersInfo.svelte";
     import EditTypeLabels from "./EditTypeLabels.svelte";
     
     let {
@@ -29,6 +30,7 @@
 
 <section class="pagination-section">
     <aside class="pagination-left">
+        <SelectedPlayersInfo />
         <EditedPlayersInfo {editTypeFilter} onFilterReset={handleFilterReset} />
     </aside>
     <section class="pagination-center">

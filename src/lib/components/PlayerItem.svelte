@@ -16,10 +16,12 @@
         markPlayerForDeletion,
         removePlayerFromStores
     } from "$lib/stores/editedPlayers";
+    import { deselectPlayer } from "$lib/stores/selectionStore";
     import { onMount, onDestroy, setContext } from 'svelte';
     import RefreshButton from "./RefreshButton.svelte";
     import PlayerEditFields from "./player/PlayerEditFields.svelte";
     import EditActions from "./player/EditActions.svelte";
+    import SelectionTrigger from "./player/SelectionTrigger.svelte";
 
     let { 
         player = $bindable(), 
@@ -73,6 +75,7 @@
 
     function handleDelete() {
         markPlayerForDeletion(playerId, player);
+        deselectPlayer(playerId);
     }
 
     function handleRevert() {
@@ -111,6 +114,7 @@
 </script>
 
 <li class="player-item" class:edit-mode={edit_mode} class:edited={isPlayerEdited} class:newly-added={isNewlyAdded} class:deleted={isDeleted}>
+    <SelectionTrigger {playerId} />
     {#if edit_mode}
         <PlayerEditFields bind:player={player} />
         <EditActions 
@@ -200,6 +204,8 @@
         padding: 0.1em 0.5em;
         border-bottom: 0.1em solid var(--color-border-light);
         border-left: 4px solid transparent;
+        position: relative; /* For absolute positioning of selection trigger */
+        overflow: visible; /* Allow selection trigger to overflow */
     }
 
     .player-item.edit-mode {
@@ -292,15 +298,6 @@
         color: var(--color-text-muted);
         border-color: var(--color-border);
     }
-
-    .edit-button:disabled:hover {
-        transform: none;
-        background-color: var(--color-background-light);
-        border-color: var(--color-border);
-        box-shadow: 0 0 0 0.5px #fff, 0 0 0 1px var(--color-border);
-    }
-
-    /* Styles for edit-fields and related classes removed as they are now in PlayerEditFields.svelte and EditActions.svelte */
 
     .player-item:hover {
         background-color: var(--color-background-hover);

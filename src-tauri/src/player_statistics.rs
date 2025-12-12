@@ -9,8 +9,15 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
     let players = get_players().lock().unwrap();
     let filtered_players: Vec<PlayerRecord> = players
         .iter()
-        .filter(|(_, player)| {
+        .filter(|(id, player)| {
             if let Some(ref f) = filters {
+                // Player IDs filter
+                if let Some(ref ids) = f.player_ids {
+                    if !ids.contains(id) {
+                        return false;
+                    }
+                }
+
                 // Name filter
                 if let Some(ref query) = f.name_query {
                     if !matches_search_query(player, query) {
@@ -196,8 +203,15 @@ pub fn get_top_players(filters: Option<PlayerFilters>, limit: usize) -> TopPlaye
     let players = get_players().lock().unwrap();
     let filtered_players: Vec<PlayerRecord> = players
         .iter()
-        .filter(|(_, player)| {
+        .filter(|(id, player)| {
             if let Some(ref f) = filters {
+                // Player IDs filter
+                if let Some(ref ids) = f.player_ids {
+                    if !ids.contains(id) {
+                        return false;
+                    }
+                }
+
                 // Name filter
                 if let Some(ref query) = f.name_query {
                     if !matches_search_query(player, query) {
