@@ -43,10 +43,32 @@ export function saveOriginalPlayer(id: number, player: Player | null) {
     });
 }
 
+export function saveOriginalPlayers(players: { id: number, player: Player | null }[]) {
+    originalPlayers.update(originals => {
+        const newOriginals = new Map(originals);
+        players.forEach(({ id, player }) => {
+            if (!newOriginals.has(id)) {
+                newOriginals.set(id, player ? clonePlayer(player) : null);
+            }
+        });
+        return newOriginals;
+    });
+}
+
 export function saveModifiedPlayer(id: number, player: Player) {
     modifiedPlayers.update(modified => {
         const newModified = new Map(modified);
         newModified.set(id, clonePlayer(player));
+        return newModified;
+    });
+}
+
+export function saveModifiedPlayers(players: { id: number, player: Player }[]) {
+    modifiedPlayers.update(modified => {
+        const newModified = new Map(modified);
+        players.forEach(({ id, player }) => {
+            newModified.set(id, clonePlayer(player));
+        });
         return newModified;
     });
 }

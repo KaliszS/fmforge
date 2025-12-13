@@ -60,7 +60,9 @@
     .pagination-left {
         flex: 1;
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
+        gap: var(--spacing-md);
+        flex-wrap: wrap;
     }
     
     .pagination-center {

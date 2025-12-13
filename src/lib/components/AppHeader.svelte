@@ -5,7 +5,7 @@
     import ThemeToggle from "./ThemeToggle.svelte";
     import ModSettings from "./ModSettings.svelte";
     import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount, modifiedPlayers, showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers } from "$lib/stores/editedPlayers";
-    import { selectedPlayers, showOnlySelected } from "$lib/stores/selectionStore";
+    import { selectedPlayers, showOnlySelected, deselectAll } from "$lib/stores/selectionStore";
     import { modSettings } from "$lib/stores/modSettings";
 
     let {
@@ -164,6 +164,7 @@
         await savePlayersToFile(save_path, filters);
         
         clearEditedPlayersStore();
+        deselectAll();
         
         triggerRefresh();
     }

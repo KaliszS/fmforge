@@ -45,6 +45,10 @@
 
     let edit_mode = $state(false);
     let isPlayerEdited = $derived($originalPlayers.has(playerId));
+    
+    // Use modified player from store if available, otherwise use the prop
+    let displayPlayer = $derived($modifiedPlayers.get(playerId) ?? player);
+    
     let isNewlyAdded = $derived.by(() => {
         const originals = $originalPlayers;
         const isEdited = originals.has(playerId);
@@ -123,33 +127,33 @@
             isDeleted={isDeleted} 
         />
     {:else}
-        <Citizenship bind:nation={player.nationality_id} {edit_mode} />
+        <Citizenship bind:nation={displayPlayer.nationality_id} {edit_mode} />
         <Personal
-            bind:first_name={player.first_name}
-            bind:common_name={player.common_name}
-            bind:last_name={player.last_name}
-            bind:position={player.position}
-            bind:birthdate={player.birth_date}
-            bind:city={player.birth_city}
+            bind:first_name={displayPlayer.first_name}
+            bind:common_name={displayPlayer.common_name}
+            bind:last_name={displayPlayer.last_name}
+            bind:position={displayPlayer.position}
+            bind:birthdate={displayPlayer.birth_date}
+            bind:city={displayPlayer.birth_city}
             {edit_mode}
         />
-        <Ability bind:ca={player.ca} bind:pa={player.pa} {edit_mode} />
+        <Ability bind:ca={displayPlayer.ca} bind:pa={displayPlayer.pa} {edit_mode} />
         <FootNumber
-            bind:preferred_foot={player.preferred_foot}
-            bind:favourite_number={player.favourite_number}
+            bind:preferred_foot={displayPlayer.preferred_foot}
+            bind:favourite_number={displayPlayer.favourite_number}
             {edit_mode}
         />
         <Club
-            bind:club_id={player.club_id}
-            bind:favourite_team_id={player.favourite_team_id}
+            bind:club_id={displayPlayer.club_id}
+            bind:favourite_team_id={displayPlayer.favourite_team_id}
             {edit_mode}
         />
         <Appearance
-            bind:ethnicity={player.ethnicity}
-            bind:skin_tone={player.skin_tone}
-            bind:hair_color={player.hair_color}
-            bind:height={player.height}
-            bind:weight={player.weight}
+            bind:ethnicity={displayPlayer.ethnicity}
+            bind:skin_tone={displayPlayer.skin_tone}
+            bind:hair_color={displayPlayer.hair_color}
+            bind:height={displayPlayer.height}
+            bind:weight={displayPlayer.weight}
             bind:edit_mode
         />
         <div class="action-buttons">
