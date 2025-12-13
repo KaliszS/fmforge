@@ -48,6 +48,8 @@
         return countryMap[countryId]?.code || 'Un';
     }
 
+    let sortByCount = $state(true);
+
     const sortedNationalities = $derived.by(() => {
         if (!statistics?.nationality_counts) return [];
         
@@ -59,7 +61,12 @@
         // 2. Take top 50
         const top = entries.slice(0, 50);
         
-        // 3. Sort the top ones alphabetically by name
+        // 3. Sort based on preference
+        if (sortByCount) {
+            return top;
+        }
+        
+        // Sort the top ones alphabetically by name
         return top.sort(([idA], [idB]) => {
             const nameA = getCountryName(idA);
             const nameB = getCountryName(idB);
@@ -82,7 +89,16 @@
         </div>
     {:else if statistics}
         <div class="geography-content">
-            <h3>Geographic Distribution</h3>
+            <div class="section-header">
+                <h3>Geographic Distribution</h3>
+                <button 
+                    class="sort-btn" 
+                    onclick={() => sortByCount = !sortByCount}
+                    title={sortByCount ? "Switch to Alphabetical Sort" : "Switch to Count Sort"}
+                >
+                    {sortByCount ? "Sort: Count ⬇" : "Sort: Name A-Z"}
+                </button>
+            </div>
             
             <div class="stats-grid">
                 <SimpleStatCard 
@@ -201,6 +217,35 @@
         height: 100%;
         background: var(--color-primary);
         opacity: 0.5;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .section-header h3 {
+        margin: 0;
+        color: var(--color-text);
+        font-size: var(--font-lg);
+    }
+
+    .sort-btn {
+        background: var(--color-background-light);
+        border: 1px solid var(--color-border-light);
+        color: var(--color-text);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--radius-md);
+        font-size: var(--font-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .sort-btn:hover {
+        background: var(--color-background-hover);
+        border-color: var(--color-border-hover);
     }
 
     .loading-state, .error-state {
