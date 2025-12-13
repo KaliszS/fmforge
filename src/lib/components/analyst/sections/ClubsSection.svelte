@@ -37,6 +37,7 @@
     } = $props();
 
     let limit = $state(30);
+    let sortByCount = $state(true);
 
     const displayClubs = $derived.by(() => {
         if (!statistics?.club_counts) return [];
@@ -50,7 +51,12 @@
         // 2. Take top N
         const top = entries.slice(0, limit);
         
-        // 3. Sort alphabetically by name
+        // 3. Sort based on preference
+        if (sortByCount) {
+            return top;
+        }
+        
+        // Sort alphabetically by name
         return top.sort(([idA], [idB]) => {
             const nameA = getClubName(idA);
             const nameB = getClubName(idB);
@@ -80,6 +86,13 @@
             <div class="section-header">
                 <h3>Club Distribution</h3>
                 <div class="controls">
+                    <button 
+                        class="sort-btn" 
+                        onclick={() => sortByCount = !sortByCount}
+                        title={sortByCount ? "Switch to Alphabetical Sort" : "Switch to Count Sort"}
+                    >
+                        {sortByCount ? "Sort: Count ⬇" : "Sort: Name A-Z"}
+                    </button>
                     <label for="limit-select" class="control-label">Show top:</label>
                     <select id="limit-select" bind:value={limit} class="select limit-select">
                         <option value={10}>10</option>
@@ -203,6 +216,23 @@
         height: 100%;
         background: var(--color-primary);
         opacity: 0.5;
+    }
+
+    .sort-btn {
+        background: var(--color-background-light);
+        border: 1px solid var(--color-border-light);
+        color: var(--color-text);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--radius-md);
+        font-size: var(--font-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-right: var(--spacing-sm);
+    }
+
+    .sort-btn:hover {
+        background: var(--color-background-hover);
+        border-color: var(--color-border-hover);
     }
 
     .loading-state, .error-state {

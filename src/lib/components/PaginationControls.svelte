@@ -42,66 +42,111 @@
     }
 </script>
 
-<section class="pagination">
-    <button class="btn-secondary" onclick={onPrev} disabled={currentPage === 0}>←</button>
-    
-    <div class="page-info">
-        <span class="page-text">Page</span>
-        <input 
-            type="number" 
-            bind:value={pageInput}
-            onblur={handlePageInput}
-            onkeydown={handleKeydown}
-            class="page-input"
-            min="1"
-            max={totalPages > 0 ? totalPages : undefined}
-            title="Enter page number and press Enter"
-        />
-        {#if totalPages > 0}
-            <span class="total-pages">of {totalPages}</span>
-        {/if}
+<section class="pagination-container">
+    <div class="pagination-pill">
+        <button class="nav-btn" onclick={onPrev} disabled={currentPage === 0} title="Previous Page">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        
+        <div class="page-info">
+            <span class="page-label">Page</span>
+            <input 
+                type="number" 
+                bind:value={pageInput}
+                onblur={handlePageInput}
+                onkeydown={handleKeydown}
+                class="page-input"
+                min="1"
+                max={totalPages > 0 ? totalPages : undefined}
+                title="Enter page number"
+            />
+            {#if totalPages > 0}
+                <span class="total-pages">of {totalPages}</span>
+            {/if}
+        </div>
+        
+        <button class="nav-btn" onclick={onNext} disabled={isLastPage} title="Next Page">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
     </div>
-    
-    <button class="btn-secondary" onclick={onNext} disabled={isLastPage}>→</button>
 </section>
 
 <style>
-    .pagination {
+    .pagination-container {
         display: flex;
         justify-content: center;
-        align-items: center;
-        gap: var(--spacing-md);
         margin: var(--spacing-md) 0;
-        font-weight: 600;
+    }
+
+    .pagination-pill {
+        display: flex;
+        align-items: center;
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: 100px;
+        padding: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        gap: 8px;
+    }
+
+    .nav-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        background: transparent;
+        color: var(--color-text);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+        background-color: var(--color-background-hover);
         color: var(--color-primary);
-        user-select: none;
+        transform: translateX(0);
+    }
+
+    .nav-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
     }
 
     .page-info {
         display: flex;
         align-items: center;
-        gap: var(--spacing-sm);
-        min-width: 8rem;
-        justify-content: center;
+        gap: 8px;
+        padding: 0 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        border-left: 1px solid var(--color-border-light);
+        border-right: 1px solid var(--color-border-light);
     }
 
-    .page-text {
-        font-size: var(--font-xl);
-        color: var(--color-primary);
+    .page-label {
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
     }
 
     .page-input {
-        width: 4.5rem;
+        width: 3rem;
         text-align: center;
-        font-size: var(--font-lg);
-        font-weight: 600;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--color-text);
+        background: transparent;
+        border: none;
+        padding: 2px 0;
+        -moz-appearance: textfield;
+    }
+
+    .page-input:focus {
+        outline: none;
         color: var(--color-primary);
-        background-color: var(--color-background);
-        border: 1px solid var(--color-primary);
-        border-radius: var(--radius-sm);
-        padding: var(--spacing-xs);
-        appearance: textfield; /* Standard */
-        -moz-appearance: textfield; /* Firefox */
     }
 
     .page-input::-webkit-outer-spin-button,
@@ -110,14 +155,7 @@
         margin: 0;
     }
 
-    .page-input:focus {
-        outline: none;
-        border-color: var(--color-border-focus);
-        box-shadow: 0 0 0 0.25rem var(--color-shadow-primary);
-    }
-
     .total-pages {
-        font-size: var(--font-sm);
         color: var(--color-text-muted);
         font-weight: 500;
     }

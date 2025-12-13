@@ -7,6 +7,7 @@
     import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount, modifiedPlayers, showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers } from "$lib/stores/editedPlayers";
     import { selectedPlayers, showOnlySelected, deselectAll } from "$lib/stores/selectionStore";
     import { modSettings } from "$lib/stores/modSettings";
+    import { analystStore } from "$lib/stores/analystStore";
 
     let {
         players = $bindable(),
@@ -181,6 +182,27 @@
             // The user will be forced to choose a save location
             save_path = path === "Multiple files loaded" ? "" : path;
             
+            // Reset all filters
+            selectedCountry = null;
+            selectedClub = null;
+            minCA = null;
+            maxCA = null;
+            minPA = null;
+            maxPA = null;
+            preferredFoot = null;
+            favouriteNumber = null;
+            birthYear = null;
+            effectiveBirthYear = null;
+            nameQuery = null;
+            sortBy = null;
+            
+            // Reset view filters
+            editTypeFilter = 'all';
+            deselectAll(); // Resets selectedPlayers and showOnlySelected
+
+            // Clear analyst cache to ensure fresh stats are loaded
+            analystStore.clear();
+
             clearAllEditedPlayers();
             
             setTimeout(async () => {
@@ -188,6 +210,7 @@
             }, 100);
             
             currentPage = 0;
+            triggerRefresh();
         }
     }
 
@@ -402,24 +425,24 @@
     }
 
     .toggle-switch.small {
-        width: 18px;
-        height: 10px;
+        width: 22px;
+        height: 12px;
         margin-bottom: 0;
     }
     
     .toggle-switch.small .slider:before {
-        height: 6px;
-        width: 6px;
+        height: 8px;
+        width: 8px;
         left: 2px;
         bottom: 2px;
     }
     
     .toggle-switch.small input:checked + .slider:before {
-        transform: translateX(8px);
+        transform: translateX(10px);
     }
 
     .toggle-label {
-        font-size: 0.5rem;
+        font-size: 0.65rem;
         text-transform: uppercase;
         color: var(--color-text-muted);
         font-weight: 700;
@@ -456,7 +479,7 @@
         gap: var(--spacing-sm);
         background-color: var(--color-background-light);
         padding: 4px 8px 4px 12px;
-        border-radius: var(--radius-md);
+        border-radius: 100px;
         border: 1px solid var(--color-border);
     }
 

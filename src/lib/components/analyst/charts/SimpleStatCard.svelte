@@ -27,9 +27,9 @@
 
 <style>
     .stat-card {
-        background: var(--color-background-light);
-        border: 1px solid var(--color-border-light);
-        border-radius: var(--radius-lg);
+        background: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
         padding: var(--spacing-lg);
         text-align: center;
         display: flex;
@@ -37,20 +37,31 @@
         justify-content: center;
         align-items: center;
         height: 100%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: var(--color-primary);
     }
 
     .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
+        font-size: 2.2rem;
+        font-weight: 800;
         color: var(--color-primary);
-        margin-bottom: var(--spacing-xs);
-        line-height: 1.2;
+        margin-bottom: 4px;
+        line-height: 1.1;
+        letter-spacing: -0.5px;
     }
 
     .stat-label {
-        font-size: var(--font-sm);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
         color: var(--color-text-muted);
-        font-weight: 500;
     }
 
     .stat-sub {
