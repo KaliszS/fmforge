@@ -15,6 +15,7 @@ export async function loadPlayersPage(
   birthYear: number | null,
   nameQuery: string | null,
   sortBy: string[] | null,
+  playerIds: number[] | null = null,
 ): Promise<PlayerRecord[]> {
   return await invoke("get_players_page", {
     offset,
@@ -32,6 +33,7 @@ export async function loadPlayersPage(
       birth_year_max: birthYear || null,
       name_query: nameQuery || null,
       sort_by: sortBy || null,
+      player_ids: playerIds,
     },
   });
 }

@@ -1,5 +1,8 @@
 <script lang="ts">
     import { selectedPlayers, deselectAll, showOnlySelected } from '$lib/stores/selectionStore';
+    import MassEditModal from '$lib/components/player/MassEditModal.svelte';
+
+    let showMassEdit = $state(false);
 
     function toggleFilter() {
         showOnlySelected.update(v => !v);
@@ -13,21 +16,27 @@
 
 {#if $selectedPlayers.size > 0}
     <article class="selected-players-info">
-        <button 
-            class="selection-btn"
-            class:active={$showOnlySelected}
-            onclick={toggleFilter}
-            title={$showOnlySelected ? "Show all players" : "Show only selected players"}
-        >
-            <span class="filter-section">
+        <div class="selection-group" class:active={$showOnlySelected}>
+            <button 
+                class="filter-section"
+                onclick={toggleFilter}
+                title={$showOnlySelected ? "Show all players" : "Show only selected players"}
+            >
                 <span class="count">{$selectedPlayers.size}</span>
                 <span class="label">selected</span>
-            </span>
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <span class="icon-close" onclick={handleDeselect}>✕</span>
-        </button>
+            </button>
+
+            <button class="edit-section" onclick={() => showMassEdit = true} title="Mass Edit Selected Players">
+                ✎
+            </button>
+
+            <button class="close-section" onclick={handleDeselect} title="Deselect all">
+                ✕
+            </button>
+        </div>
     </article>
+
+    <MassEditModal bind:isOpen={showMassEdit} onClose={() => showMassEdit = false} />
 {/if}
 
 <style>
@@ -43,46 +52,74 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    .selection-btn {
+    .selection-group {
         display: flex;
-        align-items: center;
-        gap: 0;
+        align-items: stretch;
         background-color: var(--color-primary);
         color: white;
-        padding: 0;
         border-radius: 100px;
-        border: 1px solid var(--color-primary);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: var(--font-sm);
+        overflow: hidden;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         height: 28px;
-        overflow: hidden;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(255,255,255,0.1);
     }
 
-    .filter-section {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 12px;
-        flex: 1;
-        height: 100%;
-    }
-
-    .selection-btn:hover {
+    .selection-group:hover {
         background-color: var(--color-primary-hover);
         transform: translateY(-1px);
         box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     }
 
-    .selection-btn.active {
+    .selection-group.active {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .selection-group.active .filter-section {
         font-weight: 700;
     }
 
-    .selection-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    button {
+        background: none;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+    }
+
+    .filter-section {
+        padding: 0 12px;
+        gap: 8px;
+        font-size: var(--font-sm);
+    }
+
+    .filter-section:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .edit-section {
+        width: 32px;
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 1.1em;
+    }
+
+    .edit-section:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .close-section {
+        width: 28px;
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 0.9em;
+        padding-right: 2px;
+    }
+
+    .close-section:hover {
+        background-color: rgba(255, 255, 255, 0.2);
     }
 
     .count {
@@ -91,26 +128,11 @@
     }
 
     .label {
-        font-weight: 700;
-        font-size: 0.85em;
-        opacity: 1;
+        font-size: 0.9em;
         color: #ffffff;
+        opacity: 1;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-    }
-
-    .icon-close {
-        font-size: 1em;
         font-weight: 700;
-        padding: 0 14px;
-        border-left: 1px solid rgba(255, 255, 255, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        align-self: stretch;
-    }
-
-    .icon-close:hover {
-        background-color: rgba(255, 255, 255, 0.2);
     }
 </style>
