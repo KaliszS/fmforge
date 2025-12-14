@@ -90,7 +90,7 @@
             const players = await loadPlayersPage(
                 0, 
                 ids.length, 
-                null, null, null, null, null, null, null, null, null, null, null, 
+                null, null, null, null, null, null, null, null, null, null, null, null, null,
                 ids
             );
             
