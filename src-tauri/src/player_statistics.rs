@@ -66,6 +66,16 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
                         return false;
                     }
                 }
+                if let Some(ref pos) = f.position {
+                    if player.position.as_ref() != Some(pos) {
+                        return false;
+                    }
+                }
+                if let Some(fav_club) = f.favourite_club {
+                    if player.favourite_team_id != Some(fav_club) {
+                        return false;
+                    }
+                }
                 if let Some(birth_year) = f.birth_year_min {
                     if let Some(player_birth_year) = get_birth_year(&player.birth_date) {
                         if player_birth_year != birth_year {

@@ -15,6 +15,8 @@
         pageSize = $bindable(),
         selectedCountry = $bindable(),
         selectedClub = $bindable(),
+        selectedPosition = $bindable(),
+        selectedFavouriteClub = $bindable(),
         minCA = $bindable(),
         maxCA = $bindable(),
         minPA = $bindable(),
@@ -36,6 +38,8 @@
         pageSize: number;
         selectedCountry: number | null;
         selectedClub: number | null;
+        selectedPosition: string | null;
+        selectedFavouriteClub: number | null;
         minCA: number | null;
         maxCA: number | null;
         minPA: number | null;
@@ -151,6 +155,8 @@
                 favourite_number: favouriteNumber || null,
                 birth_year_min: birthYear || null,
                 birth_year_max: birthYear || null,
+                position: selectedPosition || null,
+                favourite_club: selectedFavouriteClub || null,
                 name_query: nameQuery || null,
                 sort_by: sortBy || null,
                 // Group 2 filter: player IDs from selected/edited
@@ -185,6 +191,8 @@
             // Reset all filters
             selectedCountry = null;
             selectedClub = null;
+            selectedPosition = null;
+            selectedFavouriteClub = null;
             minCA = null;
             maxCA = null;
             minPA = null;

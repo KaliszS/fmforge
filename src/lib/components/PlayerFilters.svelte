@@ -1,11 +1,13 @@
 <script lang="ts">
-    import { countryMap, clubMap, FOOT_OPTIONS, SORT_OPTIONS } from "$lib/constants";
+    import { countryMap, clubMap, FOOT_OPTIONS, SORT_OPTIONS, POSITION_MAP } from "$lib/constants";
     import { modSettings } from "$lib/stores/modSettings";
     import ClubSelect from "$lib/components/common/ClubSelect.svelte";
 
     let {
         selectedCountry = $bindable(),
         selectedClub = $bindable(),
+        selectedPosition = $bindable(),
+        selectedFavouriteClub = $bindable(),
         minCA = $bindable(),
         maxCA = $bindable(),
         minPA = $bindable(),
@@ -20,6 +22,8 @@
     }: {
         selectedCountry: number | null;
         selectedClub: number | null;
+        selectedPosition: string | null;
+        selectedFavouriteClub: number | null;
         minCA: number | null;
         maxCA: number | null;
         minPA: number | null;
@@ -69,6 +73,8 @@
         if (!disabled) {
             selectedCountry = null;
             selectedClub = null;
+            selectedPosition = null;
+            selectedFavouriteClub = null;
             minCA = null;
             maxCA = null;
             minPA = null;
@@ -100,6 +106,8 @@
     const hasActiveFilters = $derived(
         selectedCountry !== null ||
         selectedClub !== null ||
+        selectedPosition !== null ||
+        selectedFavouriteClub !== null ||
         minCA !== null ||
         maxCA !== null ||
         minPA !== null ||
@@ -126,7 +134,7 @@
             <span class="filters-icon">🔍</span>
             <h3>Filters</h3>
             {#if hasActiveFilters && !disabled}
-                <span class="active-indicator">{[selectedCountry, selectedClub, minCA, maxCA, minPA, maxPA, preferredFoot, favouriteNumber, birthYear, nameQuery].filter(v => v !== null).length}</span>
+                <span class="active-indicator">{[selectedCountry, selectedClub, selectedPosition, selectedFavouriteClub, minCA, maxCA, minPA, maxPA, preferredFoot, favouriteNumber, birthYear, nameQuery].filter(v => v !== null).length}</span>
             {/if}
         </div>
         <div class="filters-actions">
@@ -211,6 +219,46 @@
                                         placeholder="ID"
                                         class="input input-number id-input"
                                         aria-label="Club ID"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-row two-cols">
+                            <div class="filter-item">
+                                <div class="input-group">
+                                    <span class="input-icon">📍</span>
+                                    <select 
+                                        id="positionSelect" 
+                                        bind:value={selectedPosition} 
+                                        class="input select-input" 
+                                        class:placeholder={selectedPosition === null}
+                                        aria-label="Select Position"
+                                    >
+                                        <option value={null}>Select Position...</option>
+                                        {#each Object.entries(POSITION_MAP) as [key, { label, short }]}
+                                            <option value={key}>{short} - {label}</option>
+                                        {/each}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="filter-item">
+                                <div class="input-group">
+                                    <div style="flex: 1; min-width: 12rem;">
+                                        <ClubSelect 
+                                            bind:value={selectedFavouriteClub} 
+                                            emptyValue={null} 
+                                            placeholder="Select Favourite Club..." 
+                                            icon="❤️"
+                                        />
+                                    </div>
+                                    <input
+                                        type="number"
+                                        bind:value={selectedFavouriteClub}
+                                        placeholder="ID"
+                                        class="input input-number id-input"
+                                        aria-label="Favourite Club ID"
                                     />
                                 </div>
                             </div>
