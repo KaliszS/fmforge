@@ -2,6 +2,7 @@
     import type { PlayerRecord } from "$lib/types";
     import SimpleStatCard from "../charts/SimpleStatCard.svelte";
     import { countryMap, clubMap } from "$lib/constants";
+    import { modSettings, type ModSettings } from "$lib/stores/modSettings";
 
     let { 
         statistics,
@@ -78,7 +79,7 @@
         if (left >= right && left >= both) return { label: "Left", count: left };
         return { label: "Both", count: both };
     }    // Helper for age stats
-    function getAgeStats(birthYearCounts: Record<number, number>): { min: number, max: number, common: number } | null {
+    function getAgeStats(birthYearCounts: Record<number, number>, settings: ModSettings): { min: number, max: number, common: number } | null {
         if (!birthYearCounts || Object.keys(birthYearCounts).length === 0) return null;
         
         const years = Object.keys(birthYearCounts).map(y => parseInt(y));
@@ -94,14 +95,28 @@
                 commonYear = parseInt(year);
             }
         }
+
+        // Apply offset if needed
+        let offset = 0;
+        if (settings.showRealBirthDates && settings.canToggle) {
+            const fmEdition = parseInt(settings.fmEdition);
+            const retroYear = parseInt(settings.retroYear);
+            if (!isNaN(fmEdition) && !isNaN(retroYear)) {
+                offset = fmEdition - 1 - retroYear;
+            }
+        }
         
-        return { min, max, common: commonYear };
+        return { 
+            min: min - offset, 
+            max: max - offset, 
+            common: commonYear - offset 
+        };
     }
 
     let topNationality = $derived(getTopItem(statistics?.nationality_counts, countryMap));
     let topClub = $derived(getTopItem(statistics?.club_counts, clubMap));
     let dominantFoot = $derived(getDominantFoot(statistics?.preferred_foot_counts));
-    let ageStats = $derived(getAgeStats(statistics?.birth_year_counts));
+    let ageStats = $derived(getAgeStats(statistics?.birth_year_counts, $modSettings));
 </script>
 
 <div class="analysis-section">
