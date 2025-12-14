@@ -81,8 +81,17 @@ export function checkAndCleanupPlayer(id: number) {
             const original = originals.get(id);
             const modified = modifiedMap.get(id);
             
-            if (original && modified && arePlayersEqual(original, modified)) {
-                shouldCleanup = true;
+            // Cleanup if:
+            // 1. Player is in originalPlayers AND
+            // 2. Either:
+            //    a. Player is NOT in modifiedPlayers (edit started but cancelled/not saved)
+            //    b. Player IS in modifiedPlayers (not deleted) AND equals original
+            if (original) {
+                if (modified === undefined) {
+                    shouldCleanup = true;
+                } else if (modified !== null && arePlayersEqual(original, modified)) {
+                    shouldCleanup = true;
+                }
             }
         })();
     })();
