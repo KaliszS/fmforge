@@ -31,6 +31,9 @@
         playerId: number;
     } = $props();
     
+    // Use modified player from store if available, otherwise use the prop
+    let displayPlayer = $derived($modifiedPlayers.get(playerId) ?? player);
+
     setContext('quickEdit', {
         start: () => {
             if (!$originalPlayers.has(playerId)) {
@@ -38,7 +41,7 @@
             }
         },
         save: () => {
-            saveModifiedPlayer(playerId, player);
+            saveModifiedPlayer(playerId, displayPlayer);
             checkAndCleanupPlayer(playerId);
         },
         cancel: () => {
@@ -48,9 +51,6 @@
 
     let edit_mode = $state(false);
     let isPlayerEdited = $derived($originalPlayers.has(playerId));
-    
-    // Use modified player from store if available, otherwise use the prop
-    let displayPlayer = $derived($modifiedPlayers.get(playerId) ?? player);
     
     let isNewlyAdded = $derived.by(() => {
         const originals = $originalPlayers;
