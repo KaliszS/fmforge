@@ -31,6 +31,8 @@
     let refreshTrigger = $state(0);
     let selectedCountry: number | null = $state(null);
     let selectedClub: number | null = $state(null);
+    let selectedPosition: string | null = $state(null);
+    let selectedFavouriteClub: number | null = $state(null);
     let minCA: number | null = $state(null);
     let maxCA: number | null = $state(null);
     let minPA: number | null = $state(null);
@@ -80,6 +82,8 @@
             preferredFoot,
             favouriteNumber,
             effectiveBirthYear,
+            selectedPosition,
+            selectedFavouriteClub,
             nameQuery,
             sortBy,
         );
@@ -148,6 +152,8 @@
     $effect(() => {
         void selectedCountry;
         void selectedClub;
+        void selectedPosition;
+        void selectedFavouriteClub;
         void minCA;
         void maxCA;
         void minPA;
@@ -249,6 +255,8 @@
                 preferredFoot,
                 favouriteNumber,
                 effectiveBirthYear,
+                selectedPosition,
+                selectedFavouriteClub,
                 nameQuery,
                 sortBy
             );
@@ -264,6 +272,8 @@
         bind:pageSize 
         bind:selectedCountry 
         bind:selectedClub 
+        bind:selectedPosition
+        bind:selectedFavouriteClub
         bind:minCA
         bind:maxCA
         bind:minPA
@@ -286,6 +296,8 @@
         <PlayerFilters 
             bind:selectedCountry 
             bind:selectedClub 
+            bind:selectedPosition
+            bind:selectedFavouriteClub
             bind:minCA
             bind:maxCA
             bind:minPA
@@ -330,6 +342,8 @@
                 bind:players={filteredPlayers}
                 {selectedCountry}
                 {selectedClub}
+                {selectedPosition}
+                {selectedFavouriteClub}
                 {minCA}
                 {maxCA}
                 {minPA}

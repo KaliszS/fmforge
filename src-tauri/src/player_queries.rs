@@ -89,6 +89,20 @@ pub fn get_players_chunk(filters: Option<PlayerFilters>) -> Vec<PlayerRecord> {
                         return false;
                     }
                 }
+
+                // Position filter
+                if let Some(ref pos) = f.position {
+                    if player.position.as_ref() != Some(pos) {
+                        return false;
+                    }
+                }
+
+                // Favourite club filter
+                if let Some(fav_club) = f.favourite_club {
+                    if player.favourite_team_id != Some(fav_club) {
+                        return false;
+                    }
+                }
                 
                 // Birth year filter
                 if let Some(birth_year) = f.birth_year_min {

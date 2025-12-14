@@ -9,6 +9,8 @@
         players = $bindable(),
         selectedCountry,
         selectedClub,
+        selectedPosition,
+        selectedFavouriteClub,
         minCA,
         maxCA,
         minPA,
@@ -24,6 +26,8 @@
         players: PlayerRecord[];
         selectedCountry: number | null;
         selectedClub: number | null;
+        selectedPosition: string | null;
+        selectedFavouriteClub: number | null;
         minCA: number | null;
         maxCA: number | null;
         minPA: number | null;
@@ -46,6 +50,8 @@
     const getParams = () => ({
         selectedCountry,
         selectedClub,
+        selectedPosition,
+        selectedFavouriteClub,
         minCA,
         maxCA,
         minPA,
@@ -95,6 +101,8 @@
                     preferredFoot,
                     favouriteNumber,
                     birthYear,
+                    selectedPosition,
+                    selectedFavouriteClub,
                     nameQuery,
                     sortBy,
                     allFilteredIds
