@@ -40,6 +40,9 @@
         save: () => {
             saveModifiedPlayer(playerId, player);
             checkAndCleanupPlayer(playerId);
+        },
+        cancel: () => {
+            checkAndCleanupPlayer(playerId);
         }
     });
 

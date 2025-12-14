@@ -13,7 +13,7 @@
         children: any;
     } = $props();
 
-    const quickEditContext = getContext<{ start: () => void, save: () => void }>('quickEdit');
+    const quickEditContext = getContext<{ start: () => void, save: () => void, cancel?: () => void }>('quickEdit');
 
     $effect(() => {
         if (isOpen && quickEditContext) {
@@ -23,6 +23,19 @@
 
     function close() {
         isOpen = false;
+    }
+
+    function handleCancel() {
+        close();
+        if (quickEditContext?.cancel) {
+            quickEditContext.cancel();
+        }
+    }
+
+    function handleKeydown(e: KeyboardEvent) {
+        if (e.key === 'Escape' && isOpen) {
+            handleCancel();
+        }
     }
 
     async function handleSave() {
@@ -38,17 +51,19 @@
     }
 </script>
 
+<svelte:window onkeydown={handleKeydown} />
+
 {#if isOpen}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="modal-backdrop" onclick={close}>
+    <div class="modal-backdrop" onclick={handleCancel}>
         <div class="modal-content" onclick={(e) => e.stopPropagation()}>
             <h3>{title}</h3>
             <div class="modal-body">
                 {@render children()}
             </div>
             <div class="modal-actions">
-                <button class="cancel-btn" onclick={close}>Cancel</button>
+                <button class="cancel-btn" onclick={handleCancel}>Cancel</button>
                 <button class="save-btn" onclick={handleSave}>Save</button>
             </div>
         </div>
