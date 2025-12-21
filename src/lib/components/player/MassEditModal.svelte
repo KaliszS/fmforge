@@ -107,7 +107,8 @@
 
                 // Resolve the current state of the player
                 if (currentModified.has(id)) {
-                    playerToUpdate = currentModified.get(id);
+                    const mod = currentModified.get(id);
+                    if (mod) playerToUpdate = JSON.parse(JSON.stringify(mod));
                 } else if (currentOriginals.has(id)) {
                     const original = currentOriginals.get(id);
                     if (original) playerToUpdate = JSON.parse(JSON.stringify(original));
