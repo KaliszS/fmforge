@@ -14,6 +14,16 @@
 
 ---
 
+## 📚 Documentation
+**[Explore the Full Documentation](docs/index.md)**
+
+- **[Getting Started](docs/user-guide/getting-started.md)**
+- **[User Guide & Features](docs/user-guide/features.md)**
+- **[Analyst Mode](docs/user-guide/analyst-mode.md)**
+- **[Video Tutorials](docs/tutorials/use-cases.md)**
+
+---
+
 **Football Manager Forge** is a modern, cross-platform tool built to simplify the process of editing `.edt` files for the Football Manager series. These files are used to configure **regens** (newly generated players) before starting a new game.
 
 ### ❓ What are Regens?
