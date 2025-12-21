@@ -979,7 +979,7 @@ dependencies = [
 
 [[package]]
 name = "fmforge"
-version = "1.0.4"
+version = "1.0.5"
 dependencies = [
  "once_cell",
  "serde",
