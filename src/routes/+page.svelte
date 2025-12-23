@@ -60,7 +60,7 @@
             const webview = new WebviewWindow(label, {
                 url: '/secondary',
                 title: 'FM Forge - next page',
-                width: 1010,
+                width: 1020,
                 height: 800,
             });
             
