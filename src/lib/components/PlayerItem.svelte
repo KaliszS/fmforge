@@ -25,10 +25,12 @@
 
     let { 
         player = $bindable(), 
-        playerId 
+        playerId,
+        readOnly = false
     }: { 
         player: Player;
         playerId: number;
+        readOnly?: boolean;
     } = $props();
     
     // Use modified player from store if available, otherwise use the prop
@@ -36,17 +38,21 @@
 
     setContext('quickEdit', {
         start: () => {
+            if (readOnly) return;
             if (!$originalPlayers.has(playerId)) {
                 saveOriginalPlayer(playerId, player);
             }
         },
         save: () => {
+            if (readOnly) return;
             saveModifiedPlayer(playerId, displayPlayer);
             checkAndCleanupPlayer(playerId);
         },
         cancel: () => {
+            if (readOnly) return;
             checkAndCleanupPlayer(playerId);
-        }
+        },
+        readOnly
     });
 
     let edit_mode = $state(false);
@@ -121,7 +127,9 @@
 </script>
 
 <li class="player-item" class:edit-mode={edit_mode} class:edited={isPlayerEdited} class:newly-added={isNewlyAdded} class:deleted={isDeleted}>
-    <SelectionTrigger {playerId} />
+    {#if !readOnly}
+        <SelectionTrigger {playerId} />
+    {/if}
     {#if edit_mode}
         <PlayerEditFields bind:player={player} />
         <EditActions 
@@ -159,6 +167,7 @@
             bind:weight={displayPlayer.weight}
             bind:edit_mode
         />
+        {#if !readOnly}
         <div class="action-buttons">
             <button class="edit-button" onclick={toggleEdit} title={edit_mode ? "Save changes" : "Edit player"} disabled={isDeleted}>
                 {#if edit_mode}
@@ -191,6 +200,7 @@
                 </button>
             {/if}
         </div>
+        {/if}
     {/if}
 </li>
 

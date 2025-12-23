@@ -1,6 +1,6 @@
 [package]
 name = "fmforge"
-version = "1.0.5"
+version = "1.1.0"
 description = "Football Manager Regen Editor"
 authors = ["Sebastian Kalisz"]
 edition = "2021"

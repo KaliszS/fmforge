@@ -11,7 +11,7 @@
         onPageChange,
         isLastPage,
         editTypeFilter = $bindable(),
-        onFilterChange = () => {}
+        onFilterChange = () => {},
     }: {
         currentPage: number;
         onPrev: () => void;

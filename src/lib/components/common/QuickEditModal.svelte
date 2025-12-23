@@ -13,10 +13,14 @@
         children: any;
     } = $props();
 
-    const quickEditContext = getContext<{ start: () => void, save: () => void, cancel?: () => void }>('quickEdit');
+    const quickEditContext = getContext<{ start: () => void, save: () => void, cancel?: () => void, readOnly?: boolean }>('quickEdit');
 
     $effect(() => {
         if (isOpen && quickEditContext) {
+            if (quickEditContext.readOnly) {
+                isOpen = false;
+                return;
+            }
             quickEditContext.start();
         }
     });
