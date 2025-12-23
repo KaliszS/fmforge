@@ -12,6 +12,8 @@
     import { selectedPlayers, setSelection, deselectAll, showOnlySelected } from '$lib/stores/selectionStore';
     import type { InvalidRow } from "$lib/api/file";
     import { onMount } from 'svelte';
+    import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+    import { emit } from '@tauri-apps/api/event';
 
     onMount(() => {
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -48,6 +50,67 @@
     let currentView: 'scout' | 'analyst' = $state('scout');
     let editTypeFilter: 'all' | 'modified' | 'added' | 'deleted' = $state('all');
 
+    async function toggleSecondaryWindow() {
+        const label = 'secondary';
+        const win = await WebviewWindow.getByLabel(label);
+        
+        if (win) {
+            await win.close();
+        } else {
+            const webview = new WebviewWindow(label, {
+                url: '/secondary',
+                title: 'FM Forge - next page',
+                width: 1010,
+                height: 800,
+            });
+            
+            webview.once('tauri://created', function () {
+                // webview window successfully created
+                // Give it a moment to load the page before syncing
+                setTimeout(syncSecondaryWindow, 1000);
+            });
+            
+            webview.once('tauri://error', function (e) {
+                // an error happened creating the webview window
+                console.error('Error creating secondary window', e);
+            });
+        }
+    }
+
+    async function syncSecondaryWindow() {
+        const theme = document.documentElement.getAttribute('data-theme') || 'light';
+        const state = {
+            currentPage,
+            pageSize,
+            selectedCountry,
+            selectedClub,
+            minCA,
+            maxCA,
+            minPA,
+            maxPA,
+            preferredFoot,
+            favouriteNumber,
+            effectiveBirthYear,
+            selectedPosition,
+            selectedFavouriteClub,
+            nameQuery,
+            sortBy,
+            theme,
+            showOnlyEdited: $showOnlyEdited,
+            showOnlySelected: $showOnlySelected,
+            editTypeFilter
+        };
+        
+        await emit('sync-state', state);
+    }
+
+    // Sync when theme changes
+    $effect(() => {
+        // We can't easily detect theme changes unless we store it in a store
+        // But we can listen to the toggle event if we had one, or just rely on the user refreshing
+        // For now, let's just sync when other things change
+    });
+
     function filterEditedPlayersByType(players: PlayerRecord[]): PlayerRecord[] {
         if (editTypeFilter === 'all') {
             return players;
@@ -69,7 +132,17 @@
         });
     }
 
-    async function loadPage() {        
+    async function loadPage() {
+        let playerIds: number[] | null = null;
+        if ($showOnlySelected) {
+             playerIds = Array.from($selectedPlayers);
+             if (playerIds.length === 0) {
+                 players = [];
+                 isLastPage = true;
+                 return;
+             }
+        }
+
         players = await loadPlayersPage(
             currentPage * pageSize,
             pageSize,
@@ -86,6 +159,7 @@
             selectedFavouriteClub,
             nameQuery,
             sortBy,
+            playerIds
         );
 
         isLastPage = players.length < pageSize;
@@ -169,6 +243,7 @@
         
         if (!$showOnlyEdited) {
             loadPage();
+            syncSecondaryWindow();
         }
     });
 
@@ -189,14 +264,8 @@
             const startIndex = currentPage * pageSize;
             isLastPage = startIndex + pageSize >= totalEdited;
         } else {
-            // For regular view, check if selected filter is active
-            if ($showOnlySelected && $selectedPlayers.size > 0) {
-                const selectedIds = $selectedPlayers;
-                const filteredCount = players.filter(p => selectedIds.has(p.id)).length;
-                isLastPage = filteredCount < pageSize;
-            } else {
-                isLastPage = players.length < pageSize;
-            }
+            // For regular view, isLastPage is determined by loadPage result
+            isLastPage = players.length < pageSize;
         }
     });
 
@@ -289,6 +358,7 @@
         bind:isLastPage
         bind:editTypeFilter
         {triggerRefresh}
+        onToggleDualView={toggleSecondaryWindow}
     />
     
     <article class="content">

@@ -32,6 +32,7 @@
         isLastPage = $bindable(),
         editTypeFilter = $bindable(),
         triggerRefresh,
+        onToggleDualView
     }: {
         players: PlayerRecord[];
         currentPage: number;
@@ -55,6 +56,7 @@
         isLastPage: boolean;
         editTypeFilter: 'all' | 'modified' | 'added' | 'deleted';
         triggerRefresh: () => void;
+        onToggleDualView?: () => void;
     } = $props();
 
     let source_path = $state("");
@@ -319,12 +321,78 @@
                     </div>
                 </div>
             </div>
+            <button 
+                class="dual-view-btn" 
+                onclick={onToggleDualView}
+                title="Toggle Secondary Window"
+            >
+                <div class="dual-view-icon">
+                    <svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="12" y1="3" x2="12" y2="21"></line>
+                    </svg>
+                </div>
+            </button>
             <ThemeToggle />
         </div>
     </div>
 </section>
 
 <style>
+    .dual-view-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border: 1.5px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        background-color: var(--color-background);
+        color: var(--color-text);
+        cursor: pointer;
+        transition: 
+            background-color var(--transition-normal),
+            border-color var(--transition-normal),
+            box-shadow var(--transition-normal),
+            transform var(--transition-fast);
+        box-shadow: 0 0.125rem 0.3125rem var(--color-shadow);
+        user-select: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dual-view-btn:hover {
+        background-color: var(--color-background-hover);
+        border-color: var(--color-primary);
+        box-shadow: 0 0.3125rem 0.9375rem var(--color-shadow-primary);
+        transform: translateY(-0.125rem);
+    }
+
+    .dual-view-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 0.125rem 0.3125rem var(--color-shadow);
+    }
+
+    .dual-view-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .dual-view-btn:hover .dual-view-icon {
+        transform: scale(1.05);
+    }
+
+    .dual-view-btn:active .dual-view-icon {
+        transform: scale(0.95);
+    }
+
+    /* Add a subtle glow effect in dark mode */
+    :global([data-theme="dark"]) .dual-view-btn:hover {
+        box-shadow: 0 0.3125rem 0.9375rem var(--color-shadow-primary), 0 0 1rem var(--color-shadow-primary);
+    }
+
     .top-bar {
         position: fixed;
         top: 0;

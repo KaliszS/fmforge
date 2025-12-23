@@ -8,14 +8,19 @@
     let { 
         players = $bindable(),
         sortBy = $bindable(),
-        onToggleGlobalSelection
+        onToggleGlobalSelection,
+        disableSorting = false,
+        readOnly = false
     }: { 
         players: PlayerRecord[],
         sortBy?: string[] | null,
-        onToggleGlobalSelection?: () => void
+        onToggleGlobalSelection?: () => void,
+        disableSorting?: boolean,
+        readOnly?: boolean
     } = $props();
     
     let newlyAddedPlayers = $derived.by(() => {
+        if (readOnly) return [];
         let result: PlayerRecord[] = [];
         $modifiedPlayers.forEach((player, id) => {
             const original = $originalPlayers.get(id);
@@ -29,6 +34,8 @@
     type SortField = 'name' | 'age' | 'ca' | 'pa' | 'nationality' | 'position' | 'club' | 'height' | 'weight' | 'foot';
 
     function toggleSort(field: SortField) {
+        if (disableSorting) return;
+        
         let currentSorts = sortBy ? [...sortBy] : [];
         
         // Find if this field is already in the sort list
@@ -76,31 +83,34 @@
 </script>
 
 {#snippet sortIcon(field: SortField)}
-    {@const sortIndex = sortBy?.findIndex(s => s.startsWith(field))}
-    {@const sortString = sortIndex !== undefined && sortIndex !== -1 ? sortBy![sortIndex] : null}
-    
-    <span class="sort-icon">
-        {#if sortString === `${field}_asc`}
-            <div class="sort-indicator">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
-                {#if (sortBy?.length ?? 0) > 1}
-                    <span class="sort-index">{sortIndex! + 1}</span>
-                {/if}
-            </div>
-        {:else if sortString === `${field}_desc`}
-            <div class="sort-indicator">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>
-                {#if (sortBy?.length ?? 0) > 1}
-                    <span class="sort-index">{sortIndex! + 1}</span>
-                {/if}
-            </div>
-        {:else}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg>
-        {/if}
-    </span>
+    {#if !disableSorting}
+        {@const sortIndex = sortBy?.findIndex(s => s.startsWith(field))}
+        {@const sortString = sortIndex !== undefined && sortIndex !== -1 ? sortBy![sortIndex] : null}
+        
+        <span class="sort-icon">
+            {#if sortString === `${field}_asc`}
+                <div class="sort-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+                    {#if (sortBy?.length ?? 0) > 1}
+                        <span class="sort-index">{sortIndex! + 1}</span>
+                    {/if}
+                </div>
+            {:else if sortString === `${field}_desc`}
+                <div class="sort-indicator">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>
+                    {#if (sortBy?.length ?? 0) > 1}
+                        <span class="sort-index">{sortIndex! + 1}</span>
+                    {/if}
+                </div>
+            {:else}
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg>
+            {/if}
+        </span>
+    {/if}
 {/snippet}
 
 <div class="player-table">
+    {#if !readOnly}
     <div class="header-row">
         {#if onToggleGlobalSelection}
             <GlobalSelectionTrigger onToggle={onToggleGlobalSelection} />
@@ -155,20 +165,21 @@
             {/if}
         </div>
     </div>
+    {/if}
 
     <ul class="player-list">
-        {#if players.length > 0}
+        {#if players.length > 0 && !readOnly}
             <AddPlayerRow />
         {/if}
         
         {#if !$showOnlyEdited}
             {#each newlyAddedPlayers as playerRecord}
-                <PlayerItem bind:player={playerRecord.player} playerId={playerRecord.id} />
+                <PlayerItem bind:player={playerRecord.player} playerId={playerRecord.id} {readOnly} />
             {/each}
         {/if}
         
         {#each players as playerRecord}
-            <PlayerItem bind:player={playerRecord.player} playerId={playerRecord.id} />
+            <PlayerItem bind:player={playerRecord.player} playerId={playerRecord.id} {readOnly} />
         {/each}
     </ul>
 </div>

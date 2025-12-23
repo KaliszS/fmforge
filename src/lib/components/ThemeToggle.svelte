@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { emit } from '@tauri-apps/api/event';
 
     let isDark = $state(false);
 
@@ -14,11 +15,14 @@
         }
     });
 
-    function toggleTheme() {
+    async function toggleTheme() {
         isDark = !isDark;
         const theme = isDark ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
+        
+        // Emit event for other windows
+        await emit('theme-change', theme);
     }
 </script>
 

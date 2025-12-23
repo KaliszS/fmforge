@@ -3,6 +3,7 @@ import type { Player, PlayerRecord } from '$lib/types';
 
 export const originalPlayers = writable<Map<number, Player | null>>(new Map());
 export const modifiedPlayers = writable<Map<number, Player | null>>(new Map());
+export const deletedPlayers = writable<Set<number>>(new Set());
 export const editedCount = writable<number>(0);
 export const showOnlyEdited = writable<boolean>(false);
 
@@ -116,7 +117,7 @@ export function addNewPlayerToStore(id: number, player: Player) {
     saveModifiedPlayer(id, player);
 }
 
-export function markPlayerForDeletion(id: number, player: Player) {
+export function markPlayerForDeletion(id: number, player?: Player) {
     let original: Player | null | undefined;
     originalPlayers.subscribe(originals => {
         original = originals.get(id);
@@ -137,11 +138,20 @@ export function markPlayerForDeletion(id: number, player: Player) {
         return; // Exit early - no need to mark for deletion
     }
     
-    saveOriginalPlayer(id, player);
+    if (player) {
+        saveOriginalPlayer(id, player);
+    }
+    
     modifiedPlayers.update(modified => {
         const newModified = new Map(modified);
         newModified.set(id, null);
         return newModified;
+    });
+    
+    deletedPlayers.update(deleted => {
+        const newDeleted = new Set(deleted);
+        newDeleted.add(id);
+        return newDeleted;
     });
 }
 
@@ -160,6 +170,12 @@ export function removePlayerFromStores(id: number) {
         const newModified = new Map(modified);
         newModified.delete(id);
         return newModified;
+    });
+    
+    deletedPlayers.update(deleted => {
+        const newDeleted = new Set(deleted);
+        newDeleted.delete(id);
+        return newDeleted;
     });
 }
 
@@ -218,6 +234,7 @@ export function revertDeletedPlayers() {
 export function clearEditedPlayersStore() { // for saving to file
     originalPlayers.set(new Map());
     modifiedPlayers.set(new Map());
+    deletedPlayers.set(new Set());
     showOnlyEdited.set(false);
 }
 
