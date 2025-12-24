@@ -7,6 +7,7 @@
     import { loadPlayersPage } from "$lib/api/player";
     import { getModifiedPlayersAsRecords, modifiedPlayers, originalPlayers } from "$lib/stores/editedPlayers";
     import { selectedPlayers } from "$lib/stores/selectionStore";
+    import { modSettings } from "$lib/stores/modSettings";
 
     let players: PlayerRecord[] = $state([]);
     let sortBy: string[] | null = $state(null);
@@ -108,6 +109,10 @@
             
             if (currentState.theme) {
                 document.documentElement.setAttribute('data-theme', currentState.theme);
+            }
+
+            if (currentState.modSettings) {
+                modSettings.set(currentState.modSettings);
             }
             
             loadData();

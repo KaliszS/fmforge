@@ -10,6 +10,7 @@
     import { showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers, modifiedPlayers } from "$lib/stores/editedPlayers";
     import { loadPlayersPage, getFilteredPlayerIds } from "$lib/api/player";
     import { selectedPlayers, setSelection, deselectAll, showOnlySelected } from '$lib/stores/selectionStore';
+    import { modSettings } from '$lib/stores/modSettings';
     import type { InvalidRow } from "$lib/api/file";
     import { onMount } from 'svelte';
     import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
@@ -98,7 +99,8 @@
             theme,
             showOnlyEdited: $showOnlyEdited,
             showOnlySelected: $showOnlySelected,
-            editTypeFilter
+            editTypeFilter,
+            modSettings: $modSettings
         };
         
         await emit('sync-state', state);
@@ -240,6 +242,7 @@
         void sortBy;
         void currentPage;
         void pageSize;
+        void $modSettings;
         
         if (!$showOnlyEdited) {
             loadPage();
