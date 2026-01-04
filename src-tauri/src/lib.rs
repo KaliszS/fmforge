@@ -25,7 +25,8 @@ pub fn get_invalid_rows() -> &'static Mutex<Vec<InvalidRow>> {
 
 use file_operations::{
     load_players_from_file,
-    save_players_to_file
+    save_players_to_file,
+    append_players_from_file
 };
 use player_queries::{get_players_page, get_players_chunk, get_filtered_player_ids};
 use player_statistics::{get_player_statistics, get_top_players};
@@ -44,6 +45,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             load_players_from_file,
+            append_players_from_file,
             get_players_chunk,
             get_players_page,
             get_player_statistics,

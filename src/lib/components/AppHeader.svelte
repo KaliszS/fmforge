@@ -4,6 +4,7 @@
     import type { PlayerRecord } from "$lib/types";
     import ThemeToggle from "./ThemeToggle.svelte";
     import ModSettings from "./ModSettings.svelte";
+    import AppendFileModal from "./AppendFileModal.svelte";
     import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount, modifiedPlayers, showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers } from "$lib/stores/editedPlayers";
     import { selectedPlayers, showOnlySelected, deselectAll } from "$lib/stores/selectionStore";
     import { modSettings } from "$lib/stores/modSettings";
@@ -63,6 +64,7 @@
     let save_path = $state("");
     let saveFilteredOnly = $state(false);
     let convertBirthdates = $state(false);
+    let showAppendModal = $state(false);
     
     $effect(() => {
         // When saveFilteredOnly is enabled and showOnlySelected is active, 
@@ -155,8 +157,8 @@
                 max_pa: maxPA || null,
                 preferred_foot: preferredFoot,
                 favourite_number: favouriteNumber || null,
-                birth_year_min: birthYear || null,
-                birth_year_max: birthYear || null,
+                birth_year_min: effectiveBirthYear || null,
+                birth_year_max: effectiveBirthYear || null,
                 position: selectedPosition || null,
                 favourite_club: selectedFavouriteClub || null,
                 name_query: nameQuery || null,
@@ -237,6 +239,17 @@
             convertBirthdates = false;
         }
     });
+
+    function handleAppendSuccess(count: number) {
+        // Clear analyst cache to ensure fresh stats
+        analystStore.clear();
+        
+        // Refresh the view
+        currentPage = 0;
+        triggerRefresh();
+        
+        alert(`Successfully appended ${count} new players!`);
+    }
 </script>
 
 <section class="top-bar">
@@ -245,6 +258,14 @@
             <button class="btn-load-main" onclick={selectFile} title="Load one or multiple .edt files">
                 <span class="icon">📂</span>
                 <span class="text">Load Files</span>
+            </button>
+            <button 
+                class="btn-append" 
+                onclick={() => showAppendModal = true} 
+                title="Append players from another file"
+                disabled={!$modSettings.canToggle}
+            >
+                <span class="icon">+</span>
             </button>
             <div 
                 class="load-toggle" 
@@ -338,6 +359,11 @@
     </div>
 </section>
 
+<AppendFileModal 
+    bind:isOpen={showAppendModal} 
+    onSuccess={handleAppendSuccess}
+/>
+
 <style>
     .dual-view-btn {
         display: flex;
@@ -425,6 +451,8 @@
         height: auto;
         box-shadow: 0 1px 2px var(--color-shadow-light);
         transition: all 0.2s ease;
+        position: relative;
+        margin-right: 6px;
     }
 
     .load-group:hover {
@@ -456,6 +484,45 @@
 
     .btn-load-main .icon {
         font-size: 0.9em;
+    }
+
+    .btn-append {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        width: 22px;
+        height: 22px;
+        background: var(--color-background-light);
+        border: none;
+        border-top: 1px solid var(--color-border-light);
+        border-left: 1px solid var(--color-border-light);
+        color: var(--color-text-muted);
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        position: absolute;
+        right: -23px;
+        top: 0;
+        bottom: 0;
+        margin: auto 0;
+    }
+
+    .btn-append:hover:not(:disabled) {
+        background-color: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+    }
+
+    .btn-append:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .btn-append .icon {
+        line-height: 1;
     }
 
     .load-toggle {
