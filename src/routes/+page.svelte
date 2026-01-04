@@ -423,7 +423,7 @@
                 {maxPA}
                 {preferredFoot}
                 {favouriteNumber}
-                {birthYear}
+                birthYear={effectiveBirthYear}
                 {nameQuery}
                 {sortBy}
                 {filteredPlayers}

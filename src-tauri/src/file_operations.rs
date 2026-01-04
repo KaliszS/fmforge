@@ -125,6 +125,122 @@ pub fn load_players_from_file(
 }
 
 #[tauri::command]
+pub fn append_players_from_file(
+    path: String,
+    source_game_year: i32,
+    source_mod_year: i32,
+    target_game_year: i32,
+    target_mod_year: i32,
+) -> Result<usize, String> {
+    // Calculate year offset to convert from source format to target format
+    // Source offset from real year: source_game_year - source_mod_year - 1
+    // Target offset from real year: target_game_year - target_mod_year - 1
+    // Difference: (target_game_year - target_mod_year) - (source_game_year - source_mod_year)
+    let year_offset = (target_game_year - target_mod_year) - (source_game_year - source_mod_year);
+    
+    println!("[APPEND] Source: FM{} mod {}, Target: FM{} mod {}, Year offset: {}", 
+        source_game_year, source_mod_year, target_game_year, target_mod_year, year_offset);
+
+    let file = fs::File::open(&path).map_err(|e| format!("Failed to open {}: {}", path, e))?;
+    let reader = BufReader::new(file);
+    
+    let mut players = get_players().lock().unwrap();
+    
+    // Find next available index
+    let mut next_idx = players.keys().max().map(|k| k + 1).unwrap_or(0);
+    
+    // Build set of existing players for deduplication
+    let mut existing_players: HashSet<Player> = players.values().cloned().collect();
+    
+    let mut appended_count = 0;
+
+    for (line_idx, line) in reader.lines().enumerate() {
+        let line = line.map_err(|e| e.to_string())?;
+        let raw_fields: Vec<&str> = line.split('"').collect();
+        let fields: Vec<&str> = raw_fields
+            .iter()
+            .enumerate()
+            .filter_map(|(i, s)| if i % 2 == 1 { Some(*s) } else { None })
+            .collect();
+
+        if fields.len() < 19 {
+            let row_number = line_idx + 1;
+            {
+                let mut invalid_rows = get_invalid_rows().lock().unwrap();
+                invalid_rows.push(InvalidRow {
+                    row_number,
+                    content: line.to_string(),
+                    file_path: path.clone(),
+                });
+            }
+            continue;
+        }
+
+        let record_type = match fields[0] {
+            "DETAILED_FUTURE_REGEN" => RecordType::DetailedFutureRegen,
+            "SUPPORT STAFF" => RecordType::SupportStaff,
+            _ => continue,
+        };
+
+        // Convert birth date
+        let mut birth_date = fields[4].to_string();
+        if year_offset != 0 {
+            let parts: Vec<&str> = birth_date.split('/').collect();
+            if parts.len() == 3 {
+                if let Ok(year) = parts[2].parse::<i32>() {
+                    let new_year = year + year_offset;
+                    birth_date = format!("{}/{}/{}", parts[0], parts[1], new_year);
+                }
+            }
+        }
+
+        let player = Player {
+            record_type,
+            first_name: fields[1].to_string(),
+            common_name: if fields[2].is_empty() {
+                None
+            } else {
+                Some(fields[2].to_string())
+            },
+            last_name: fields[3].to_string(),
+            birth_date,
+            nationality_id: fields[5].parse().unwrap_or(-1),
+            favourite_team_id: fields[6].parse().ok(),
+            ethnicity: fields[7].parse().unwrap_or(-1),
+            skin_tone: fields[8].parse().unwrap_or(-1),
+            hair_color: fields[9].parse().unwrap_or(-1),
+            height: fields[10].parse().unwrap_or(0),
+            weight: fields[11].parse().unwrap_or(0),
+            preferred_foot: fields.get(12).and_then(|s| s.parse().ok()),
+            position: fields.get(13).map(|s| s.to_string()),
+            favourite_number: fields.get(14).and_then(|s| s.parse().ok()),
+            birth_city: if fields[15].is_empty() {
+                None
+            } else {
+                Some(fields[15].to_string())
+            },
+            ca: fields.get(16).and_then(|s| s.parse().ok()),
+            pa: fields.get(17).and_then(|s| s.parse().ok()),
+            club_id: fields.get(18).and_then(|s| s.parse().ok()),
+        };
+
+        // Skip duplicates
+        if existing_players.contains(&player) {
+            continue;
+        }
+
+        existing_players.insert(player.clone());
+        players.insert(next_idx, player);
+        next_idx += 1;
+        appended_count += 1;
+    }
+
+    println!("[APPEND] Added {} new players, total now: {}", appended_count, players.len());
+
+    Ok(appended_count)
+}
+
+#[tauri::command]
 pub fn save_players_to_file(path: String, filters: Option<PlayerFilters>) -> Result<(), String> {
     let players = get_players().lock().map_err(|e| e.to_string())?;
     let mut file = fs::File::create(path).unwrap();

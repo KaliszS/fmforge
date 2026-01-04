@@ -39,3 +39,24 @@ export interface InvalidRow {
 export async function getInvalidRows(): Promise<InvalidRow[]> {
   return await invoke("get_invalid_rows_list");
 }
+
+export async function appendPlayersFromFile(
+  sourceGameYear: number,
+  sourceModYear: number,
+  targetGameYear: number,
+  targetModYear: number
+): Promise<number | null> {
+  const path = await open({ multiple: false });
+  if (path) {
+    const filePath = Array.isArray(path) ? path[0] : path;
+    const count = await invoke<number>("append_players_from_file", {
+      path: filePath,
+      sourceGameYear,
+      sourceModYear,
+      targetGameYear,
+      targetModYear
+    });
+    return count;
+  }
+  return null;
+}
