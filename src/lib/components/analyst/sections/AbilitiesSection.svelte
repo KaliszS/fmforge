@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
-    import { getTopPlayers } from "$lib/api/player";
+    import { getTopPlayers, type BirthDateRange } from "$lib/api/player";
     import { countryMap, clubMap } from "$lib/constants";
     import { getFlagComponent } from "$lib/flags";
     import DetailedStatCard from "../charts/DetailedStatCard.svelte";
@@ -19,6 +19,7 @@
         preferredFoot,
         favouriteNumber,
         birthYear,
+        birthDateRange = null,
         nameQuery,
         sortBy,
         allFilteredIds = null
@@ -36,6 +37,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
+        birthDateRange?: BirthDateRange | null;
         nameQuery: string | null;
         sortBy: string[] | null;
         allFilteredIds?: number[] | null;
@@ -70,7 +72,8 @@
                 nameQuery,
                 sortBy,
                 allFilteredIds,
-                topPlayersLimit
+                topPlayersLimit,
+                birthDateRange
             );
         } catch (err) {
             errorTopPlayers = err instanceof Error ? err.message : 'Failed to load data';

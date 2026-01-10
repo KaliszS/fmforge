@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
     import { countryMap, clubMap } from "$lib/constants";
+    import type { BirthDateRange } from "$lib/api/player";
 
     let { 
         players = $bindable(),
@@ -15,6 +16,7 @@
         preferredFoot,
         favouriteNumber,
         birthYear,
+        birthDateRange = null,
         nameQuery,
         sortBy,
         activeTab = $bindable()
@@ -31,6 +33,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
+        birthDateRange?: BirthDateRange | null;
         nameQuery: string | null;
         sortBy: string[] | null;
         activeTab: string;

@@ -4,7 +4,7 @@ use std::io::{BufRead, BufReader, Write};
 
 use crate::model::{Player, RecordType, PlayerFilters, InvalidRow};
 use crate::{get_players, get_invalid_rows};
-use crate::utils::{get_birth_year, matches_search_query};
+use crate::utils::{get_birth_year, matches_search_query, is_birth_date_in_range};
 
 #[tauri::command]
 pub fn load_players_from_file(
@@ -354,6 +354,20 @@ pub fn save_players_to_file(path: String, filters: Option<PlayerFilters>) -> Res
                         continue;
                     }
                 } else {
+                    continue;
+                }
+            }
+            
+            // Birth date range filter (day/month within a year)
+            if f.birth_day_from.is_some() || f.birth_month_from.is_some() || 
+               f.birth_day_to.is_some() || f.birth_month_to.is_some() {
+                if !is_birth_date_in_range(
+                    &player.birth_date,
+                    f.birth_day_from,
+                    f.birth_month_from,
+                    f.birth_day_to,
+                    f.birth_month_to,
+                ) {
                     continue;
                 }
             }

@@ -1,6 +1,6 @@
 use crate::model::{PlayerFilters, PlayerRecord, PlayerStatistics, NumberStats, TopPlayers};
 use crate::{get_players};
-use crate::utils::{get_birth_year, get_birth_month, matches_search_query};
+use crate::utils::{get_birth_year, get_birth_month, matches_search_query, is_birth_date_in_range};
 
 #[tauri::command]
 pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics {
@@ -82,6 +82,20 @@ pub fn get_player_statistics(filters: Option<PlayerFilters>) -> PlayerStatistics
                             return false;
                         }
                     } else { return false; }
+                }
+                
+                // Birth date range filter (day/month within a year)
+                if f.birth_day_from.is_some() || f.birth_month_from.is_some() || 
+                   f.birth_day_to.is_some() || f.birth_month_to.is_some() {
+                    if !is_birth_date_in_range(
+                        &player.birth_date,
+                        f.birth_day_from,
+                        f.birth_month_from,
+                        f.birth_day_to,
+                        f.birth_month_to,
+                    ) {
+                        return false;
+                    }
                 }
             }
             true
@@ -266,6 +280,20 @@ pub fn get_top_players(filters: Option<PlayerFilters>, limit: usize) -> TopPlaye
                     if let Some(player_birth_year) = get_birth_year(&player.birth_date) {
                         if player_birth_year != birth_year { return false; }
                     } else { return false; }
+                }
+                
+                // Birth date range filter (day/month within a year)
+                if f.birth_day_from.is_some() || f.birth_month_from.is_some() || 
+                   f.birth_day_to.is_some() || f.birth_month_to.is_some() {
+                    if !is_birth_date_in_range(
+                        &player.birth_date,
+                        f.birth_day_from,
+                        f.birth_month_from,
+                        f.birth_day_to,
+                        f.birth_month_to,
+                    ) {
+                        return false;
+                    }
                 }
             }
             true
