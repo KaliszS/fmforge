@@ -1,6 +1,6 @@
 <script lang="ts">
     import { selectFileAndLoad, selectSaveFile, savePlayersToFile, getInvalidRows, type InvalidRow } from "$lib/api/file";
-    import { removePlayer, updatePlayers } from "$lib/api/player";
+    import { removePlayer, updatePlayers, type BirthDateRange } from "$lib/api/player";
     import type { PlayerRecord } from "$lib/types";
     import ThemeToggle from "./ThemeToggle.svelte";
     import ModSettings from "./ModSettings.svelte";
@@ -26,6 +26,7 @@
         favouriteNumber = $bindable(),
         birthYear = $bindable(),
         effectiveBirthYear = $bindable(),
+        birthDateRange = $bindable(),
         nameQuery = $bindable(),
         sortBy = $bindable(),
         invalidRows = $bindable(),
@@ -50,6 +51,7 @@
         favouriteNumber: number | null;
         birthYear: number | null;
         effectiveBirthYear: number | null;
+        birthDateRange: BirthDateRange | null;
         nameQuery: string | null;
         sortBy: string[] | null;
         invalidRows: InvalidRow[];
@@ -159,6 +161,10 @@
                 favourite_number: favouriteNumber || null,
                 birth_year_min: effectiveBirthYear || null,
                 birth_year_max: effectiveBirthYear || null,
+                birth_day_from: birthDateRange?.dayFrom ?? null,
+                birth_month_from: birthDateRange?.monthFrom ?? null,
+                birth_day_to: birthDateRange?.dayTo ?? null,
+                birth_month_to: birthDateRange?.monthTo ?? null,
                 position: selectedPosition || null,
                 favourite_club: selectedFavouriteClub || null,
                 name_query: nameQuery || null,
@@ -205,6 +211,7 @@
             favouriteNumber = null;
             birthYear = null;
             effectiveBirthYear = null;
+            birthDateRange = null;
             nameQuery = null;
             sortBy = null;
             
@@ -452,7 +459,7 @@
         box-shadow: 0 1px 2px var(--color-shadow-light);
         transition: all 0.2s ease;
         position: relative;
-        margin-right: 6px;
+        margin-right: 25px;
     }
 
     .load-group:hover {

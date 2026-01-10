@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
+    import type { BirthDateRange } from "$lib/api/player";
     import OverviewSection from "./sections/OverviewSection.svelte";
     import AbilitiesSection from "./sections/AbilitiesSection.svelte";
     import GeographySection from "./sections/GeographySection.svelte";
@@ -24,6 +25,7 @@
         preferredFoot,
         favouriteNumber,
         birthYear,
+        birthDateRange = null,
         nameQuery,
         sortBy,
         allFilteredIds = null
@@ -42,6 +44,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
+        birthDateRange?: BirthDateRange | null;
         nameQuery: string | null;
         sortBy: string[] | null;
         allFilteredIds?: number[] | null;
@@ -101,6 +104,7 @@
                 {preferredFoot}
                 {favouriteNumber}
                 {birthYear}
+                {birthDateRange}
                 {sortBy}
                 {nameQuery}
                 {allFilteredIds}
@@ -134,6 +138,7 @@
                 {preferredFoot}
                 {favouriteNumber}
                 {birthYear}
+                {birthDateRange}
                 {sortBy}
                 {nameQuery}
                 {allFilteredIds}

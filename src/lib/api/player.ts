@@ -1,6 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { PlayerRecord, Player } from "$lib/types";
 
+export interface BirthDateRange {
+  dayFrom: number | null;
+  monthFrom: number | null;
+  dayTo: number | null;
+  monthTo: number | null;
+}
+
 export async function loadPlayersPage(
   offset: number,
   limit: number,
@@ -18,6 +25,7 @@ export async function loadPlayersPage(
   nameQuery: string | null,
   sortBy: string[] | null,
   playerIds: number[] | null = null,
+  birthDateRange: BirthDateRange | null = null,
 ): Promise<PlayerRecord[]> {
   return await invoke("get_players_page", {
     offset,
@@ -33,6 +41,10 @@ export async function loadPlayersPage(
       favourite_number: favouriteNumber || null,
       birth_year_min: birthYear || null,
       birth_year_max: birthYear || null,
+      birth_day_from: birthDateRange?.dayFrom ?? null,
+      birth_month_from: birthDateRange?.monthFrom ?? null,
+      birth_day_to: birthDateRange?.dayTo ?? null,
+      birth_month_to: birthDateRange?.monthTo ?? null,
       position: position || null,
       favourite_club: favouriteClub || null,
       name_query: nameQuery || null,
@@ -69,6 +81,7 @@ export async function getPlayerStatistics(
   nameQuery: string | null,
   sortBy: string[] | null,
   playerIds: number[] | null = null,
+  birthDateRange: BirthDateRange | null = null,
 ): Promise<any> {
   return await invoke("get_player_statistics", {
     filters: {
@@ -83,6 +96,10 @@ export async function getPlayerStatistics(
       favourite_number: favouriteNumber || null,
       birth_year_min: birthYear || null,
       birth_year_max: birthYear || null,
+      birth_day_from: birthDateRange?.dayFrom ?? null,
+      birth_month_from: birthDateRange?.monthFrom ?? null,
+      birth_day_to: birthDateRange?.dayTo ?? null,
+      birth_month_to: birthDateRange?.monthTo ?? null,
       position: position || null,
       favourite_club: favouriteClub || null,
       name_query: nameQuery || null,
@@ -105,6 +122,7 @@ export async function getFilteredPlayerIds(
   favouriteClub: number | null,
   nameQuery: string | null,
   sortBy: string[] | null,
+  birthDateRange: BirthDateRange | null = null,
 ): Promise<number[]> {
   return await invoke("get_filtered_player_ids", {
     filters: {
@@ -118,6 +136,10 @@ export async function getFilteredPlayerIds(
       favourite_number: favouriteNumber || null,
       birth_year_min: birthYear || null,
       birth_year_max: birthYear || null,
+      birth_day_from: birthDateRange?.dayFrom ?? null,
+      birth_month_from: birthDateRange?.monthFrom ?? null,
+      birth_day_to: birthDateRange?.dayTo ?? null,
+      birth_month_to: birthDateRange?.monthTo ?? null,
       position: position || null,
       favourite_club: favouriteClub || null,
       name_query: nameQuery || null,
@@ -140,6 +162,7 @@ export async function getTopPlayers(
   sortBy: string[] | null,
   playerIds: number[] | null = null,
   limit: number = 10,
+  birthDateRange: BirthDateRange | null = null,
 ): Promise<any> {
   return await invoke("get_top_players", {
     filters: {
@@ -153,6 +176,10 @@ export async function getTopPlayers(
       favourite_number: favouriteNumber || null,
       birth_year_min: birthYear || null,
       birth_year_max: birthYear || null,
+      birth_day_from: birthDateRange?.dayFrom ?? null,
+      birth_month_from: birthDateRange?.monthFrom ?? null,
+      birth_day_to: birthDateRange?.dayTo ?? null,
+      birth_month_to: birthDateRange?.monthTo ?? null,
       name_query: nameQuery || null,
       sort_by: sortBy || null,
       player_ids: playerIds,

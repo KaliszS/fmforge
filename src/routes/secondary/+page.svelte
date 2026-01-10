@@ -92,7 +92,8 @@
             currentState.selectedFavouriteClub,
             currentState.nameQuery,
             currentState.sortBy,
-            playerIds
+            playerIds,
+            currentState.birthDateRange
         );
         
         sortBy = currentState.sortBy;

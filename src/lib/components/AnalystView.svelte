@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
-    import { getPlayerStatistics } from "$lib/api/player";
+    import { getPlayerStatistics, type BirthDateRange } from "$lib/api/player";
     import { analystStore } from "$lib/stores/analystStore";
     import AnalystSidebar from "./analyst/AnalystSidebar.svelte";
     import AnalystContent from "./analyst/AnalystContent.svelte";
@@ -18,6 +18,7 @@
         preferredFoot,
         favouriteNumber,
         birthYear,
+        birthDateRange = null,
         nameQuery,
         sortBy,
         filteredPlayers,
@@ -35,6 +36,7 @@
         preferredFoot: number | null;
         favouriteNumber: number | null;
         birthYear: number | null;
+        birthDateRange?: BirthDateRange | null;
         nameQuery: string | null;
         sortBy: string[] | null;
         filteredPlayers: PlayerRecord[];
@@ -59,6 +61,7 @@
         preferredFoot,
         favouriteNumber,
         birthYear,
+        birthDateRange,
         nameQuery,
         sortBy,
         playerIds: allFilteredIds
@@ -76,6 +79,7 @@
         // Explicitly track filteredPlayers to ensure updates when filter changes
         void filteredPlayers;
         void allFilteredIds;
+        void birthDateRange;
         const params = getParams();
 
         // Check cache first
@@ -105,7 +109,8 @@
                     selectedFavouriteClub,
                     nameQuery,
                     sortBy,
-                    allFilteredIds
+                    allFilteredIds,
+                    birthDateRange
                 );
                 // Cache the result
                 analystStore.setCache(params, stats);
@@ -137,6 +142,7 @@
             {preferredFoot}
             {favouriteNumber}
             {birthYear}
+            {birthDateRange}
             {nameQuery}
             {sortBy}
         />
@@ -156,6 +162,7 @@
             {preferredFoot}
             {favouriteNumber}
             {birthYear}
+            {birthDateRange}
             {nameQuery}
             {sortBy}
             {allFilteredIds}

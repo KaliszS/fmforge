@@ -58,6 +58,45 @@ pub fn get_birth_month(birth_date: &str) -> Option<u32> {
     }
 }
 
+/// Parse birth date to (day, month, year) tuple
+pub fn parse_birth_date(birth_date: &str) -> Option<(u32, u32, i32)> {
+    let parts: Vec<&str> = birth_date.split('/').collect();
+    if parts.len() == 3 {
+        let day: u32 = parts[0].parse().ok()?;
+        let month: u32 = parts[1].parse().ok()?;
+        let year: i32 = parts[2].parse().ok()?;
+        Some((day, month, year))
+    } else {
+        None
+    }
+}
+
+/// Check if a birth date falls within the specified date range (within a single year)
+pub fn is_birth_date_in_range(
+    birth_date: &str,
+    from_day: Option<u32>,
+    from_month: Option<u32>,
+    to_day: Option<u32>,
+    to_month: Option<u32>,
+) -> bool {
+    let (day, month, _year) = match parse_birth_date(birth_date) {
+        Some(d) => d,
+        None => return false,
+    };
+    
+    let from_d = from_day.unwrap_or(1);
+    let from_m = from_month.unwrap_or(1);
+    let to_d = to_day.unwrap_or(31);
+    let to_m = to_month.unwrap_or(12);
+    
+    // Compare as (month, day) tuples
+    let date_val = (month, day);
+    let from_val = (from_m, from_d);
+    let to_val = (to_m, to_d);
+    
+    date_val >= from_val && date_val <= to_val
+}
+
 fn get_position_rank(position: &str) -> i32 {
     // Extract base position if it has modifiers (though current data seems to be exact strings)
     // But let's match exact strings first as per constants.ts
@@ -106,14 +145,34 @@ pub fn sort_players(mut players: Vec<PlayerRecord>, sort_criteria: &[String]) ->
                     pa_a.cmp(&pa_b)
                 },
                 "age_desc" => {
-                    let year_a = get_birth_year(&a.player.birth_date).unwrap_or(0);
-                    let year_b = get_birth_year(&b.player.birth_date).unwrap_or(0);
-                    year_a.cmp(&year_b) // Older first (lower year = older)
+                    // Older first: lower year = older, but within same year, lower month/day = older
+                    let date_a = parse_birth_date(&a.player.birth_date).unwrap_or((0, 0, 0));
+                    let date_b = parse_birth_date(&b.player.birth_date).unwrap_or((0, 0, 0));
+                    // Compare year first (ascending for older), then month, then day
+                    match date_a.2.cmp(&date_b.2) {
+                        Ordering::Equal => {
+                            match date_a.1.cmp(&date_b.1) {
+                                Ordering::Equal => date_a.0.cmp(&date_b.0),
+                                other => other
+                            }
+                        },
+                        other => other
+                    }
                 },
                 "age_asc" => {
-                    let year_a = get_birth_year(&a.player.birth_date).unwrap_or(0);
-                    let year_b = get_birth_year(&b.player.birth_date).unwrap_or(0);
-                    year_b.cmp(&year_a) // Younger first (higher year = younger)
+                    // Younger first: higher year = younger, but within same year, higher month/day = younger
+                    let date_a = parse_birth_date(&a.player.birth_date).unwrap_or((0, 0, 0));
+                    let date_b = parse_birth_date(&b.player.birth_date).unwrap_or((0, 0, 0));
+                    // Compare year first (descending for younger), then month desc, then day desc
+                    match date_b.2.cmp(&date_a.2) {
+                        Ordering::Equal => {
+                            match date_b.1.cmp(&date_a.1) {
+                                Ordering::Equal => date_b.0.cmp(&date_a.0),
+                                other => other
+                            }
+                        },
+                        other => other
+                    }
                 },
                 "name_asc" => {
                     let name_a = format!("{} {}", a.player.first_name, a.player.last_name);

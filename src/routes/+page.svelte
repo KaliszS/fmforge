@@ -7,6 +7,7 @@
     import ViewSwitcher from "$lib/components/ViewSwitcher.svelte";
     import AnalystView from "$lib/components/AnalystView.svelte";
     import type { PlayerRecord } from "$lib/types";
+    import type { BirthDateRange } from "$lib/api/player";
     import { showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers, modifiedPlayers } from "$lib/stores/editedPlayers";
     import { loadPlayersPage, getFilteredPlayerIds } from "$lib/api/player";
     import { selectedPlayers, setSelection, deselectAll, showOnlySelected } from '$lib/stores/selectionStore';
@@ -44,6 +45,7 @@
     let favouriteNumber: number | null = $state(null);
     let birthYear: number | null = $state(null);
     let effectiveBirthYear: number | null = $state(null);
+    let birthDateRange: BirthDateRange | null = $state(null);
     let nameQuery: string | null = $state(null);
     let sortBy: string[] | null = $state(null);
     let invalidRows: InvalidRow[] = $state([]);
@@ -92,6 +94,7 @@
             preferredFoot,
             favouriteNumber,
             effectiveBirthYear,
+            birthDateRange,
             selectedPosition,
             selectedFavouriteClub,
             nameQuery,
@@ -161,7 +164,8 @@
             selectedFavouriteClub,
             nameQuery,
             sortBy,
-            playerIds
+            playerIds,
+            birthDateRange
         );
 
         isLastPage = players.length < pageSize;
@@ -238,6 +242,7 @@
         void favouriteNumber;
         void birthYear;
         void effectiveBirthYear;
+        void birthDateRange;
         void nameQuery;
         void sortBy;
         void currentPage;
@@ -330,7 +335,8 @@
                 selectedPosition,
                 selectedFavouriteClub,
                 nameQuery,
-                sortBy
+                sortBy,
+                birthDateRange
             );
             setSelection(ids);
         }
@@ -354,6 +360,7 @@
         bind:favouriteNumber
         bind:birthYear
         bind:effectiveBirthYear
+        bind:birthDateRange
         bind:nameQuery
         bind:sortBy
         bind:invalidRows 
@@ -379,6 +386,7 @@
             bind:favouriteNumber
             bind:birthYear
             bind:effectiveBirthYear
+            bind:birthDateRange
             bind:nameQuery
             bind:sortBy
             disabled={$showOnlyEdited}
@@ -424,6 +432,7 @@
                 {preferredFoot}
                 {favouriteNumber}
                 birthYear={effectiveBirthYear}
+                {birthDateRange}
                 {nameQuery}
                 {sortBy}
                 {filteredPlayers}
