@@ -1,5 +1,7 @@
 <script lang="ts">
     import { selectedPlayers, deselectAll, showOnlySelected } from '$lib/stores/selectionStore';
+    import { markPlayerForDeletion } from '$lib/stores/editedPlayers';
+    import { loadPlayersPage } from '$lib/api/player';
     import MassEditModal from '$lib/components/player/MassEditModal.svelte';
 
     let showMassEdit = $state(false);
@@ -10,6 +12,21 @@
 
     function handleDeselect(e: MouseEvent) {
         e.stopPropagation();
+        deselectAll();
+    }
+
+    async function handleMassDelete() {
+        const ids = Array.from($selectedPlayers);
+        if (ids.length === 0) return;
+
+        const players = await loadPlayersPage(0, ids.length, null, null, null, null, null, null, null, null, null, null, null, null, null, ids);
+        const playerMap = new Map(players.map(p => [p.id, p.player]));
+
+        for (const id of ids) {
+            const player = playerMap.get(id);
+            markPlayerForDeletion(id, player);
+        }
+
         deselectAll();
     }
 </script>
@@ -28,6 +45,16 @@
 
             <button class="edit-section" onclick={() => showMassEdit = true} title="Mass Edit Selected Players">
                 ✎
+            </button>
+
+            <button class="delete-section" onclick={handleMassDelete} title="Mass Delete Selected Players">
+                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"/>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
             </button>
 
             <button class="close-section" onclick={handleDeselect} title="Deselect all">
@@ -109,6 +136,16 @@
 
     .edit-section:hover {
         background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .delete-section {
+        width: 32px;
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 1em;
+    }
+
+    .delete-section:hover {
+        background-color: rgba(220, 50, 50, 0.4);
     }
 
     .close-section {
