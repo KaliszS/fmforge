@@ -20,8 +20,8 @@
         const ids = Array.from($selectedPlayers);
         if (ids.length === 0) return;
 
-        const players = await loadPlayersPage(0, ids.length, null, null, null, null, null, null, null, null, null, null, null, null, null, ids);
-        const playerMap = new Map(players.map(p => [p.id, p.player]));
+        const result = await loadPlayersPage(0, ids.length, null, null, null, null, null, null, null, null, null, null, null, null, null, ids);
+        const playerMap = new Map(result.players.map(p => [p.id, p.player]));
 
         for (const id of ids) {
             const player = playerMap.get(id);

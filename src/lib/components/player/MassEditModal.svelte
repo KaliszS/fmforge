@@ -87,20 +87,20 @@
             const ids = Array.from($selectedPlayers);
             
             // Fetch all selected players to ensure we have data
-            const players = await loadPlayersPage(
-                0, 
-                ids.length, 
+            const result = await loadPlayersPage(
+                0,
+                ids.length,
                 null, null, null, null, null, null, null, null, null, null, null, null, null,
                 ids
             );
-            
+
             const currentModified = $modifiedPlayers;
             const currentOriginals = $originalPlayers;
-            
+
             const updates: { id: number, player: Player }[] = [];
             const originalsToSave: { id: number, player: Player | null }[] = [];
-            
-            const fetchedPlayersMap = new Map(players.map(p => [p.id, p.player]));
+
+            const fetchedPlayersMap = new Map(result.players.map(p => [p.id, p.player]));
 
             ids.forEach(id => {
                 let playerToUpdate: Player | null = null;

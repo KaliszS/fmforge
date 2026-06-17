@@ -1,11 +1,16 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { PlayerRecord, Player } from "$lib/types";
+import type { PlayerRecord } from "$lib/types";
 
 export interface BirthDateRange {
   dayFrom: number | null;
   monthFrom: number | null;
   dayTo: number | null;
   monthTo: number | null;
+}
+
+export interface PlayersPage {
+  players: PlayerRecord[];
+  total: number;
 }
 
 export async function loadPlayersPage(
@@ -26,7 +31,7 @@ export async function loadPlayersPage(
   sortBy: string[] | null,
   playerIds: number[] | null = null,
   birthDateRange: BirthDateRange | null = null,
-): Promise<PlayerRecord[]> {
+): Promise<PlayersPage> {
   return await invoke("get_players_page", {
     offset,
     limit,

@@ -1,6 +1,13 @@
 use crate::model::{PlayerFilters, PlayerRecord};
 use crate::{get_players};
 use crate::utils::{get_birth_year, sort_players, matches_search_query, is_birth_date_in_range};
+use serde::Serialize;
+
+#[derive(Serialize)]
+pub struct PlayersPage {
+    pub players: Vec<PlayerRecord>,
+    pub total: usize,
+}
 
 #[tauri::command]
 pub fn get_players_chunk(filters: Option<PlayerFilters>) -> Vec<PlayerRecord> {
@@ -167,19 +174,20 @@ pub fn get_players_page(
     offset: usize,
     limit: usize,
     filters: Option<PlayerFilters>,
-) -> Vec<PlayerRecord> {
+) -> PlayersPage {
     println!("Getting players page - offset: {}, limit: {}", offset, limit);
-    
-    let filtered_players = get_players_chunk(filters);
 
-    let result: Vec<PlayerRecord> = filtered_players
+    let filtered_players = get_players_chunk(filters);
+    let total = filtered_players.len();
+
+    let players: Vec<PlayerRecord> = filtered_players
         .into_iter()
         .skip(offset)
         .take(limit)
         .collect();
-    
-    println!("Returning {} players for page", result.len());
-    result
+
+    println!("Returning {} players for page (total: {})", players.len(), total);
+    PlayersPage { players, total }
 }
 
 #[tauri::command]

@@ -32,6 +32,7 @@
     let currentPage = $state(-1); // loading data from file will always set currentPage to 0 and triggert $effect to load page
     let pageSize = $state(10);
     let isLastPage = $state(false);
+    let totalPages = $state(0);
     let refreshTrigger = $state(0);
     let selectedCountry: number | null = $state(null);
     let selectedClub: number | null = $state(null);
@@ -148,7 +149,7 @@
              }
         }
 
-        players = await loadPlayersPage(
+        const result = await loadPlayersPage(
             currentPage * pageSize,
             pageSize,
             selectedCountry,
@@ -168,6 +169,8 @@
             birthDateRange
         );
 
+        players = result.players;
+        totalPages = Math.ceil(result.total / pageSize) || 1;
         isLastPage = players.length < pageSize;
     }
 
@@ -261,18 +264,21 @@
             void $showOnlySelected;
             const allEditedPlayers = getModifiedPlayersAsRecords();
             let filtered = filterEditedPlayersByType(allEditedPlayers);
-            
-            // Apply selected filter on top
+
             if ($showOnlySelected && $selectedPlayers.size > 0) {
                 const selectedIds = $selectedPlayers;
                 filtered = filtered.filter(p => selectedIds.has(p.id));
             }
-            
-            const totalEdited = filtered.length;
+
+            const total = filtered.length;
+            totalPages = Math.ceil(total / pageSize) || 1;
             const startIndex = currentPage * pageSize;
-            isLastPage = startIndex + pageSize >= totalEdited;
+            isLastPage = startIndex + pageSize >= total;
+
+            if (currentPage >= totalPages) {
+                currentPage = totalPages - 1;
+            }
         } else {
-            // For regular view, isLastPage is determined by loadPage result
             isLastPage = players.length < pageSize;
         }
     });
@@ -296,7 +302,8 @@
     }
 
     function jumpToPage(page: number) {
-        currentPage = page;
+        const clamped = totalPages > 0 ? Math.min(page, totalPages - 1) : page;
+        currentPage = Math.max(0, clamped);
     }
 
     function triggerRefresh() {
@@ -395,12 +402,13 @@
         <ViewSwitcher bind:currentView onViewChange={handleViewChange} />
 
         {#if currentView === 'scout'}
-            <PaginationSection 
-                bind:currentPage 
-                onPrev={prevPage} 
-                onNext={nextPage} 
-                onPageChange={jumpToPage} 
+            <PaginationSection
+                bind:currentPage
+                onPrev={prevPage}
+                onNext={nextPage}
+                onPageChange={jumpToPage}
                 {isLastPage}
+                {totalPages}
                 bind:editTypeFilter
                 onFilterChange={(type) => editTypeFilter = type}
             />
@@ -409,12 +417,13 @@
                 bind:sortBy 
                 onToggleGlobalSelection={handleGlobalSelection}
             />
-            <PaginationSection 
-                bind:currentPage 
-                onPrev={prevPage} 
-                onNext={nextPage} 
-                onPageChange={jumpToPage} 
+            <PaginationSection
+                bind:currentPage
+                onPrev={prevPage}
+                onNext={nextPage}
+                onPageChange={jumpToPage}
                 {isLastPage}
+                {totalPages}
                 bind:editTypeFilter
                 onFilterChange={(type) => editTypeFilter = type}
             />
