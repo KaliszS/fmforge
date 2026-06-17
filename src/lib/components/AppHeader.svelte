@@ -7,7 +7,7 @@
     import AppendFileModal from "./AppendFileModal.svelte";
     import Icon from "./common/Icon.svelte";
     import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount, modifiedPlayers, showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers } from "$lib/stores/editedPlayers";
-    import { selectedPlayers, showOnlySelected, deselectAll } from "$lib/stores/selectionStore";
+    import { selectedPlayers, deselectAll } from "$lib/stores/selectionStore";
     import { modSettings } from "$lib/stores/modSettings";
     import { analystStore } from "$lib/stores/analystStore";
 
@@ -63,19 +63,11 @@
         onToggleDualView?: () => void;
     } = $props();
 
-    let source_path = $state("");
     let save_path = $state("");
     let saveFilteredOnly = $state(false);
     let convertBirthdates = $state(false);
     let showAppendModal = $state(false);
     
-    $effect(() => {
-        // When saveFilteredOnly is enabled and showOnlySelected is active, 
-        // the Save button should be enabled even without edits
-        void $showOnlySelected;
-        void saveFilteredOnly;
-    });
-
     async function selectSaveLocation() {
         const path = await selectSaveFile();
         if (path) {
@@ -132,7 +124,6 @@
                         }
                     }).map(p => p.id);
                 }
-                console.log('[SAVE] Base: edited players (', editTypeFilter, '):', playerIds?.length);
             }
             
             // Then narrow down by selected if there are any selected players
@@ -142,11 +133,9 @@
                 if (playerIds) {
                     // Intersection: only players that are both edited AND selected
                     playerIds = playerIds.filter(id => selectedIds.includes(id));
-                    console.log('[SAVE] Narrowed by selected:', playerIds.length);
                 } else {
                     // Only selected filter is active
                     playerIds = selectedIds;
-                    console.log('[SAVE] Filtering by selected players:', playerIds.length);
                 }
             }
             
@@ -174,11 +163,8 @@
                 player_ids: playerIds,
             };
             
-            console.log('[SAVE] Filters:', filters);
-        } else {
-            console.log('[SAVE] No filters (saveFilteredOnly = false)');
         }
-        
+
         await savePlayersToFile(save_path, filters);
         
         clearEditedPlayersStore();
@@ -194,7 +180,6 @@
 
         const path = await selectFileAndLoad(shouldConvert, fmYear || 0, modYear || 0);
         if (path) {
-            source_path = path;
             // If multiple files are loaded, we don't set a default save path to avoid overwriting one of them by mistake
             // The user will be forced to choose a save location
             save_path = path === "Multiple files loaded" ? "" : path;
@@ -455,7 +440,7 @@
         border-radius: var(--radius-md);
         height: auto;
         box-shadow: 0 1px 2px var(--color-shadow-light);
-        transition: all 0.2s ease;
+        transition: all var(--transition-fast);
         position: relative;
         margin-right: 25px;
     }
@@ -477,7 +462,7 @@
         font-weight: 600;
         font-size: var(--font-sm);
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: background-color var(--transition-fast);
         border-radius: var(--radius-md) var(--radius-md) 0 0;
         height: 22px;
     }
@@ -720,7 +705,7 @@
         border-radius: var(--radius-md);
         height: auto;
         box-shadow: 0 1px 2px var(--color-shadow-light);
-        transition: all 0.2s ease;
+        transition: all var(--transition-fast);
     }
 
     .save-group:hover {
@@ -740,7 +725,7 @@
         font-weight: 600;
         font-size: var(--font-sm);
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all var(--transition-fast);
         border-radius: var(--radius-md) var(--radius-md) 0 0;
         height: 22px;
         position: relative;
@@ -865,7 +850,7 @@
         text-align: left;
         min-width: 180px;
         max-width: 240px;
-        transition: all 0.2s ease;
+        transition: all var(--transition-fast);
     }
 
     .file-location:hover {

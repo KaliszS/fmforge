@@ -160,8 +160,8 @@
         </div>
         <div class="header-cell col-actions">
             {#if sortBy && sortBy.length > 0}
-                <button class="btn-clear" onclick={clearSort} title="Clear sorting">
-                    ✕
+                <button class="btn-clear" onclick={clearSort} title="Clear sorting" aria-label="Clear sorting">
+                    <Icon name="x" size="0.75em" />
                 </button>
             {/if}
         </div>

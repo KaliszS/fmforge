@@ -95,6 +95,7 @@
         white-space: nowrap;
         font-size: var(--font-xs);
         font-weight: 600;
+        padding-right: var(--spacing-xs);
     }
 
     .label-group:hover {

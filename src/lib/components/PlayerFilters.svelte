@@ -2,6 +2,7 @@
     import { countryMap, clubMap, FOOT_OPTIONS, SORT_OPTIONS, POSITION_MAP } from "$lib/constants";
     import { modSettings } from "$lib/stores/modSettings";
     import ClubSelect from "$lib/components/common/ClubSelect.svelte";
+    import Icon from "$lib/components/common/Icon.svelte";
     import type { BirthDateRange } from "$lib/api/player";
 
     const MONTHS = [
@@ -108,13 +109,6 @@
         }
     }
 
-    function handleKeydown(event: KeyboardEvent) {
-        if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
-            event.preventDefault();
-            toggleExpanded();
-        }
-    }
-
     function toggleBirthDateRange() {
         birthDateRangeExpanded = !birthDateRangeExpanded;
         if (!birthDateRangeExpanded) {
@@ -166,21 +160,13 @@
         }
     });
 
-    const hasActiveFilters = $derived(
-        selectedCountry !== null ||
-        selectedClub !== null ||
-        selectedPosition !== null ||
-        selectedFavouriteClub !== null ||
-        minCA !== null ||
-        maxCA !== null ||
-        minPA !== null ||
-        maxPA !== null ||
-        preferredFoot !== null ||
-        favouriteNumber !== null ||
-        birthYear !== null ||
-        birthDateRange !== null ||
-        nameQuery !== null
-    );
+    const activeFilterCount = $derived.by(() => [
+        selectedCountry, selectedClub, selectedPosition, selectedFavouriteClub,
+        minCA, maxCA, minPA, maxPA,
+        preferredFoot, favouriteNumber, birthYear, birthDateRange, nameQuery,
+    ].filter(v => v !== null).length);
+
+    const hasActiveFilters = $derived(activeFilterCount > 0);
 
     const hasBirthDateRangeFilter = $derived(
         birthDateRange !== null && 
@@ -190,32 +176,28 @@
 </script>
 
 <section class="filters-container" class:disabled>
-    <div 
-        class="filters-header" 
-        class:disabled
-        onclick={toggleExpanded}
-        onkeydown={handleKeydown}
-        role="button"
-        tabindex="0"
-        aria-expanded={isExpanded}
-        aria-label="Toggle filters panel"
-    >
-        <div class="filters-title">
+    <div class="filters-header" class:disabled>
+        <button
+            class="filters-toggle"
+            onclick={toggleExpanded}
+            disabled={disabled}
+            aria-expanded={isExpanded}
+            aria-label="Toggle filters panel"
+        ></button>
+        <div class="filters-center" aria-hidden="true">
             <span class="filters-icon">🔍</span>
             <h3>Filters</h3>
             {#if hasActiveFilters && !disabled}
-                <span class="active-indicator">{[selectedCountry, selectedClub, selectedPosition, selectedFavouriteClub, minCA, maxCA, minPA, maxPA, preferredFoot, favouriteNumber, birthYear, birthDateRange, nameQuery].filter(v => v !== null).length}</span>
+                <span class="active-indicator">{activeFilterCount}</span>
             {/if}
         </div>
         <div class="filters-actions">
             {#if hasActiveFilters && !disabled}
-                <button class="btn-clear" onclick={(e) => { e.stopPropagation(); clearAllFilters(); }} title="Clear all filters">
-                    ✕
+                <button class="btn-clear" onclick={clearAllFilters} title="Clear all filters" aria-label="Clear all filters">
+                    <Icon name="x" size="0.75em" />
                 </button>
             {/if}
-            <div class="expand-icon">
-                {isExpanded ? "▼" : "▶"}
-            </div>
+            <span class="expand-icon" aria-hidden="true">{isExpanded ? "▼" : "▶"}</span>
         </div>
     </div>
 
@@ -528,33 +510,43 @@
     .filters-header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: var(--spacing-md) var(--spacing-lg);
+        position: relative;
         background: var(--color-background-light);
-        cursor: pointer;
-        user-select: none;
-        transition: all var(--transition-fast);
         min-height: 3rem;
         border-bottom: 1px solid transparent;
     }
 
-    .filters-header[aria-expanded="true"] {
+    .filters-header:has(.filters-toggle[aria-expanded="true"]) {
         border-bottom-color: var(--color-border-light);
     }
 
     .filters-header.disabled {
-        cursor: not-allowed;
         background: var(--color-background-light);
     }
 
-    .filters-header:hover:not(.disabled) {
-        background: var(--color-background-hover);
+    .filters-toggle {
+        position: absolute;
+        inset: 0;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        z-index: 0;
     }
 
-    .filters-title {
+    .filters-toggle:disabled {
+        cursor: not-allowed;
+    }
+
+    .filters-center {
+        flex: 1;
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: var(--spacing-sm);
+        pointer-events: none;
+        position: relative;
+        z-index: 1;
+        padding: var(--spacing-md) 0;
     }
 
     .filters-icon {
@@ -562,7 +554,7 @@
         opacity: 0.8;
     }
 
-    .filters-title h3 {
+    .filters-center h3 {
         margin: 0;
         font-size: var(--font-base);
         font-weight: 600;
@@ -587,12 +579,15 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
+        padding-right: var(--spacing-lg);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 2;
     }
 
     .expand-icon {
         font-size: var(--font-sm);
         color: var(--color-text-muted);
-        transition: color var(--transition-fast);
     }
 
     .filters-content {
@@ -619,30 +614,10 @@
         gap: var(--spacing-xl);
     }
 
-    .filter-row.three-cols {
-        /* No special handling needed for flex */
-    }
-
     .filter-item {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-xs);
-    }
-
-    .filter-label {
-        font-size: var(--font-sm);
-        font-weight: 500;
-        color: var(--color-text);
-        display: flex;
-        align-items: center;
-        width: 100%;
-    }
-
-    .birth-year-mode-indicator {
-        font-size: var(--font-xs);
-        font-weight: normal;
-        color: var(--color-text-muted);
-        margin-left: var(--spacing-xs);
     }
 
     /* Input Groups */
@@ -860,12 +835,6 @@
 
     [data-theme="dark"] .select-input {
         background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    }
-
-    [data-theme="dark"] .btn-clear:hover {
-        background: #4a1a1a;
-        border-color: #ff6b6b;
-        color: #ff8a8a;
     }
 
     [data-theme="dark"] .disabled-message {
