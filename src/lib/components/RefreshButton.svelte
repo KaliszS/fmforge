@@ -1,29 +1,27 @@
 <script lang="ts">
+    import Icon from './common/Icon.svelte';
+
     let {
         size = 12,
         title = "Refresh",
-        onClick = () => {},
+        onclick = () => {},
         variant = "icon"
     }: {
         size?: number;
         title?: string;
-        onClick?: () => void;
+        onclick?: () => void;
         variant?: "icon" | "button";
     } = $props();
 </script>
 
-<button 
-    class="refresh-btn" 
+<button
+    class="refresh-btn"
     class:button-variant={variant === "button"}
     {title}
-    onclick={onClick}
+    aria-label={title}
+    {onclick}
 >
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-        <path d="M21 3v5h-5"/>
-        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-        <path d="M3 21v-5h5"/>
-    </svg>
+    <Icon name="refresh" size={size} />
 </button>
 
 <style>
@@ -37,7 +35,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s;
+        transition: all var(--transition-fast);
         opacity: 0.7;
     }
     

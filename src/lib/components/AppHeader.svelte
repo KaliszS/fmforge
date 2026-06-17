@@ -5,6 +5,7 @@
     import ThemeToggle from "./ThemeToggle.svelte";
     import ModSettings from "./ModSettings.svelte";
     import AppendFileModal from "./AppendFileModal.svelte";
+    import Icon from "./common/Icon.svelte";
     import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount, modifiedPlayers, showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers } from "$lib/stores/editedPlayers";
     import { selectedPlayers, showOnlySelected, deselectAll } from "$lib/stores/selectionStore";
     import { modSettings } from "$lib/stores/modSettings";
@@ -341,10 +342,10 @@
                     />
                     <div class="page-size-spinners">
                         <button class="spinner-btn" onclick={incrementPageSize} aria-label="Increase">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+                            <Icon name="chevron-up" size="0.75em" />
                         </button>
                         <button class="spinner-btn" onclick={decrementPageSize} aria-label="Decrease">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                            <Icon name="chevron-down" size="0.75em" />
                         </button>
                     </div>
                 </div>
@@ -355,10 +356,7 @@
                 title="Toggle Secondary Window"
             >
                 <div class="dual-view-icon">
-                    <svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="12" y1="3" x2="12" y2="21"></line>
-                    </svg>
+                    <Icon name="split-view" size="1.2em" />
                 </div>
             </button>
             <ThemeToggle />
@@ -704,12 +702,6 @@
 
     .spinner-btn:first-child {
         border-bottom: 1px solid var(--color-border);
-    }
-
-    .spinner-btn svg {
-        width: 8px;
-        height: 8px;
-        display: block;
     }
 
     .file-actions {

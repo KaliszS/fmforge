@@ -33,7 +33,7 @@
         <RefreshButton 
             size={18}
             title="Reset all changes to original values"
-            onClick={clearAllEditedPlayers}
+            onclick={clearAllEditedPlayers}
         />
     </article>
 {/if}

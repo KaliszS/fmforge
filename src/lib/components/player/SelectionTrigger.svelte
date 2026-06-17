@@ -1,6 +1,7 @@
 <script lang="ts">
     import { selectedPlayers, toggleSelection } from '$lib/stores/selectionStore';
     import { modifiedPlayers, originalPlayers } from '$lib/stores/editedPlayers';
+    import Icon from '$lib/components/common/Icon.svelte';
 
     let { playerId }: { playerId: number } = $props();
 
@@ -33,9 +34,9 @@
     disabled={isDeleted}
 >
     <div class="trigger-indicator">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M9 18l6-6-6-6"/>
-        </svg>
+        <span class="arrow-icon">
+            <Icon name="chevron-right" fill="currentColor" size={8} />
+        </span>
     </div>
 </button>
 
@@ -53,7 +54,7 @@
         align-items: center;
         cursor: pointer;
         z-index: 20;
-        transition: all 0.2s ease;
+        transition: all var(--transition-fast);
     }
 
     .trigger-indicator {
@@ -71,11 +72,9 @@
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .trigger-indicator svg {
-        transform: rotate(180deg); /* Point right towards content */
-        width: 8px;
-        height: 8px;
-        stroke-width: 2.5;
+    .arrow-icon {
+        display: flex;
+        transform: rotate(180deg);
     }
 
     .selection-trigger:hover .trigger-indicator {
@@ -95,8 +94,8 @@
     }
 
     .selection-trigger.newly-added.selected .trigger-indicator {
-        background-color: #22c55e;
-        border-color: #22c55e;
+        background-color: var(--color-newly-added);
+        border-color: var(--color-newly-added);
     }
 
     .selection-trigger.deleted {

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Icon from '$lib/components/common/Icon.svelte';
+
     let {
         onSave,
         onDiscard,
@@ -17,26 +19,23 @@
 </script>
 
 <div class="edit-actions">
-    <button 
-        class="edit-button" 
-        onclick={onSave} 
-        title={saveTitle} 
+    <button
+        class="edit-button"
+        onclick={onSave}
+        title={saveTitle}
+        aria-label={saveTitle}
         disabled={saveDisabled || isDeleted}
     >
-        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 6L9 17l-5-5"/>
-        </svg>
+        <Icon name="check" />
     </button>
-    <button 
-        class="discard-button" 
-        onclick={onDiscard} 
-        title={discardTitle} 
+    <button
+        class="discard-button"
+        onclick={onDiscard}
+        title={discardTitle}
+        aria-label={discardTitle}
         disabled={isDeleted}
     >
-        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 3h6v6"/>
-            <path d="M3 9a9 9 0 1 0 2-1.7L3 9"/>
-        </svg>
+        <Icon name="x" />
     </button>
 </div>
 
@@ -48,7 +47,6 @@
         align-items: center;
         justify-content: center;
         align-self: center;
-        padding-top: 0; /* Centered vertically */
         margin-left: auto;
     }
 
@@ -66,7 +64,7 @@
         transition: all var(--transition-fast);
         box-shadow: 0 0 0 0.5px #fff, 0 0 0 1px var(--color-newly-added);
     }
-    
+
     .edit-button:hover {
         background-color: var(--color-newly-added);
         color: white;

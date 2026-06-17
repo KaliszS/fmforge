@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Icon from './common/Icon.svelte';
+
     let {
         currentPage = $bindable(),
         onPrev,
@@ -44,8 +46,8 @@
 
 <section class="pagination-container">
     <div class="pagination-pill">
-        <button class="nav-btn" onclick={onPrev} disabled={currentPage === 0} title="Previous Page">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        <button class="nav-btn" onclick={onPrev} disabled={currentPage === 0} title="Previous Page" aria-label="Previous Page">
+            <Icon name="chevron-left" size={16} />
         </button>
         
         <div class="page-info">
@@ -65,8 +67,8 @@
             {/if}
         </div>
         
-        <button class="nav-btn" onclick={onNext} disabled={isLastPage} title="Next Page">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        <button class="nav-btn" onclick={onNext} disabled={isLastPage} title="Next Page" aria-label="Next Page">
+            <Icon name="chevron-right" size={16} />
         </button>
     </div>
 </section>
@@ -84,9 +86,9 @@
         background-color: var(--color-background);
         border: 1px solid var(--color-border);
         border-radius: 100px;
-        padding: 4px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        gap: 8px;
+        padding: var(--spacing-sm);
+        box-shadow: 0 2px 5px var(--color-shadow-light);
+        gap: var(--spacing-md);
     }
 
     .nav-btn {
@@ -100,7 +102,7 @@
         background: transparent;
         color: var(--color-text);
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all var(--transition-fast);
     }
 
     .nav-btn:hover:not(:disabled) {
@@ -117,8 +119,8 @@
     .page-info {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 0 8px;
+        gap: var(--spacing-md);
+        padding: 0 var(--spacing-md);
         font-size: 0.9rem;
         font-weight: 600;
         color: var(--color-text-muted);
