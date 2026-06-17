@@ -75,8 +75,4 @@
         color: var(--color-text);
     }
 
-    [data-theme="dark"] .stat-card {
-        background: var(--color-background);
-        border-color: var(--color-border);
-    }
 </style>

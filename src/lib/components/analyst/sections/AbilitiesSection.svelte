@@ -352,41 +352,25 @@
         border-right: 1px solid var(--color-border-light);
     }
 
-    .player-name.medal-gold {
-        color: #ffd700;
-        font-weight: 800;
-        text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
-    }
-
-    .player-name.medal-silver {
-        color: #e8e8e8;
-        font-weight: 800;
-        text-shadow: 0 0 8px rgba(232, 232, 232, 0.6);
-    }
-
-    .player-name.medal-bronze {
-        color: #cd7f32;
-        font-weight: 800;
-        text-shadow: 0 0 8px rgba(205, 127, 50, 0.6);
-    }
-
-    /* Medal colors for top 3 rank numbers */
+    .player-name.medal-gold,
     .player-rank.medal-gold {
-        color: #ffd700;
+        color: var(--color-medal-gold);
         font-weight: 800;
-        text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+        text-shadow: 0 0 8px var(--color-medal-gold-glow);
     }
 
+    .player-name.medal-silver,
     .player-rank.medal-silver {
-        color: #e8e8e8;
+        color: var(--color-medal-silver);
         font-weight: 800;
-        text-shadow: 0 0 8px rgba(232, 232, 232, 0.6);
+        text-shadow: 0 0 8px var(--color-medal-silver-glow);
     }
 
+    .player-name.medal-bronze,
     .player-rank.medal-bronze {
-        color: #cd7f32;
+        color: var(--color-medal-bronze);
         font-weight: 800;
-        text-shadow: 0 0 8px rgba(205, 127, 50, 0.6);
+        text-shadow: 0 0 8px var(--color-medal-bronze-glow);
     }
 
     .player-flag {
@@ -517,58 +501,6 @@
         color: var(--color-primary);
         padding: 0.2rem 0.5rem;
         border-radius: var(--radius-sm);
-    }
-
-    .loading-state, .error-state {
-        text-align: center;
-        padding: var(--spacing-xl);
-    }
-
-    .loading-spinner {
-        width: 2rem;
-        height: 2rem;
-        border: 3px solid var(--color-border-light);
-        border-top: 3px solid var(--color-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto var(--spacing-md);
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .error-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-md);
-    }
-
-    .placeholder {
-        text-align: center;
-        color: var(--color-text-muted);
-        padding: var(--spacing-xl) 0;
-    }
-
-    .placeholder-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-lg);
-        opacity: 0.6;
-    }
-
-    .placeholder h4 {
-        margin: 0 0 var(--spacing-md) 0;
-        font-size: var(--font-lg);
-        color: var(--color-text);
-        font-weight: 600;
-    }
-
-    .placeholder p {
-        margin: 0;
-        font-size: var(--font-base);
-        line-height: 1.6;
-        max-width: 500px;
-        margin: 0 auto;
     }
 
 

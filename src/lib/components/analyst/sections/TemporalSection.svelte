@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { PlayerRecord } from "$lib/types";
     import { modSettings } from "$lib/stores/modSettings";
+    import { getBirthYearOffset } from "$lib/utils/birthYear";
 
     let { 
         statistics,
@@ -47,14 +48,7 @@
         const counts = statistics.birth_year_counts;
         const settings = $modSettings;
         
-        let offset = 0;
-        if (settings.showRealBirthDates && settings.canToggle && settings.fmEdition && settings.retroYear) {
-            const fmEdition = parseInt(settings.fmEdition);
-            const retroYear = parseInt(settings.retroYear);
-            if (!isNaN(fmEdition) && !isNaN(retroYear)) {
-                offset = fmEdition - 1 - retroYear;
-            }
-        }
+        const offset = getBirthYearOffset(settings);
         
         const yearCounts: Record<number, number> = {};
         Object.entries(counts).forEach(([yearStr, count]) => {
@@ -197,18 +191,18 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        border: 1px solid rgba(0,0,0,0.1);
+        border: 1px solid var(--color-shadow);
         background-color: var(--color-background);
     }
 
     .year-icon {
-        background-color: #e0f2fe;
-        color: #0284c7;
+        background-color: var(--color-icon-year-bg);
+        color: var(--color-icon-year-text);
     }
 
     .month-icon {
-        background-color: #f0fdf4;
-        color: #16a34a;
+        background-color: var(--color-icon-month-bg);
+        color: var(--color-icon-month-text);
     }
 
     .stat-emoji {
@@ -247,58 +241,6 @@
         opacity: 0.5;
     }
 
-    .loading-state, .error-state {
-        text-align: center;
-        padding: var(--spacing-xl);
-    }
-
-    .loading-spinner {
-        width: 2rem;
-        height: 2rem;
-        border: 3px solid var(--color-border-light);
-        border-top: 3px solid var(--color-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto var(--spacing-md);
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .error-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-md);
-    }
-
-    .placeholder {
-        text-align: center;
-        color: var(--color-text-muted);
-        padding: var(--spacing-xl) 0;
-    }
-
-    .placeholder-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-lg);
-        opacity: 0.6;
-    }
-
-    .placeholder h4 {
-        margin: 0 0 var(--spacing-md) 0;
-        font-size: var(--font-lg);
-        color: var(--color-text);
-        font-weight: 600;
-    }
-
-    .placeholder p {
-        margin: 0;
-        font-size: var(--font-base);
-        line-height: 1.6;
-        max-width: 500px;
-        margin: 0 auto;
-    }
-    
     .no-data {
         text-align: center;
         color: var(--color-text-muted);
