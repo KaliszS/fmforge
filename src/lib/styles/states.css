@@ -1,0 +1,76 @@
+/* ==========================================================================
+   LOADING, ERROR & PLACEHOLDER STATES
+   Shared across Analyst sections and any async content areas.
+   ========================================================================== */
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes dots {
+  0%, 20% { opacity: 0; }
+  50%      { opacity: 1; }
+  100%     { opacity: 0; }
+}
+
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+.loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--color-border-light);
+  border-top: 3px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto var(--spacing-md);
+}
+
+.loading-spinner-small {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--color-border-light);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: var(--spacing-lg) auto;
+}
+
+.loading-dots {
+  animation: dots 1.5s infinite;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.placeholder {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--spacing-xl) 0;
+}
+
+.placeholder-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-lg);
+  opacity: 0.6;
+}
+
+.placeholder h4 {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: var(--font-lg);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.placeholder p {
+  margin: 0 auto;
+  font-size: var(--font-base);
+  line-height: 1.6;
+  max-width: 500px;
+}

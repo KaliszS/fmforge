@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import SimpleStatCard from "../charts/SimpleStatCard.svelte";
     import { countryMap, clubMap } from "$lib/constants";
     import { modSettings, type ModSettings } from "$lib/stores/modSettings";
@@ -21,23 +21,12 @@
         birthYear,
         nameQuery,
         sortBy
-    }: { 
+    }: {
         statistics: any;
         loading: boolean;
         error: string | null;
         players: PlayerRecord[];
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
-        nameQuery: string | null;
-        sortBy: string[] | null;
-    } = $props();
+    } & FilterProps = $props();
 
     // Helper to find top item in counts map
     function getTopItem(counts: Record<string | number, number>, map?: Record<number, any>): { name: string, count: number } | null {

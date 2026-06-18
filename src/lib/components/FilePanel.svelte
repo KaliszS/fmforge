@@ -1,0 +1,641 @@
+<script lang="ts">
+    import { selectFileAndLoad, selectSaveFile, savePlayersToFile, getInvalidRows, type InvalidRow } from "$lib/api/file";
+    import { removePlayer, updatePlayers, type BirthDateRange } from "$lib/api/player";
+    import AppendFileModal from "./AppendFileModal.svelte";
+    import { clearAllEditedPlayers, clearEditedPlayersStore, editedCount, modifiedPlayers, showOnlyEdited, getModifiedPlayersAsRecords, originalPlayers } from "$lib/stores/editedPlayers";
+    import { selectedPlayers, deselectAll } from "$lib/stores/selectionStore";
+    import { modSettings } from "$lib/stores/modSettings";
+    import { analystStore } from "$lib/stores/analystStore";
+
+    let {
+        currentPage = $bindable(),
+        selectedCountry = $bindable(),
+        selectedClub = $bindable(),
+        selectedPosition = $bindable(),
+        selectedFavouriteClub = $bindable(),
+        minCA = $bindable(),
+        maxCA = $bindable(),
+        minPA = $bindable(),
+        maxPA = $bindable(),
+        preferredFoot = $bindable(),
+        favouriteNumber = $bindable(),
+        birthYear = $bindable(),
+        effectiveBirthYear = $bindable(),
+        birthDateRange = $bindable(),
+        nameQuery = $bindable(),
+        sortBy = $bindable(),
+        invalidRows = $bindable(),
+        editTypeFilter = $bindable(),
+        triggerRefresh,
+    }: {
+        currentPage: number;
+        selectedCountry: number | null;
+        selectedClub: number | null;
+        selectedPosition: string | null;
+        selectedFavouriteClub: number | null;
+        minCA: number | null;
+        maxCA: number | null;
+        minPA: number | null;
+        maxPA: number | null;
+        preferredFoot: number | null;
+        favouriteNumber: number | null;
+        birthYear: number | null;
+        effectiveBirthYear: number | null;
+        birthDateRange: BirthDateRange | null;
+        nameQuery: string | null;
+        sortBy: string[] | null;
+        invalidRows: InvalidRow[];
+        editTypeFilter: 'all' | 'modified' | 'added' | 'deleted';
+        triggerRefresh: () => void;
+    } = $props();
+
+    let save_path = $state("");
+    let saveFilteredOnly = $state(false);
+    let convertBirthdates = $state(false);
+    let showAppendModal = $state(false);
+
+    async function selectSaveLocation() {
+        const path = await selectSaveFile();
+        if (path) {
+            save_path = path;
+            alert(`Save location set to: ${path}`);
+        }
+    }
+
+    async function saveToFile() {
+        for (const [id, player] of $modifiedPlayers) {
+            if (player === null) {
+                await removePlayer(id);
+            }
+        }
+
+        const playersToUpdate = [];
+        for (const [id, player] of $modifiedPlayers) {
+            if (player !== null) {
+                playersToUpdate.push({ id, player });
+            }
+        }
+
+        if (playersToUpdate.length > 0) {
+            await updatePlayers(playersToUpdate);
+        }
+
+        let filters = null;
+        if (saveFilteredOnly) {
+            let playerIds: number[] | null = null;
+
+            if ($showOnlyEdited) {
+                const allEditedPlayers = getModifiedPlayersAsRecords();
+                if (editTypeFilter === 'all') {
+                    playerIds = allEditedPlayers.map(p => p.id);
+                } else {
+                    playerIds = allEditedPlayers.filter(record => {
+                        const original = $originalPlayers.get(record.id);
+                        const modified = $modifiedPlayers.get(record.id);
+                        switch (editTypeFilter) {
+                            case 'modified': return original !== null && modified !== null;
+                            case 'added':    return original === null  && modified !== null;
+                            case 'deleted':  return original !== null  && modified === null;
+                            default:         return true;
+                        }
+                    }).map(p => p.id);
+                }
+            }
+
+            if ($selectedPlayers.size > 0) {
+                const selectedIds = Array.from($selectedPlayers);
+                playerIds = playerIds
+                    ? playerIds.filter(id => selectedIds.includes(id))
+                    : selectedIds;
+            }
+
+            filters = {
+                country:          selectedCountry || null,
+                club:             selectedClub || null,
+                min_ca:           minCA || null,
+                max_ca:           maxCA || null,
+                min_pa:           minPA || null,
+                max_pa:           maxPA || null,
+                preferred_foot:   preferredFoot,
+                favourite_number: favouriteNumber || null,
+                birth_year_min:   effectiveBirthYear || null,
+                birth_year_max:   effectiveBirthYear || null,
+                birth_day_from:   birthDateRange?.dayFrom ?? null,
+                birth_month_from: birthDateRange?.monthFrom ?? null,
+                birth_day_to:     birthDateRange?.dayTo ?? null,
+                birth_month_to:   birthDateRange?.monthTo ?? null,
+                position:         selectedPosition || null,
+                favourite_club:   selectedFavouriteClub || null,
+                name_query:       nameQuery || null,
+                sort_by:          sortBy || null,
+                player_ids:       playerIds,
+            };
+        }
+
+        await savePlayersToFile(save_path, filters);
+        clearEditedPlayersStore();
+        deselectAll();
+        triggerRefresh();
+    }
+
+    async function selectFile() {
+        const fmYear = parseInt($modSettings.fmEdition);
+        const modYear = parseInt($modSettings.retroYear);
+        const shouldConvert = convertBirthdates && !isNaN(fmYear) && !isNaN(modYear);
+
+        const path = await selectFileAndLoad(shouldConvert, fmYear || 0, modYear || 0);
+        if (path) {
+            save_path = path === "Multiple files loaded" ? "" : path;
+
+            selectedCountry = null;
+            selectedClub = null;
+            selectedPosition = null;
+            selectedFavouriteClub = null;
+            minCA = null;
+            maxCA = null;
+            minPA = null;
+            maxPA = null;
+            preferredFoot = null;
+            favouriteNumber = null;
+            birthYear = null;
+            effectiveBirthYear = null;
+            birthDateRange = null;
+            nameQuery = null;
+            sortBy = null;
+            editTypeFilter = 'all';
+
+            deselectAll();
+            analystStore.clear();
+            clearAllEditedPlayers();
+
+            setTimeout(async () => {
+                invalidRows = await getInvalidRows();
+            }, 100);
+
+            currentPage = 0;
+            triggerRefresh();
+        }
+    }
+
+    function handleAppendSuccess(count: number) {
+        analystStore.clear();
+        currentPage = 0;
+        triggerRefresh();
+        alert(`Successfully appended ${count} new players!`);
+    }
+
+    $effect(() => {
+        if (!$modSettings.canToggle) {
+            convertBirthdates = false;
+        }
+    });
+</script>
+
+<div class="file-panel">
+    <div class="load-section">
+        <div class="load-group">
+            <button class="btn-load-main" onclick={selectFile} title="Load one or multiple .edt files">
+                <span class="icon">📂</span>
+                <span class="text">Load Files</span>
+            </button>
+            <button
+                class="btn-append"
+                onclick={() => showAppendModal = true}
+                title="Append players from another file"
+                disabled={!$modSettings.canToggle}
+            >
+                <span class="icon">+</span>
+            </button>
+            <div
+                class="load-toggle"
+                aria-disabled={!$modSettings.canToggle}
+                data-tooltip="Set FM Edition & Mod Year first"
+            >
+                <label class="toggle-switch small">
+                    <input type="checkbox" bind:checked={convertBirthdates} disabled={!$modSettings.canToggle}>
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label">Convert Dates</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="save-section">
+        <div class="file-actions">
+            <div class="save-group">
+                <button
+                    class="btn-save-main"
+                    class:has-edits={$editedCount > 0}
+                    onclick={saveToFile}
+                    disabled={!save_path}
+                    title={!save_path ? "Please select a save location first" : "Save to file"}
+                >
+                    <span class="icon">💾</span>
+                    <span class="label">Save</span>
+                    {#if $editedCount > 0}
+                        <span class="count-badge">{$editedCount}</span>
+                    {/if}
+                </button>
+                <div class="save-toggle" title="Save only filtered players">
+                    <label class="toggle-switch small">
+                        <input type="checkbox" bind:checked={saveFilteredOnly}>
+                        <span class="slider"></span>
+                    </label>
+                    <span class="toggle-label">Filtered</span>
+                </div>
+            </div>
+
+            <button class="file-location" onclick={selectSaveLocation} title={save_path || "Click to choose save location"}>
+                <span class="icon">📁</span>
+                <div class="file-info">
+                    <span class="label">Target File</span>
+                    <span class="filename">
+                        {save_path ? save_path.split(/[/\\]/).pop() : "Select file..."}
+                    </span>
+                </div>
+                <span class="edit-icon">▼</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<AppendFileModal
+    bind:isOpen={showAppendModal}
+    onSuccess={handleAppendSuccess}
+/>
+
+<style>
+    .file-panel {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xl);
+    }
+
+    .load-section {
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: center;
+    }
+
+    .save-section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-md);
+        flex: 1;
+    }
+
+    /* Load group */
+    .load-group {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        height: auto;
+        box-shadow: 0 1px 2px var(--color-shadow-light);
+        transition: all var(--transition-fast);
+        position: relative;
+        margin-right: 25px;
+    }
+
+    .load-group:hover {
+        border-color: var(--color-primary);
+        box-shadow: 0 2px 4px var(--color-shadow-light);
+    }
+
+    .btn-load-main {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+        padding: 2px var(--spacing-md);
+        background: transparent;
+        border: none;
+        color: var(--color-text);
+        font-weight: 600;
+        font-size: var(--font-sm);
+        cursor: pointer;
+        transition: background-color var(--transition-fast);
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+        height: 22px;
+    }
+
+    .btn-load-main:hover {
+        background-color: var(--color-background-hover);
+        color: var(--color-primary);
+    }
+
+    .btn-load-main .icon {
+        font-size: 0.9em;
+    }
+
+    .btn-append {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        width: 22px;
+        height: 22px;
+        background: var(--color-background-light);
+        border: none;
+        border-top: 1px solid var(--color-border-light);
+        border-left: 1px solid var(--color-border-light);
+        color: var(--color-text-muted);
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        position: absolute;
+        right: -23px;
+        top: 0;
+        bottom: 0;
+        margin: auto 0;
+    }
+
+    .btn-append:hover:not(:disabled) {
+        background-color: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+    }
+
+    .btn-append:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .load-toggle {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: 0 var(--spacing-sm);
+        background-color: var(--color-background-light);
+        min-width: 70px;
+        cursor: default;
+        border-left: none;
+        border-top: 1px solid var(--color-border-light);
+        position: relative;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+        height: 20px;
+    }
+
+    .load-toggle[aria-disabled="true"] {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .load-toggle[aria-disabled="true"]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 8px;
+        padding: 6px 10px;
+        background-color: var(--color-background);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        font-size: 0.7rem;
+        white-space: nowrap;
+        z-index: 9999;
+        box-shadow: 0 4px 12px var(--color-shadow);
+        pointer-events: none;
+    }
+
+    /* Save group */
+    .file-actions {
+        display: flex;
+        align-items: stretch;
+        gap: var(--spacing-lg);
+    }
+
+    .save-group {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        height: auto;
+        box-shadow: 0 1px 2px var(--color-shadow-light);
+        transition: all var(--transition-fast);
+    }
+
+    .save-group:hover {
+        border-color: var(--color-primary);
+        box-shadow: 0 2px 4px var(--color-shadow-light);
+    }
+
+    .btn-save-main {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+        padding: 2px var(--spacing-md);
+        background: transparent;
+        border: none;
+        color: var(--color-text);
+        font-weight: 600;
+        font-size: var(--font-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+        height: 22px;
+        position: relative;
+    }
+
+    .btn-save-main:hover:not(:disabled) {
+        background-color: var(--color-background-hover);
+        color: var(--color-primary);
+    }
+
+    .btn-save-main:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: var(--color-background-light);
+    }
+
+    .btn-save-main .icon {
+        font-size: 0.9em;
+    }
+
+    .btn-save-main.has-edits {
+        background: var(--color-primary);
+        color: white !important;
+    }
+
+    .btn-save-main.has-edits .label,
+    .btn-save-main.has-edits .icon {
+        color: white !important;
+    }
+
+    .btn-save-main.has-edits:hover {
+        background: var(--color-primary-hover);
+        color: white !important;
+    }
+
+    .save-toggle {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: 0 var(--spacing-sm);
+        background-color: var(--color-background-light);
+        min-width: 70px;
+        cursor: default;
+        border-left: none;
+        border-top: 1px solid var(--color-border-light);
+        position: relative;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+        height: 20px;
+    }
+
+    /* File location */
+    .file-location {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-xs) var(--spacing-md);
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        text-align: left;
+        min-width: 180px;
+        max-width: 240px;
+        transition: all var(--transition-fast);
+    }
+
+    .file-location:hover {
+        background-color: var(--color-background-hover);
+        border-color: var(--color-text-muted);
+    }
+
+    .file-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    .file-info .label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        line-height: 1;
+        margin-bottom: 2px;
+    }
+
+    .file-info .filename {
+        font-size: var(--font-sm);
+        font-weight: 500;
+        color: var(--color-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .file-location .edit-icon {
+        font-size: 0.7em;
+        color: var(--color-text-muted);
+        opacity: 0.5;
+    }
+
+    .file-location:hover .edit-icon {
+        opacity: 1;
+    }
+
+    /* Shared toggle switch */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 28px;
+        height: 16px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--color-border);
+        transition: .4s;
+        border-radius: 16px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 12px;
+        width: 12px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: var(--color-primary);
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px var(--color-primary);
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(12px);
+    }
+
+    .toggle-switch.small {
+        width: 22px;
+        height: 12px;
+        margin-bottom: 0;
+    }
+
+    .toggle-switch.small .slider:before {
+        height: 8px;
+        width: 8px;
+        left: 2px;
+        bottom: 2px;
+    }
+
+    .toggle-switch.small input:checked + .slider:before {
+        transform: translateX(10px);
+    }
+
+    .toggle-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+        font-weight: 700;
+        line-height: 1;
+        white-space: nowrap;
+        letter-spacing: 0.5px;
+    }
+
+    .count-badge {
+        background-color: white;
+        color: var(--color-primary);
+        font-size: 0.75em;
+        padding: 1px 5px;
+        border-radius: 10px;
+        font-weight: 800;
+        margin-left: 4px;
+    }
+</style>

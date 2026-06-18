@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import { ETHNICITY_MAP, HAIR_COLORS, getSkinColor } from "$lib/constants";
 
     let { 
@@ -18,23 +18,12 @@
         birthYear,
         sortBy,
         nameQuery
-    }: { 
+    }: {
         statistics: any;
         loading: boolean;
         error: string | null;
         players: PlayerRecord[];
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
-        sortBy: string[] | null;
-        nameQuery: string | null;
-    } = $props();
+    } & FilterProps = $props();
 
     function getSortedCounts(counts: Record<string, number>) {
         return Object.entries(counts).sort(([, a], [, b]) => b - a);

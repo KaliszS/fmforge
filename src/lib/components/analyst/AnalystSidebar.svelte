@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import { countryMap, clubMap } from "$lib/constants";
     import type { BirthDateRange } from "$lib/api/player";
     import { ANALYST_TABS } from './tabs';
@@ -25,20 +25,9 @@
         players: PlayerRecord[];
         statistics: any;
         loading: boolean;
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
         birthDateRange?: BirthDateRange | null;
-        nameQuery: string | null;
-        sortBy: string[] | null;
         activeTab: string;
-    } = $props();
+    } & FilterProps = $props();
 
     let filteredCount = $derived(statistics?.count ?? 0);
 

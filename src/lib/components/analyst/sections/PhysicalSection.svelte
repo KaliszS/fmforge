@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import { getTopPlayers, type BirthDateRange } from "$lib/api/player";
     import { countryMap, clubMap } from "$lib/constants";
     import { getFlagComponent } from "$lib/flags";
@@ -23,25 +23,14 @@
         sortBy,
         nameQuery,
         allFilteredIds = null
-    }: { 
+    }: {
         statistics: any;
         loading: boolean;
         error: string | null;
         players: PlayerRecord[];
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
         birthDateRange?: BirthDateRange | null;
-        sortBy: string[] | null;
-        nameQuery: string | null;
         allFilteredIds?: number[] | null;
-    } = $props();
+    } & FilterProps = $props();
 
     let topPlayers = $state<any>(null);
     let loadingTopPlayers = $state(true);

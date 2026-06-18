@@ -1,0 +1,143 @@
+/* ==========================================================================
+   LAYOUT UTILITIES
+   ========================================================================== */
+
+.flex         { display: flex; }
+.flex-col     { flex-direction: column; }
+.flex-wrap    { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+
+.grid          { display: grid; }
+.grid-cols-auto { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+
+/* ==========================================================================
+   SPACING UTILITIES
+   ========================================================================== */
+
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+
+.m-sm { margin: var(--spacing-sm); }
+.m-md { margin: var(--spacing-md); }
+.m-lg { margin: var(--spacing-lg); }
+
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+
+.ml-sm { margin-left: var(--spacing-sm); }
+.ml-md { margin-left: var(--spacing-md); }
+.ml-lg { margin-left: var(--spacing-lg); }
+
+.mr-sm { margin-right: var(--spacing-sm); }
+.mr-md { margin-right: var(--spacing-md); }
+.mr-lg { margin-right: var(--spacing-lg); }
+
+/* ==========================================================================
+   TYPOGRAPHY UTILITIES
+   ========================================================================== */
+
+.text-xs   { font-size: var(--font-xs); }
+.text-sm   { font-size: var(--font-sm); }
+.text-base { font-size: var(--font-base); }
+.text-lg   { font-size: var(--font-lg); }
+.text-xl   { font-size: var(--font-xl); }
+
+.text-bold     { font-weight: bold; }
+.text-semibold { font-weight: 600; }
+.text-medium   { font-weight: 500; }
+
+.text-center { text-align: center; }
+.text-left   { text-align: left; }
+.text-right  { text-align: right; }
+
+.text-nowrap   { white-space: nowrap; }
+.text-ellipsis { overflow: hidden; text-overflow: ellipsis; }
+
+/* ==========================================================================
+   DISPLAY & POSITION UTILITIES
+   ========================================================================== */
+
+.hidden       { display: none; }
+.block        { display: block; }
+.inline       { display: inline; }
+.inline-block { display: inline-block; }
+.inline-flex  { display: inline-flex; }
+
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed    { position: fixed; }
+
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.min-w-0 { min-width: 0; }
+
+/* ==========================================================================
+   BORDER & SHADOW UTILITIES
+   ========================================================================== */
+
+.border   { border: 1px solid var(--color-border); }
+.border-t { border-top: 1px solid var(--color-border); }
+.border-b { border-bottom: 1px solid var(--color-border); }
+.border-l { border-left: 1px solid var(--color-border); }
+.border-r { border-right: 1px solid var(--color-border); }
+
+.rounded-sm   { border-radius: var(--radius-sm); }
+.rounded-md   { border-radius: var(--radius-md); }
+.rounded-lg   { border-radius: var(--radius-lg); }
+.rounded-xl   { border-radius: var(--radius-xl); }
+.rounded-full { border-radius: 50%; }
+
+.shadow-sm { box-shadow: 0 0.0625rem 0.1875rem var(--color-shadow-light); }
+.shadow-md { box-shadow: 0 0.1875rem 0.625rem var(--color-shadow-light); }
+.shadow-lg { box-shadow: 0 0.3125rem 0.9375rem var(--color-shadow); }
+
+/* ==========================================================================
+   RESPONSIVE OVERRIDES
+   ========================================================================== */
+
+@media (max-width: 48rem) {
+  :root {
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1.25rem;
+    --font-lg: 1rem;
+    --font-xl: 1.05rem;
+  }
+
+  .btn {
+    padding: 0.5em 1em;
+    font-size: var(--font-base);
+  }
+
+  .input-text {
+    min-width: 6rem;
+    max-width: 10rem;
+  }
+}
+
+@media (max-width: 32rem) {
+  :root {
+    --spacing-md: 0.5rem;
+    --spacing-lg: 1rem;
+  }
+
+  .btn {
+    padding: 0.4em 0.8em;
+    font-size: var(--font-sm);
+  }
+
+  .tag {
+    font-size: 0.7rem;
+    padding: 0.2em 0.4em;
+  }
+}

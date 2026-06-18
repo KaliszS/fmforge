@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import { modSettings } from "$lib/stores/modSettings";
     import { getBirthYearOffset } from "$lib/utils/birthYear";
 
@@ -19,23 +19,12 @@
         birthYear,
         sortBy,
         nameQuery
-    }: { 
+    }: {
         statistics: any;
         loading: boolean;
         error: string | null;
         players: PlayerRecord[];
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
-        sortBy: string[] | null;
-        nameQuery: string | null;
-    } = $props();
+    } & FilterProps = $props();
 
     const MONTHS = [
         "January", "February", "March", "April", "May", "June",

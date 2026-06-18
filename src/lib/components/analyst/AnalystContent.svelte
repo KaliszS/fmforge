@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import type { BirthDateRange } from "$lib/api/player";
     import { ANALYST_TABS } from './tabs';
     import OverviewSection from "./sections/OverviewSection.svelte";
@@ -30,26 +30,15 @@
         nameQuery,
         sortBy,
         allFilteredIds = null
-    }: { 
+    }: {
         activeTab: string;
         statistics: any;
         loading: boolean;
         error: string | null;
         players: PlayerRecord[];
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
         birthDateRange?: BirthDateRange | null;
-        nameQuery: string | null;
-        sortBy: string[] | null;
         allFilteredIds?: number[] | null;
-    } = $props();
+    } & FilterProps = $props();
 
     const currentTab = $derived(ANALYST_TABS.find(t => t.id === activeTab));
 </script>

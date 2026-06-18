@@ -1,0 +1,154 @@
+/* ==========================================================================
+   DESIGN TOKENS — CSS Custom Properties
+   ========================================================================== */
+
+/* Light Theme (Default) */
+:root {
+  /* Brand colors */
+  --color-primary: #396cd8;
+  --color-primary-hover: #2b52a3;
+  --color-primary-light: #e7f0fd;
+  --color-secondary: #5974c1;
+  --color-secondary-hover: #3c508d;
+  --color-secondary-light: #e1e7f0;
+
+  /* Text */
+  --color-text: #2c3e50;
+  --color-text-light: #444;
+  --color-text-muted: #666;
+  --color-text-secondary: #666;
+  --color-text-disabled: #999;
+  --color-placeholder: #888;
+
+  /* Backgrounds */
+  --color-background: #ffffff;
+  --color-background-light: #f9f9f9;
+  --color-background-hover: #f0f4ff;
+  --color-background-page: #f5f5f5;
+
+  /* Borders */
+  --color-border: #ccc;
+  --color-border-light: #ddd;
+  --color-border-focus: #396cd8;
+
+  /* Shadows */
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-shadow-light: rgba(0, 0, 0, 0.08);
+  --color-shadow-primary: rgba(57, 108, 216, 0.3);
+  --color-shadow-primary-hover: rgba(57, 108, 216, 0.6);
+
+  /* State colors */
+  --color-modified: #3b82f6;
+  --color-modified-bg: rgba(59, 130, 246, 0.05);
+  --color-modified-bg-hover: rgba(59, 130, 246, 0.1);
+  --color-newly-added: #22c55e;
+  --color-newly-added-bg: rgba(34, 197, 94, 0.05);
+  --color-newly-added-bg-hover: rgba(34, 197, 94, 0.1);
+  --color-delete: #dc2626;
+  --color-delete-hover: #b91c1c;
+  --color-delete-bg-hover: #fef2f2;
+  --color-deleted: #dc2626;
+  --color-deleted-bg: rgba(220, 38, 38, 0.05);
+  --color-deleted-bg-hover: rgba(220, 38, 38, 0.1);
+
+  /* Warning */
+  --color-warning-bg: #fff3cd;
+  --color-warning-bg-hover: #ffeaa7;
+  --color-warning-bg-details: #fffbf0;
+  --color-warning-border: #ffeaa7;
+  --color-warning-text: #856404;
+
+  /* Medals */
+  --color-medal-gold: #ffd700;
+  --color-medal-gold-glow: rgba(255, 215, 0, 0.6);
+  --color-medal-silver: #c8c8c8;
+  --color-medal-silver-glow: rgba(200, 200, 200, 0.6);
+  --color-medal-bronze: #cd7f32;
+  --color-medal-bronze-glow: rgba(205, 127, 50, 0.6);
+
+  /* Temporal icons */
+  --color-icon-year-bg: #e0f2fe;
+  --color-icon-year-text: #0284c7;
+  --color-icon-month-bg: #f0fdf4;
+  --color-icon-month-text: #16a34a;
+
+  /* Spacing */
+  --spacing-xs: 0.15rem;
+  --spacing-sm: 0.25rem;
+  --spacing-md: 0.5rem;
+  --spacing-lg: 0.75rem;
+  --spacing-xl: 1rem;
+
+  /* Border radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Font sizes */
+  --font-xs: 0.75rem;
+  --font-sm: 0.85rem;
+  --font-base: 1rem;
+  --font-lg: 1.05rem;
+  --font-xl: 1.1rem;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --color-primary: #5a8cff;
+  --color-primary-hover: #4a7ae8;
+  --color-primary-light: #1a2332;
+  --color-secondary: #7a9cff;
+  --color-secondary-hover: #6a8ce8;
+  --color-secondary-light: #2a3441;
+
+  --color-text: #e8e8e8;
+  --color-text-light: #d0d0d0;
+  --color-text-muted: #a0a0a0;
+  --color-text-secondary: #a0a0a0;
+  --color-text-disabled: #666;
+  --color-placeholder: #777;
+
+  --color-background: #1a1a1a;
+  --color-background-light: #2a2a2a;
+  --color-background-hover: #333;
+  --color-background-page: #0f0f0f;
+
+  --color-border: #444;
+  --color-border-light: #555;
+  --color-border-focus: #5a8cff;
+
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-shadow-light: rgba(0, 0, 0, 0.2);
+  --color-shadow-primary: rgba(90, 140, 255, 0.3);
+  --color-shadow-primary-hover: rgba(90, 140, 255, 0.6);
+
+  --color-modified: #5a8cff;
+  --color-modified-bg: rgba(90, 140, 255, 0.1);
+  --color-modified-bg-hover: rgba(90, 140, 255, 0.2);
+  --color-newly-added: #22c55e;
+  --color-newly-added-bg: rgba(34, 197, 94, 0.1);
+  --color-newly-added-bg-hover: rgba(34, 197, 94, 0.2);
+  --color-delete: #ef4444;
+  --color-delete-hover: #dc2626;
+  --color-delete-bg-hover: rgba(239, 68, 68, 0.1);
+  --color-deleted: #ef4444;
+  --color-deleted-bg: rgba(239, 68, 68, 0.1);
+  --color-deleted-bg-hover: rgba(239, 68, 68, 0.2);
+
+  --color-icon-year-bg: #0c2233;
+  --color-icon-year-text: #38bdf8;
+  --color-icon-month-bg: #0a2016;
+  --color-icon-month-text: #4ade80;
+
+  --color-warning-bg: #3a2a1a;
+  --color-warning-bg-hover: #5f3a1e;
+  --color-warning-bg-details: #2a1a0f;
+  --color-warning-border: #5f3a1e;
+  --color-warning-text: #ffb366;
+}

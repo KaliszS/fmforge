@@ -100,12 +100,12 @@
     }
 
     /* Dark theme improvements */
-    [data-theme="dark"] .view-switcher {
+    :global([data-theme="dark"]) .view-switcher {
         background: rgba(255,255,255,0.05);
         border-color: rgba(255,255,255,0.1);
     }
 
-    [data-theme="dark"] .view-tab.active {
+    :global([data-theme="dark"]) .view-tab.active {
         background: var(--color-background-light);
         color: white;
     }

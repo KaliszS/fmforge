@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import { countryMap } from "$lib/constants";
     import { getFlagComponent } from "$lib/flags";
     import SimpleStatCard from "../charts/SimpleStatCard.svelte";
@@ -20,23 +20,12 @@
         birthYear,
         sortBy,
         nameQuery
-    }: { 
+    }: {
         statistics: any;
         loading: boolean;
         error: string | null;
         players: PlayerRecord[];
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
-        sortBy: string[] | null;
-        nameQuery: string | null;
-    } = $props();
+    } & FilterProps = $props();
 
     function getCountryName(id: string): string {
         const countryId = parseInt(id);

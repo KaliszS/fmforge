@@ -351,12 +351,11 @@
 </script>
 
 <main>
-    <AppHeader 
-        bind:players={filteredPlayers}
-        bind:currentPage 
-        bind:pageSize 
-        bind:selectedCountry 
-        bind:selectedClub 
+    <AppHeader
+        bind:currentPage
+        bind:pageSize
+        bind:selectedCountry
+        bind:selectedClub
         bind:selectedPosition
         bind:selectedFavouriteClub
         bind:minCA
@@ -370,9 +369,7 @@
         bind:birthDateRange
         bind:nameQuery
         bind:sortBy
-        bind:invalidRows 
-        bind:showInvalidDetails 
-        bind:isLastPage
+        bind:invalidRows
         bind:editTypeFilter
         {triggerRefresh}
         onToggleDualView={toggleSecondaryWindow}
