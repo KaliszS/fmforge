@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import { getTopPlayers, type BirthDateRange } from "$lib/api/player";
     import { countryMap, clubMap } from "$lib/constants";
     import { getFlagComponent } from "$lib/flags";
@@ -23,25 +23,14 @@
         sortBy,
         nameQuery,
         allFilteredIds = null
-    }: { 
+    }: {
         statistics: any;
         loading: boolean;
         error: string | null;
         players: PlayerRecord[];
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
         birthDateRange?: BirthDateRange | null;
-        sortBy: string[] | null;
-        nameQuery: string | null;
         allFilteredIds?: number[] | null;
-    } = $props();
+    } & FilterProps = $props();
 
     let topPlayers = $state<any>(null);
     let loadingTopPlayers = $state(true);
@@ -353,68 +342,6 @@
         background: var(--color-primary-light);
         padding: 2px 8px;
         border-radius: var(--radius-sm);
-    }
-
-    .loading-state, .error-state {
-        text-align: center;
-        padding: var(--spacing-xl);
-    }
-
-    .loading-spinner {
-        width: 2rem;
-        height: 2rem;
-        border: 3px solid var(--color-border-light);
-        border-top: 3px solid var(--color-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto var(--spacing-md);
-    }
-
-    .loading-spinner-small {
-        width: 1.5rem;
-        height: 1.5rem;
-        border: 2px solid var(--color-border-light);
-        border-top: 2px solid var(--color-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: var(--spacing-lg) auto;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .error-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-md);
-    }
-
-    .placeholder {
-        text-align: center;
-        color: var(--color-text-muted);
-        padding: var(--spacing-xl) 0;
-    }
-
-    .placeholder-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-lg);
-        opacity: 0.6;
-    }
-
-    .placeholder h4 {
-        margin: 0 0 var(--spacing-md) 0;
-        font-size: var(--font-lg);
-        color: var(--color-text);
-        font-weight: 600;
-    }
-
-    .placeholder p {
-        margin: 0;
-        font-size: var(--font-base);
-        line-height: 1.6;
-        max-width: 500px;
-        margin: 0 auto;
     }
 
     .no-data-small {

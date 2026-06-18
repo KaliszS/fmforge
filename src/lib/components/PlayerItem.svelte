@@ -22,6 +22,7 @@
     import PlayerEditFields from "./player/PlayerEditFields.svelte";
     import EditActions from "./player/EditActions.svelte";
     import SelectionTrigger from "./player/SelectionTrigger.svelte";
+    import Icon from "./common/Icon.svelte";
 
     let { 
         player = $bindable(), 
@@ -169,34 +170,19 @@
         />
         {#if !readOnly}
         <div class="action-buttons">
-            <button class="edit-button" onclick={toggleEdit} title={edit_mode ? "Save changes" : "Edit player"} disabled={isDeleted}>
-                {#if edit_mode}
-                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 6L9 17l-5-5"/>
-                    </svg>
-                {:else}
-                    <svg width="1.2em" height="1.2em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                {/if}
+            <button class="edit-button" onclick={toggleEdit} title={edit_mode ? "Save changes" : "Edit player"} aria-label={edit_mode ? "Save changes" : "Edit player"} disabled={isDeleted}>
+                <Icon name={edit_mode ? 'check' : 'pencil'} size={edit_mode ? '1em' : '1.2em'} />
             </button>
             {#if isDeleted}
                 <RefreshButton 
                     size={16}
                     title="Revert deletion"
-                    onClick={handleRevert}
+                    onclick={handleRevert}
                     variant="button"
                 />
             {:else}
-                <button class="delete-button" onclick={handleDelete} title="Delete player">
-                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 6h18"/>
-                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                        <line x1="10" y1="11" x2="10" y2="17"/>
-                        <line x1="14" y1="11" x2="14" y2="17"/>
-                    </svg>
+                <button class="delete-button" onclick={handleDelete} title="Delete player" aria-label="Delete player">
+                    <Icon name="trash" />
                 </button>
             {/if}
         </div>

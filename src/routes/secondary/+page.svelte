@@ -76,7 +76,7 @@
              }
         }
 
-        players = await loadPlayersPage(
+        const result = await loadPlayersPage(
             offset,
             currentState.pageSize,
             currentState.selectedCountry,
@@ -95,6 +95,7 @@
             playerIds,
             currentState.birthDateRange
         );
+        players = result.players;
         
         sortBy = currentState.sortBy;
     }

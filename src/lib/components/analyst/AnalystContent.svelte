@@ -1,6 +1,7 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import type { BirthDateRange } from "$lib/api/player";
+    import { ANALYST_TABS } from './tabs';
     import OverviewSection from "./sections/OverviewSection.svelte";
     import AbilitiesSection from "./sections/AbilitiesSection.svelte";
     import GeographySection from "./sections/GeographySection.svelte";
@@ -29,48 +30,23 @@
         nameQuery,
         sortBy,
         allFilteredIds = null
-    }: { 
+    }: {
         activeTab: string;
         statistics: any;
         loading: boolean;
         error: string | null;
         players: PlayerRecord[];
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
         birthDateRange?: BirthDateRange | null;
-        nameQuery: string | null;
-        sortBy: string[] | null;
         allFilteredIds?: number[] | null;
-    } = $props();
+    } & FilterProps = $props();
+
+    const currentTab = $derived(ANALYST_TABS.find(t => t.id === activeTab));
 </script>
 
 <div class="analyst-content">
     <div class="content-header">
         <h3 class="content-title">
-            {#if activeTab === 'overview'}
-                📊 Overview
-            {:else if activeTab === 'abilities'}
-                ⚽ Abilities
-            {:else if activeTab === 'geography'}
-                🌍 Geography
-            {:else if activeTab === 'physical'}
-                👤 Physical
-            {:else if activeTab === 'positional'}
-                🏃 Positional
-            {:else if activeTab === 'appearance'}
-                🎨 Appearance
-            {:else if activeTab === 'temporal'}
-                📅 Temporal
-            {:else if activeTab === 'clubs'}
-                🏆 Clubs
-            {/if}
+            {currentTab?.icon} {currentTab?.name}
         </h3>
     </div>
     
@@ -241,32 +217,6 @@
         overflow-y: auto;
     }
 
-    .placeholder {
-        text-align: center;
-        color: var(--color-text-muted);
-        padding: var(--spacing-xl) 0;
-    }
-
-    .placeholder-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-lg);
-        opacity: 0.6;
-    }
-
-    .placeholder h4 {
-        margin: 0 0 var(--spacing-md) 0;
-        font-size: var(--font-lg);
-        color: var(--color-text);
-        font-weight: 600;
-    }
-
-    .placeholder p {
-        margin: 0;
-        font-size: var(--font-base);
-        line-height: 1.6;
-        max-width: 500px;
-        margin: 0 auto;
-    }
 
 
 </style>

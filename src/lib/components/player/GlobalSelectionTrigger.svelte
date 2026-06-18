@@ -1,5 +1,6 @@
 <script lang="ts">
     import { selectedPlayers } from '$lib/stores/selectionStore';
+    import Icon from '$lib/components/common/Icon.svelte';
 
     let { onToggle }: { onToggle: () => void } = $props();
 
@@ -31,9 +32,9 @@
     aria-label={hasSelection ? "Deselect all players" : "Select all filtered players"}
 >
     <div class="trigger-indicator">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M9 18l6-6-6-6"/>
-        </svg>
+        <span class="arrow-icon">
+            <Icon name="chevron-right" fill="currentColor" size={8} />
+        </span>
     </div>
 </button>
 
@@ -51,7 +52,7 @@
         align-items: center;
         cursor: pointer;
         z-index: 20;
-        transition: all 0.2s ease;
+        transition: all var(--transition-fast);
     }
 
     .trigger-indicator {
@@ -69,11 +70,9 @@
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .trigger-indicator svg {
+    .arrow-icon {
+        display: flex;
         transform: rotate(180deg);
-        width: 8px;
-        height: 8px;
-        stroke-width: 2.5;
     }
 
     .global-selection-trigger:hover .trigger-indicator {

@@ -10,6 +10,7 @@
         onNext,
         onPageChange,
         isLastPage,
+        totalPages = 0,
         editTypeFilter = $bindable(),
         onFilterChange = () => {},
     }: {
@@ -18,6 +19,7 @@
         onNext: () => void;
         onPageChange: (page: number) => void;
         isLastPage: boolean;
+        totalPages?: number;
         editTypeFilter?: 'all' | 'modified' | 'added' | 'deleted';
         onFilterChange?: (type: 'all' | 'modified' | 'added' | 'deleted') => void;
     } = $props();
@@ -34,12 +36,13 @@
         <EditedPlayersInfo {editTypeFilter} onFilterReset={handleFilterReset} />
     </aside>
     <section class="pagination-center">
-        <PaginationControls 
-            bind:currentPage 
-            {onPrev} 
-            {onNext} 
-            {onPageChange} 
-            {isLastPage} 
+        <PaginationControls
+            bind:currentPage
+            {onPrev}
+            {onNext}
+            {onPageChange}
+            {isLastPage}
+            {totalPages}
         />
     </section>
     <aside class="pagination-right">

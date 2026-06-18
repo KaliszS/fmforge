@@ -1,4 +1,6 @@
 <script lang="ts">
+    import Icon from './common/Icon.svelte';
+
     let {
         currentPage = $bindable(),
         onPrev,
@@ -17,20 +19,26 @@
 
     let pageInput = $state((currentPage + 1).toString());
 
-    // Update input when currentPage changes externally
+    const inputWidth = $derived(
+        `calc(${Math.max(pageInput.length, totalPages > 0 ? totalPages.toString().length : 1)}ch + 0.6rem)`
+    );
+
     $effect(() => {
         pageInput = (currentPage + 1).toString();
     });
 
     function handlePageInput() {
         const pageNum = parseInt(pageInput);
-        if (!isNaN(pageNum) && pageNum > 0) {
-            const targetPage = pageNum - 1; // Convert to 0-based
+        if (!isNaN(pageNum)) {
+            let targetPage = pageNum - 1;
+            if (targetPage < 0) targetPage = 0;
+            if (totalPages > 0 && targetPage >= totalPages) targetPage = totalPages - 1;
             if (targetPage !== currentPage) {
                 onPageChange(targetPage);
+            } else {
+                pageInput = (currentPage + 1).toString();
             }
         } else {
-            // Reset to current page if invalid input
             pageInput = (currentPage + 1).toString();
         }
     }
@@ -44,29 +52,31 @@
 
 <section class="pagination-container">
     <div class="pagination-pill">
-        <button class="nav-btn" onclick={onPrev} disabled={currentPage === 0} title="Previous Page">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        <button class="nav-btn" onclick={onPrev} disabled={currentPage === 0} title="Previous Page" aria-label="Previous Page">
+            <Icon name="chevron-left" size={14} />
         </button>
-        
+
         <div class="page-info">
-            <span class="page-label">Page</span>
-            <input 
-                type="number" 
+            <input
+                type="number"
                 bind:value={pageInput}
                 onblur={handlePageInput}
                 onkeydown={handleKeydown}
                 class="page-input"
+                style="width: {inputWidth}"
                 min="1"
                 max={totalPages > 0 ? totalPages : undefined}
                 title="Enter page number"
+                aria-label="Current page"
             />
             {#if totalPages > 0}
-                <span class="total-pages">of {totalPages}</span>
+                <span class="page-sep">/</span>
+                <span class="page-total">{totalPages}</span>
             {/if}
         </div>
-        
-        <button class="nav-btn" onclick={onNext} disabled={isLastPage} title="Next Page">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+
+        <button class="nav-btn" onclick={onNext} disabled={isLastPage} title="Next Page" aria-label="Next Page">
+            <Icon name="chevron-right" size={14} />
         </button>
     </div>
 </section>
@@ -85,28 +95,28 @@
         border: 1px solid var(--color-border);
         border-radius: 100px;
         padding: 4px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        gap: 8px;
+        box-shadow: 0 2px 5px var(--color-shadow-light);
+        gap: 2px;
     }
 
     .nav-btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
         border: none;
         background: transparent;
         color: var(--color-text);
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all var(--transition-fast);
+        flex-shrink: 0;
     }
 
     .nav-btn:hover:not(:disabled) {
         background-color: var(--color-background-hover);
         color: var(--color-primary);
-        transform: translateX(0);
     }
 
     .nav-btn:disabled {
@@ -116,24 +126,12 @@
 
     .page-info {
         display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 0 8px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--color-text-muted);
-        border-left: 1px solid var(--color-border-light);
-        border-right: 1px solid var(--color-border-light);
-    }
-
-    .page-label {
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
+        align-items: baseline;
+        gap: 4px;
+        padding: 0 var(--spacing-sm);
     }
 
     .page-input {
-        width: 3rem;
         text-align: center;
         font-size: 0.95rem;
         font-weight: 700;
@@ -155,8 +153,18 @@
         margin: 0;
     }
 
-    .total-pages {
+    .page-sep {
         color: var(--color-text-muted);
+        opacity: 0.4;
+        font-size: 0.95rem;
+        font-weight: 300;
+        user-select: none;
+    }
+
+    .page-total {
+        color: var(--color-text-muted);
+        font-size: 0.95rem;
         font-weight: 500;
+        user-select: none;
     }
 </style>

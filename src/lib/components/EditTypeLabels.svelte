@@ -1,7 +1,7 @@
 <script lang="ts">
     import RefreshButton from "./RefreshButton.svelte";
     import { originalPlayers, modifiedPlayers, revertModifiedPlayers, revertAddedPlayers, revertDeletedPlayers, showOnlyEdited } from "$lib/stores/editedPlayers";
-    
+
     let {
         editTypeFilter = $bindable(),
         onFilterChange = () => {}
@@ -9,49 +9,19 @@
         editTypeFilter?: 'all' | 'modified' | 'added' | 'deleted';
         onFilterChange?: (type: 'all' | 'modified' | 'added' | 'deleted') => void;
     } = $props();
-    
-    let modifiedCount = $derived.by(() => {
-        let count = 0;
-        const originals = $originalPlayers;
-        const modified = $modifiedPlayers;
-        
-        for (const [id, original] of originals) {
-            const modifiedPlayer = modified.get(id);
-            if (original !== null && modifiedPlayer !== null) {
-                count++;
-            }
+
+    let counts = $derived.by(() => {
+        let modified = 0, added = 0, deleted = 0;
+        const mod = $modifiedPlayers;
+        for (const [id, original] of $originalPlayers) {
+            const player = mod.get(id);
+            if (original !== null && player !== null) modified++;
+            else if (original === null && player !== null) added++;
+            else if (original !== null && player === null) deleted++;
         }
-        return count;
+        return { modified, added, deleted };
     });
-    
-    let addedCount = $derived.by(() => {
-        let count = 0;
-        const originals = $originalPlayers;
-        const modified = $modifiedPlayers;
-        
-        for (const [id, original] of originals) {
-            const modifiedPlayer = modified.get(id);
-            if (original === null && modifiedPlayer !== null) {
-                count++;
-            }
-        }
-        return count;
-    });
-    
-    let deletedCount = $derived.by(() => {
-        let count = 0;
-        const originals = $originalPlayers;
-        const modified = $modifiedPlayers;
-        
-        for (const [id, original] of originals) {
-            const modifiedPlayer = modified.get(id);
-            if (original !== null && modifiedPlayer === null) {
-                count++;
-            }
-        }
-        return count;
-    });
-    
+
     function filter(type: 'modified' | 'added' | 'deleted') {
         if ($showOnlyEdited && editTypeFilter === type) {
             showOnlyEdited.set(false);
@@ -72,60 +42,39 @@
             onFilterChange('all');
         }
     }
+
+    const LABEL_TITLES: Record<'modified' | 'added' | 'deleted', string> = {
+        modified: 'Modified',
+        added: 'Added',
+        deleted: 'Deleted',
+    };
 </script>
 
+{#snippet editLabel(type: 'modified' | 'added' | 'deleted', count: number)}
+    {#if count > 0}
+        <div
+            class="label-group {type}"
+            class:active={$showOnlyEdited && editTypeFilter === type}
+        >
+            <button
+                class="label-btn"
+                onclick={() => filter(type)}
+                title={$showOnlyEdited && editTypeFilter === type ? 'Show all players' : `Show only ${type} players`}
+            >
+                {LABEL_TITLES[type]} ({count})
+            </button>
+            <RefreshButton
+                title="Revert {type} players"
+                onclick={() => handleRevert(type)}
+            />
+        </div>
+    {/if}
+{/snippet}
+
 <div class="edit-labels">
-    {#if modifiedCount > 0}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div 
-            class="label modified" 
-            class:active={$showOnlyEdited && editTypeFilter === 'modified'}
-            title={$showOnlyEdited && editTypeFilter === 'modified' ? 'Show all players' : 'Show only modified players'} 
-            onclick={() => filter('modified')}
-            role="button"
-            tabindex="0"
-        >
-            <span>Modified ({modifiedCount})</span>
-            <span onclick={(e) => e.stopPropagation()} role="none">
-                <RefreshButton title="Revert modified players" onClick={() => handleRevert('modified')} />
-            </span>
-        </div>
-    {/if}
-    {#if addedCount > 0}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div 
-            class="label added" 
-            class:active={$showOnlyEdited && editTypeFilter === 'added'}
-            title={$showOnlyEdited && editTypeFilter === 'added' ? 'Show all players' : 'Show only added players'} 
-            onclick={() => filter('added')}
-            role="button"
-            tabindex="0"
-        >
-            <span>Added ({addedCount})</span>
-            <span onclick={(e) => e.stopPropagation()} role="none">
-                <RefreshButton title="Revert added players" onClick={() => handleRevert('added')} />
-            </span>
-        </div>
-    {/if}
-    {#if deletedCount > 0}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div 
-            class="label deleted" 
-            class:active={$showOnlyEdited && editTypeFilter === 'deleted'}
-            title={$showOnlyEdited && editTypeFilter === 'deleted' ? 'Show all players' : 'Show only deleted players'} 
-            onclick={() => filter('deleted')}
-            role="button"
-            tabindex="0"
-        >
-            <span>Deleted ({deletedCount})</span>
-            <span onclick={(e) => e.stopPropagation()} role="none">
-                <RefreshButton title="Revert deleted players" onClick={() => handleRevert('deleted')} />
-            </span>
-        </div>
-    {/if}
+    {@render editLabel('modified', counts.modified)}
+    {@render editLabel('added', counts.added)}
+    {@render editLabel('deleted', counts.deleted)}
 </div>
 
 <style>
@@ -133,51 +82,61 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: var(--spacing-md);
     }
-    
-    .label {
+
+    .label-group {
         display: flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
+        align-items: stretch;
+        border-radius: var(--radius-sm);
+        border: 1px solid;
+        overflow: hidden;
+        transition: all var(--transition-fast);
         white-space: nowrap;
-        background: none;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
+        font-size: var(--font-xs);
+        font-weight: 600;
+        padding-right: var(--spacing-xs);
     }
-    
-    .label:hover {
+
+    .label-group:hover {
         transform: scale(1.05);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 2px 8px var(--color-shadow);
     }
-    
-    .label.active {
+
+    .label-group.active {
         transform: scale(1.05);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 2px 8px var(--color-shadow);
         font-weight: 700;
     }
-    
-    
-    .label.modified {
-        background-color: rgba(59, 130, 246, 0.1);
-        color: #3b82f6;
-        border: 1px solid #3b82f6;
+
+    .label-group.modified {
+        background-color: var(--color-modified-bg);
+        color: var(--color-modified);
+        border-color: var(--color-modified);
     }
-    
-    .label.added {
-        background-color: rgba(34, 197, 94, 0.1);
-        color: #22c55e;
-        border: 1px solid #22c55e;
+
+    .label-group.added {
+        background-color: var(--color-newly-added-bg);
+        color: var(--color-newly-added);
+        border-color: var(--color-newly-added);
     }
-    
-    .label.deleted {
-        background-color: rgba(220, 38, 38, 0.1);
-        color: #dc2626;
-        border: 1px solid #dc2626;
+
+    .label-group.deleted {
+        background-color: var(--color-deleted-bg);
+        color: var(--color-deleted);
+        border-color: var(--color-deleted);
+    }
+
+    .label-btn {
+        background: none;
+        border: none;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .label-btn:hover {
+        background-color: rgba(0, 0, 0, 0.05);
     }
 </style>

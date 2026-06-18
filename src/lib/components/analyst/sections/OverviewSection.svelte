@@ -1,8 +1,9 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import SimpleStatCard from "../charts/SimpleStatCard.svelte";
     import { countryMap, clubMap } from "$lib/constants";
     import { modSettings, type ModSettings } from "$lib/stores/modSettings";
+    import { getBirthYearOffset } from "$lib/utils/birthYear";
 
     let { 
         statistics,
@@ -20,23 +21,12 @@
         birthYear,
         nameQuery,
         sortBy
-    }: { 
+    }: {
         statistics: any;
         loading: boolean;
         error: string | null;
         players: PlayerRecord[];
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
-        nameQuery: string | null;
-        sortBy: string[] | null;
-    } = $props();
+    } & FilterProps = $props();
 
     // Helper to find top item in counts map
     function getTopItem(counts: Record<string | number, number>, map?: Record<number, any>): { name: string, count: number } | null {
@@ -96,15 +86,7 @@
             }
         }
 
-        // Apply offset if needed
-        let offset = 0;
-        if (settings.showRealBirthDates && settings.canToggle) {
-            const fmEdition = parseInt(settings.fmEdition);
-            const retroYear = parseInt(settings.retroYear);
-            if (!isNaN(fmEdition) && !isNaN(retroYear)) {
-                offset = fmEdition - 1 - retroYear;
-            }
-        }
+        const offset = getBirthYearOffset(settings);
         
         return { 
             min: min - offset, 
@@ -229,61 +211,10 @@
         width: 100%;
     }
 
-    .loading-state, .error-state {
-        text-align: center;
-        padding: var(--spacing-xl);
-    }
-
-    .loading-spinner {
-        width: 2rem;
-        height: 2rem;
-        border: 3px solid var(--color-border-light);
-        border-top: 3px solid var(--color-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto var(--spacing-md);
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .error-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-md);
-    }
-
     .statistics-content h3 {
         margin: 0 0 var(--spacing-sm) 0;
         color: var(--color-text);
         font-size: var(--font-lg);
     }
 
-    .placeholder {
-        text-align: center;
-        color: var(--color-text-muted);
-        padding: var(--spacing-xl) 0;
-    }
-
-    .placeholder-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-lg);
-        opacity: 0.6;
-    }
-
-    .placeholder h4 {
-        margin: 0 0 var(--spacing-md) 0;
-        font-size: var(--font-lg);
-        color: var(--color-text);
-        font-weight: 600;
-    }
-
-    .placeholder p {
-        margin: 0;
-        font-size: var(--font-base);
-        line-height: 1.6;
-        max-width: 500px;
-        margin: 0 auto;
-    }
 </style>

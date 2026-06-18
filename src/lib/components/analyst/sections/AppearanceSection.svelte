@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import { ETHNICITY_MAP, HAIR_COLORS, getSkinColor } from "$lib/constants";
 
     let { 
@@ -18,23 +18,12 @@
         birthYear,
         sortBy,
         nameQuery
-    }: { 
+    }: {
         statistics: any;
         loading: boolean;
         error: string | null;
         players: PlayerRecord[];
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
-        sortBy: string[] | null;
-        nameQuery: string | null;
-    } = $props();
+    } & FilterProps = $props();
 
     function getSortedCounts(counts: Record<string, number>) {
         return Object.entries(counts).sort(([, a], [, b]) => b - a);
@@ -42,12 +31,12 @@
 
     function getEthnicityInfo(idStr: string) {
         const id = parseInt(idStr);
-        return ETHNICITY_MAP.get(id) || { title: `Unknown (${id})`, bg: "#ccc", emoji: "❓" };
+        return ETHNICITY_MAP.get(id) || { title: `Unknown (${id})`, bg: "var(--color-border)", emoji: "❓" };
     }
 
     function getHairColorInfo(idStr: string) {
         const id = parseInt(idStr);
-        return HAIR_COLORS.find(h => h.id === id) || { label: `Unknown (${id})`, color: "#999" };
+        return HAIR_COLORS.find(h => h.id === id) || { label: `Unknown (${id})`, color: "var(--color-text-disabled)" };
     }
 </script>
 
@@ -186,12 +175,12 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        border: 1px solid rgba(0,0,0,0.1);
+        border: 1px solid var(--color-shadow);
     }
 
     .skin-tone-circle, .hair-circle {
         color: #fff;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        text-shadow: 0 1px 2px var(--color-shadow);
         font-weight: bold;
     }
     
@@ -235,58 +224,6 @@
         opacity: 0.5;
     }
 
-    .loading-state, .error-state {
-        text-align: center;
-        padding: var(--spacing-xl);
-    }
-
-    .loading-spinner {
-        width: 2rem;
-        height: 2rem;
-        border: 3px solid var(--color-border-light);
-        border-top: 3px solid var(--color-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto var(--spacing-md);
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .error-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-md);
-    }
-
-    .placeholder {
-        text-align: center;
-        color: var(--color-text-muted);
-        padding: var(--spacing-xl) 0;
-    }
-
-    .placeholder-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-lg);
-        opacity: 0.6;
-    }
-
-    .placeholder h4 {
-        margin: 0 0 var(--spacing-md) 0;
-        font-size: var(--font-lg);
-        color: var(--color-text);
-        font-weight: 600;
-    }
-
-    .placeholder p {
-        margin: 0;
-        font-size: var(--font-base);
-        line-height: 1.6;
-        max-width: 500px;
-        margin: 0 auto;
-    }
-    
     .no-data {
         text-align: center;
         color: var(--color-text-muted);

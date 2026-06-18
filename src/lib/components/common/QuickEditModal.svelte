@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getContext } from 'svelte';
+    import { getContext, tick } from 'svelte';
 
     let {
         title,
@@ -46,8 +46,7 @@
         onSave();
         close();
         
-        // Wait for Svelte to flush updates and for the modal to close
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await tick();
         
         if (quickEditContext) {
             quickEditContext.save();

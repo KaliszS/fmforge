@@ -1,25 +1,9 @@
 <script lang="ts">
-    import { countryMap, clubMap, FOOT_OPTIONS, SORT_OPTIONS, POSITION_MAP } from "$lib/constants";
-    import { modSettings } from "$lib/stores/modSettings";
-    import ClubSelect from "$lib/components/common/ClubSelect.svelte";
     import type { BirthDateRange } from "$lib/api/player";
-
-    const MONTHS = [
-        { value: 1, label: 'Jan' },
-        { value: 2, label: 'Feb' },
-        { value: 3, label: 'Mar' },
-        { value: 4, label: 'Apr' },
-        { value: 5, label: 'May' },
-        { value: 6, label: 'Jun' },
-        { value: 7, label: 'Jul' },
-        { value: 8, label: 'Aug' },
-        { value: 9, label: 'Sep' },
-        { value: 10, label: 'Oct' },
-        { value: 11, label: 'Nov' },
-        { value: 12, label: 'Dec' },
-    ];
-
-    const DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
+    import Icon from "$lib/components/common/Icon.svelte";
+    import GeneralFilters from "$lib/components/filters/GeneralFilters.svelte";
+    import AttributeFilters from "$lib/components/filters/AttributeFilters.svelte";
+    import PersonalFilters from "$lib/components/filters/PersonalFilters.svelte";
 
     let {
         selectedCountry = $bindable(),
@@ -58,164 +42,60 @@
     } = $props();
 
     let isExpanded = $state(false);
-    let birthDateRangeExpanded = $state(false);
-    let searchInput = $state(nameQuery ?? "");
-    let debounceTimer: ReturnType<typeof setTimeout>;
-
-    // Local state for birth date range with defaults
-    let birthDayFrom = $state<number>(1);
-    let birthMonthFrom = $state<number>(1);
-    let birthDayTo = $state<number>(31);
-    let birthMonthTo = $state<number>(12);
-
-    // Update birthDateRange when local values change (only if expanded and not defaults)
-    $effect(() => {
-        if (birthDateRangeExpanded) {
-            const isDefault = birthDayFrom === 1 && birthMonthFrom === 1 && birthDayTo === 31 && birthMonthTo === 12;
-            if (isDefault) {
-                birthDateRange = null;
-            } else {
-                birthDateRange = {
-                    dayFrom: birthDayFrom,
-                    monthFrom: birthMonthFrom,
-                    dayTo: birthDayTo,
-                    monthTo: birthMonthTo,
-                };
-            }
-        } else {
-            birthDateRange = null;
-        }
-    });
-
-    function handleSearchInput(event: Event) {
-        const value = (event.target as HTMLInputElement).value;
-        searchInput = value;
-        
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            nameQuery = value.trim() === "" ? null : value.trim();
-        }, 300);
-    }
-
-    const countryOptions = Object.entries(countryMap).map(([id, { name }]) => ({
-        id: +id,
-        name,
-    }));
 
     function toggleExpanded() {
-        if (!disabled) {
-            isExpanded = !isExpanded;
-        }
-    }
-
-    function handleKeydown(event: KeyboardEvent) {
-        if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
-            event.preventDefault();
-            toggleExpanded();
-        }
-    }
-
-    function toggleBirthDateRange() {
-        birthDateRangeExpanded = !birthDateRangeExpanded;
-        if (!birthDateRangeExpanded) {
-            // Reset to defaults when collapsing
-            birthDayFrom = 1;
-            birthMonthFrom = 1;
-            birthDayTo = 31;
-            birthMonthTo = 12;
-        }
+        if (!disabled) isExpanded = !isExpanded;
     }
 
     function clearAllFilters() {
-        if (!disabled) {
-            selectedCountry = null;
-            selectedClub = null;
-            selectedPosition = null;
-            selectedFavouriteClub = null;
-            minCA = null;
-            maxCA = null;
-            minPA = null;
-            maxPA = null;
-            preferredFoot = null;
-            favouriteNumber = null;
-            birthYear = null;
-            birthDateRange = null;
-            birthDateRangeExpanded = false;
-            birthDayFrom = 1;
-            birthMonthFrom = 1;
-            birthDayTo = 31;
-            birthMonthTo = 12;
-            nameQuery = null;
-            searchInput = "";
-        }
+        if (disabled) return;
+        selectedCountry = null;
+        selectedClub = null;
+        selectedPosition = null;
+        selectedFavouriteClub = null;
+        minCA = null;
+        maxCA = null;
+        minPA = null;
+        maxPA = null;
+        preferredFoot = null;
+        favouriteNumber = null;
+        birthYear = null;
+        birthDateRange = null;
+        nameQuery = null;
     }
 
-    // Convert birth year based on mod settings
-    $effect(() => {
-        if (!birthYear || !$modSettings.canToggle) {
-            effectiveBirthYear = birthYear;
-            return;
-        }
-        
-        if ($modSettings.showRealBirthDates) {
-            const fmEdition = parseInt($modSettings.fmEdition);
-            const retroYear = parseInt($modSettings.retroYear);
-            effectiveBirthYear = birthYear + (fmEdition - 1 - retroYear);
-        } else {
-            effectiveBirthYear = birthYear;
-        }
-    });
+    const activeFilterCount = $derived.by(() => [
+        selectedCountry, selectedClub, selectedPosition, selectedFavouriteClub,
+        minCA, maxCA, minPA, maxPA,
+        preferredFoot, favouriteNumber, birthYear, birthDateRange, nameQuery,
+    ].filter(v => v !== null).length);
 
-    const hasActiveFilters = $derived(
-        selectedCountry !== null ||
-        selectedClub !== null ||
-        selectedPosition !== null ||
-        selectedFavouriteClub !== null ||
-        minCA !== null ||
-        maxCA !== null ||
-        minPA !== null ||
-        maxPA !== null ||
-        preferredFoot !== null ||
-        favouriteNumber !== null ||
-        birthYear !== null ||
-        birthDateRange !== null ||
-        nameQuery !== null
-    );
-
-    const hasBirthDateRangeFilter = $derived(
-        birthDateRange !== null && 
-        !(birthDateRange.dayFrom === 1 && birthDateRange.monthFrom === 1 && 
-          birthDateRange.dayTo === 31 && birthDateRange.monthTo === 12)
-    );
+    const hasActiveFilters = $derived(activeFilterCount > 0);
 </script>
 
 <section class="filters-container" class:disabled>
-    <div 
-        class="filters-header" 
-        class:disabled
-        onclick={toggleExpanded}
-        onkeydown={handleKeydown}
-        role="button"
-        tabindex="0"
-        aria-expanded={isExpanded}
-        aria-label="Toggle filters panel"
-    >
-        <div class="filters-title">
+    <div class="filters-header" class:disabled>
+        <button
+            class="filters-toggle"
+            onclick={toggleExpanded}
+            disabled={disabled}
+            aria-expanded={isExpanded}
+            aria-label="Toggle filters panel"
+        ></button>
+        <div class="filters-center" aria-hidden="true">
             <span class="filters-icon">🔍</span>
             <h3>Filters</h3>
             {#if hasActiveFilters && !disabled}
-                <span class="active-indicator">{[selectedCountry, selectedClub, selectedPosition, selectedFavouriteClub, minCA, maxCA, minPA, maxPA, preferredFoot, favouriteNumber, birthYear, birthDateRange, nameQuery].filter(v => v !== null).length}</span>
+                <span class="active-indicator">{activeFilterCount}</span>
             {/if}
         </div>
         <div class="filters-actions">
             {#if hasActiveFilters && !disabled}
-                <button class="btn-clear" onclick={(e) => { e.stopPropagation(); clearAllFilters(); }} title="Clear all filters">
-                    ✕
+                <button class="btn-clear" onclick={clearAllFilters} title="Clear all filters" aria-label="Clear all filters">
+                    <Icon name="x" size="0.75em" />
                 </button>
             {/if}
-            <div class="expand-icon">
-                {isExpanded ? "▼" : "▶"}
-            </div>
+            <span class="expand-icon" aria-hidden="true">{isExpanded ? "▼" : "▶"}</span>
         </div>
     </div>
 
@@ -229,278 +109,31 @@
                 </div>
             {:else}
                 <div class="filter-grid">
-                    <!-- General Section -->
                     <div class="filter-section">
-                        <div class="filter-row three-cols">
-                            <div class="filter-item">
-                                <div class="input-group">
-                                    <span class="input-icon">👤</span>
-                                    <input
-                                        id="nameSearch"
-                                        type="text"
-                                        value={searchInput}
-                                        oninput={handleSearchInput}
-                                        placeholder="Search by name..."
-                                        class="input"
-                                        style="width: 100%"
-                                        aria-label="Search by name"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="filter-item">
-                                <div class="input-group">
-                                    <span class="input-icon">🌍</span>
-                                    <select 
-                                        id="countrySelect" 
-                                        bind:value={selectedCountry} 
-                                        class="input select-input" 
-                                        class:placeholder={selectedCountry === null}
-                                        aria-label="Select Country"
-                                    >
-                                        <option value={null}>Select Country...</option>
-                                        {#each countryOptions as { id, name }}
-                                            <option value={id}>{name}</option>
-                                        {/each}
-                                    </select>
-                                    <input
-                                        type="number"
-                                        bind:value={selectedCountry}
-                                        placeholder="ID"
-                                        class="input input-number id-input"
-                                        aria-label="Country ID"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="filter-item">
-                                <div class="input-group">
-                                    <div style="flex: 1; min-width: 12rem;">
-                                        <ClubSelect 
-                                            bind:value={selectedClub} 
-                                            emptyValue={null} 
-                                            placeholder="Select Club..." 
-                                            icon="🏟️"
-                                        />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        bind:value={selectedClub}
-                                        placeholder="ID"
-                                        class="input input-number id-input"
-                                        aria-label="Club ID"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="filter-row two-cols">
-                            <div class="filter-item">
-                                <div class="input-group">
-                                    <span class="input-icon">📍</span>
-                                    <select 
-                                        id="positionSelect" 
-                                        bind:value={selectedPosition} 
-                                        class="input select-input" 
-                                        class:placeholder={selectedPosition === null}
-                                        aria-label="Select Position"
-                                    >
-                                        <option value={null}>Select Position...</option>
-                                        {#each Object.entries(POSITION_MAP) as [key, { label, short }]}
-                                            <option value={key}>{short} - {label}</option>
-                                        {/each}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="filter-item">
-                                <div class="input-group">
-                                    <div style="flex: 1; min-width: 12rem;">
-                                        <ClubSelect 
-                                            bind:value={selectedFavouriteClub} 
-                                            emptyValue={null} 
-                                            placeholder="Select Favourite Club..." 
-                                            icon="❤️"
-                                        />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        bind:value={selectedFavouriteClub}
-                                        placeholder="ID"
-                                        class="input input-number id-input"
-                                        aria-label="Favourite Club ID"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                        <GeneralFilters
+                            bind:nameQuery
+                            bind:selectedCountry
+                            bind:selectedClub
+                            bind:selectedPosition
+                            bind:selectedFavouriteClub
+                        />
                     </div>
-
-                    <!-- Attributes Section -->
                     <div class="filter-section">
-                        <div class="filter-row">
-                            <div class="filter-item">
-                                <div class="range-group">
-                                    <div class="input-wrapper">
-                                        <span class="input-icon">⚡</span>
-                                        <input
-                                            id="minCA"
-                                            type="number"
-                                            bind:value={minCA}
-                                            placeholder="Min CA"
-                                            class="input input-number range-input"
-                                            aria-label="Minimum CA"
-                                        />
-                                    </div>
-                                    <span class="range-separator">to</span>
-                                    <div class="input-wrapper">
-                                        <input
-                                            id="maxCA"
-                                            type="number"
-                                            bind:value={maxCA}
-                                            placeholder="Max CA"
-                                            class="input input-number range-input"
-                                            aria-label="Maximum CA"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="filter-item">
-                                <div class="range-group">
-                                    <div class="input-wrapper">
-                                        <span class="input-icon">⭐</span>
-                                        <input
-                                            id="minPA"
-                                            type="number"
-                                            bind:value={minPA}
-                                            placeholder="Min PA"
-                                            class="input input-number range-input"
-                                            aria-label="Minimum PA"
-                                        />
-                                    </div>
-                                    <span class="range-separator">to</span>
-                                    <div class="input-wrapper">
-                                        <input
-                                            id="maxPA"
-                                            type="number"
-                                            bind:value={maxPA}
-                                            placeholder="Max PA"
-                                            class="input input-number range-input"
-                                            aria-label="Maximum PA"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <AttributeFilters
+                            bind:minCA
+                            bind:maxCA
+                            bind:minPA
+                            bind:maxPA
+                        />
                     </div>
-
-                    <!-- Personal Section -->
                     <div class="filter-section">
-                        <div class="filter-row three-cols">
-                            <div class="filter-item">
-                                <div class="input-wrapper">
-                                    <span class="input-icon">🦶</span>
-                                    <select 
-                                        id="preferredFoot" 
-                                        bind:value={preferredFoot} 
-                                        class="input select-input" 
-                                        class:placeholder={preferredFoot === null}
-                                        aria-label="Select Preferred Foot"
-                                    >
-                                        <option value={null}>Preferred Foot...</option>
-                                        {#each FOOT_OPTIONS as { value, label, icon }}
-                                            <option value={value}>{icon} {label}</option>
-                                        {/each}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="filter-item">
-                                <div class="input-wrapper">
-                                    <span class="input-icon">🔢</span>
-                                    <input
-                                        id="favouriteNumber"
-                                        type="number"
-                                        bind:value={favouriteNumber}
-                                        placeholder="Favourite Number"
-                                        class="input input-number"
-                                        aria-label="Favourite Number"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="filter-item">
-                                <div class="birth-year-container">
-                                    <div class="input-wrapper">
-                                        <span class="input-icon">📅</span>
-                                        <input
-                                            id="birthYear"
-                                            type="number"
-                                            bind:value={birthYear}
-                                            placeholder={$modSettings.canToggle ? `Birth Year (${$modSettings.showRealBirthDates ? 'Real' : 'Game'})` : "Birth Year"}
-                                            class="input input-number"
-                                            aria-label="Birth Year"
-                                        />
-                                    </div>
-                                    <button 
-                                        class="btn-expand-date-range"
-                                        class:active={birthDateRangeExpanded}
-                                        class:has-filter={hasBirthDateRangeFilter}
-                                        onclick={toggleBirthDateRange}
-                                        title={birthDateRangeExpanded ? "Collapse date range" : "Expand date range filter"}
-                                        aria-label={birthDateRangeExpanded ? "Collapse date range" : "Expand date range filter"}
-                                    >
-                                        {birthDateRangeExpanded ? '−' : '+'}
-                                    </button>
-                                </div>
-                                {#if birthDateRangeExpanded}
-                                    <div class="birth-date-range-panel">
-                                        <div class="date-range-row">
-                                            <span class="date-range-label">From:</span>
-                                            <select 
-                                                bind:value={birthDayFrom} 
-                                                class="input select-input date-select"
-                                                aria-label="Day from"
-                                            >
-                                                {#each DAYS as day}
-                                                    <option value={day}>{day}</option>
-                                                {/each}
-                                            </select>
-                                            <select 
-                                                bind:value={birthMonthFrom} 
-                                                class="input select-input date-select"
-                                                aria-label="Month from"
-                                            >
-                                                {#each MONTHS as { value, label }}
-                                                    <option value={value}>{label}</option>
-                                                {/each}
-                                            </select>
-                                        </div>
-                                        <div class="date-range-row">
-                                            <span class="date-range-label">To:</span>
-                                            <select 
-                                                bind:value={birthDayTo} 
-                                                class="input select-input date-select"
-                                                aria-label="Day to"
-                                            >
-                                                {#each DAYS as day}
-                                                    <option value={day}>{day}</option>
-                                                {/each}
-                                            </select>
-                                            <select 
-                                                bind:value={birthMonthTo} 
-                                                class="input select-input date-select"
-                                                aria-label="Month to"
-                                            >
-                                                {#each MONTHS as { value, label }}
-                                                    <option value={value}>{label}</option>
-                                                {/each}
-                                            </select>
-                                        </div>
-                                    </div>
-                                {/if}
-                            </div>
-                        </div>
+                        <PersonalFilters
+                            bind:preferredFoot
+                            bind:favouriteNumber
+                            bind:birthYear
+                            bind:effectiveBirthYear
+                            bind:birthDateRange
+                        />
                     </div>
                 </div>
             {/if}
@@ -528,33 +161,43 @@
     .filters-header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: var(--spacing-md) var(--spacing-lg);
+        position: relative;
         background: var(--color-background-light);
-        cursor: pointer;
-        user-select: none;
-        transition: all var(--transition-fast);
         min-height: 3rem;
         border-bottom: 1px solid transparent;
     }
 
-    .filters-header[aria-expanded="true"] {
+    .filters-header:has(.filters-toggle[aria-expanded="true"]) {
         border-bottom-color: var(--color-border-light);
     }
 
     .filters-header.disabled {
-        cursor: not-allowed;
         background: var(--color-background-light);
     }
 
-    .filters-header:hover:not(.disabled) {
-        background: var(--color-background-hover);
+    .filters-toggle {
+        position: absolute;
+        inset: 0;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        z-index: 0;
     }
 
-    .filters-title {
+    .filters-toggle:disabled {
+        cursor: not-allowed;
+    }
+
+    .filters-center {
+        flex: 1;
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: var(--spacing-sm);
+        pointer-events: none;
+        position: relative;
+        z-index: 1;
+        padding: var(--spacing-md) 0;
     }
 
     .filters-icon {
@@ -562,7 +205,7 @@
         opacity: 0.8;
     }
 
-    .filters-title h3 {
+    .filters-center h3 {
         margin: 0;
         font-size: var(--font-base);
         font-weight: 600;
@@ -587,12 +230,37 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-sm);
+        padding-right: var(--spacing-lg);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 2;
     }
 
     .expand-icon {
         font-size: var(--font-sm);
         color: var(--color-text-muted);
-        transition: color var(--transition-fast);
+    }
+
+    .btn-clear {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        padding: 0;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: var(--color-text-muted);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        flex-shrink: 0;
+    }
+
+    .btn-clear:hover {
+        border-color: var(--color-danger, #dc3545);
+        color: var(--color-danger, #dc3545);
+        background: var(--color-background-hover);
     }
 
     .filters-content {
@@ -612,218 +280,6 @@
         gap: var(--spacing-md);
     }
 
-    .filter-row {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: var(--spacing-xl);
-    }
-
-    .filter-row.three-cols {
-        /* No special handling needed for flex */
-    }
-
-    .filter-item {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-xs);
-    }
-
-    .filter-label {
-        font-size: var(--font-sm);
-        font-weight: 500;
-        color: var(--color-text);
-        display: flex;
-        align-items: center;
-        width: 100%;
-    }
-
-    .birth-year-mode-indicator {
-        font-size: var(--font-xs);
-        font-weight: normal;
-        color: var(--color-text-muted);
-        margin-left: var(--spacing-xs);
-    }
-
-    /* Input Groups */
-    .input-group, .input-wrapper {
-        display: flex;
-        align-items: center;
-        position: relative;
-        width: auto;
-    }
-
-    .input-group {
-        gap: var(--spacing-sm);
-    }
-
-    .input-icon {
-        position: absolute;
-        left: 0.75rem;
-        z-index: 1;
-        font-size: 1rem;
-        pointer-events: none;
-        opacity: 0.7;
-    }
-
-    /* Inputs & Selects */
-    .input {
-        width: auto;
-        min-width: 12rem;
-        padding: 0.5rem 0.75rem;
-        font-size: var(--font-sm);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-md);
-        background-color: var(--color-background);
-        color: var(--color-text);
-        transition: all var(--transition-fast);
-    }
-
-    .input::placeholder {
-        color: var(--color-placeholder);
-        opacity: 1;
-    }
-
-    .input.placeholder {
-        color: var(--color-placeholder);
-    }
-
-    .input option {
-        color: var(--color-text);
-    }
-
-    .input-wrapper .input,
-    .input-group .select-input,
-    .input-group input[type="text"] {
-        padding-left: 2.25rem; /* Space for icon */
-    }
-
-    .input:hover {
-        border-color: var(--color-border-focus);
-    }
-
-    .input:focus {
-        outline: none;
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px var(--color-shadow-primary);
-    }
-
-    .select-input {
-        appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 0.75rem center;
-        background-size: 1em;
-        padding-right: 2.5rem;
-        min-width: 14rem;
-    }
-
-    .id-input {
-        width: 5rem;
-        min-width: 0;
-        flex-shrink: 0;
-        text-align: center;
-        padding-left: 0.75rem !important;
-    }
-
-    /* Range Inputs */
-    .range-group {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-    }
-
-    .range-separator {
-        font-size: var(--font-xs);
-        color: var(--color-text-muted);
-        font-weight: 500;
-        text-transform: uppercase;
-    }
-
-    .range-input {
-        text-align: center;
-        width: 8rem;
-        min-width: 0;
-    }
-
-    .input-wrapper .range-input {
-        padding-left: 2.25rem;
-    }
-
-    /* Birth Year Container with expand button */
-    .birth-year-container {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-xs);
-    }
-
-    .btn-expand-date-range {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.75rem;
-        height: 1.75rem;
-        padding: 0;
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-md);
-        background: var(--color-background);
-        color: var(--color-text-muted);
-        font-size: 1.25rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all var(--transition-fast);
-        flex-shrink: 0;
-    }
-
-    .btn-expand-date-range:hover {
-        border-color: var(--color-primary);
-        color: var(--color-primary);
-        background: var(--color-background-hover);
-    }
-
-    .btn-expand-date-range.active {
-        background: var(--color-primary);
-        border-color: var(--color-primary);
-        color: white;
-    }
-
-    .btn-expand-date-range.has-filter:not(.active) {
-        border-color: var(--color-primary);
-        color: var(--color-primary);
-    }
-
-    /* Birth Date Range Panel */
-    .birth-date-range-panel {
-        margin-top: var(--spacing-sm);
-        padding: var(--spacing-sm);
-        background: var(--color-background-light);
-        border: 1px solid var(--color-border-light);
-        border-radius: var(--radius-md);
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-sm);
-    }
-
-    .date-range-row {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-sm);
-    }
-
-    .date-range-label {
-        font-size: var(--font-sm);
-        font-weight: 500;
-        color: var(--color-text-muted);
-        min-width: 3rem;
-    }
-
-    .date-select {
-        min-width: 4rem !important;
-        padding: 0.375rem 1.75rem 0.375rem 0.5rem !important;
-        font-size: var(--font-sm);
-    }
-
-    /* Disabled State */
     .disabled-message {
         text-align: center;
         padding: var(--spacing-xl) var(--spacing-lg);
@@ -852,48 +308,9 @@
         line-height: 1.5;
     }
 
-    /* Dark theme improvements */
-    [data-theme="dark"] .filters-container {
-        border-color: var(--color-border);
-        box-shadow: 0 1px 3px var(--color-shadow);
-    }
-
-    [data-theme="dark"] .select-input {
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    }
-
-    [data-theme="dark"] .btn-clear:hover {
-        background: #4a1a1a;
-        border-color: #ff6b6b;
-        color: #ff8a8a;
-    }
-
-    [data-theme="dark"] .disabled-message {
-        background: var(--color-background);
-        border-color: var(--color-border);
-    }
-
     @media (max-width: 768px) {
-        .filter-row, .filter-row.three-cols {
-            grid-template-columns: 1fr;
-            gap: var(--spacing-md);
-        }
-        
-        .filters-header {
-            padding: var(--spacing-md);
-        }
-        
         .filters-content {
             padding: var(--spacing-md);
-        }
-
-        .input-group {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .id-input {
-            width: 100%;
         }
     }
 </style>

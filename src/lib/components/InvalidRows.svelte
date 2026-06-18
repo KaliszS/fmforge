@@ -15,6 +15,8 @@
         showInvalidDetails = !showInvalidDetails;
     }
 
+    const REQUIRED_PLAYER_FIELDS = 19;
+
     async function exportInvalidRows() {
         try {
             const path = await save({
@@ -42,7 +44,7 @@
     <section class="invalid-rows">
         <article class="invalid-header" onclick={toggleInvalidDetails}>
             <span class="invalid-title">
-                ⚠️ {invalidRows.length} rows have invalid data (need 19 fields)
+                ⚠️ {invalidRows.length} rows have invalid data (need {REQUIRED_PLAYER_FIELDS} fields)
             </span>
             <div class="header-actions">
                 <button class="btn-export" onclick={(e) => { e.stopPropagation(); exportInvalidRows(); }}>
@@ -56,7 +58,7 @@
         {#if showInvalidDetails}
             <div class="invalid-details">
                 <p class="invalid-description">
-                    The following rows in the source file have fewer than 19 fields and were skipped:
+                    The following rows in the source file have fewer than {REQUIRED_PLAYER_FIELDS} fields and were skipped:
                 </p>
                 <div class="invalid-list">
                     {#each invalidRows as row}
@@ -76,8 +78,8 @@
 
 <style>
     .invalid-rows {
-        background-color: #fff3cd;
-        border: 1px solid #ffeaa7;
+        background-color: var(--color-warning-bg);
+        border: 1px solid var(--color-warning-border);
         border-radius: var(--radius-md);
         margin-bottom: var(--spacing-md);
         overflow: hidden;
@@ -93,12 +95,12 @@
     }
 
     .invalid-header:hover {
-        background-color: #ffeaa7;
+        background-color: var(--color-warning-bg-hover);
     }
 
     .invalid-title {
         font-weight: 600;
-        color: #856404;
+        color: var(--color-warning-text);
         font-size: var(--font-sm);
     }
 
@@ -109,9 +111,9 @@
     }
 
     .btn-export {
-        background-color: #fff;
-        border: 1px solid #856404;
-        color: #856404;
+        background-color: var(--color-background);
+        border: 1px solid var(--color-warning-text);
+        color: var(--color-warning-text);
         padding: 2px 8px;
         border-radius: var(--radius-sm);
         font-size: var(--font-xs);
@@ -121,27 +123,27 @@
     }
 
     .btn-export:hover {
-        background-color: #fff3cd;
+        background-color: var(--color-warning-bg);
         transform: translateY(-1px);
     }
 
     .invalid-toggle {
         font-size: var(--font-sm);
-        color: #856404;
+        color: var(--color-warning-text);
         font-weight: bold;
         transition: transform var(--transition-fast);
     }
 
     .invalid-details {
         padding: 0 var(--spacing-md) var(--spacing-md);
-        border-top: 1px solid #ffeaa7;
-        background-color: #fffbf0;
+        border-top: 1px solid var(--color-warning-border);
+        background-color: var(--color-warning-bg-details);
     }
 
     .invalid-description {
         margin: var(--spacing-sm) 0;
         font-size: var(--font-sm);
-        color: #856404;
+        color: var(--color-warning-text);
     }
 
     .invalid-list {
@@ -184,37 +186,4 @@
         border-radius: 2px;
     }
 
-    /* Dark theme styling */
-    :global([data-theme="dark"]) .invalid-rows {
-        background-color: #3a2a1a;
-        border: 1px solid #5f3a1e;
-    }
-
-    :global([data-theme="dark"]) .invalid-header:hover {
-        background-color: #5f3a1e;
-    }
-
-    :global([data-theme="dark"]) .invalid-title,
-    :global([data-theme="dark"]) .invalid-toggle {
-        color: #ffb366;
-    }
-
-    :global([data-theme="dark"]) .invalid-details {
-        border-top: 1px solid #5f3a1e;
-        background-color: #2a1a0f;
-    }
-
-    :global([data-theme="dark"]) .invalid-description {
-        color: #ffb366;
-    }
-
-    :global([data-theme="dark"]) .btn-export {
-        background-color: #2a1a0f;
-        border-color: #ffb366;
-        color: #ffb366;
-    }
-
-    :global([data-theme="dark"]) .btn-export:hover {
-        background-color: #3a2a1a;
-    }
 </style>

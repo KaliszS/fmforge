@@ -4,6 +4,7 @@
     import AddPlayerRow from "./AddPlayerRow.svelte";
     import GlobalSelectionTrigger from "./player/GlobalSelectionTrigger.svelte";
     import { modifiedPlayers, originalPlayers, showOnlyEdited } from "$lib/stores/editedPlayers";
+    import Icon from "./common/Icon.svelte";
 
     let { 
         players = $bindable(),
@@ -90,20 +91,20 @@
         <span class="sort-icon">
             {#if sortString === `${field}_asc`}
                 <div class="sort-indicator">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+                    <Icon name="arrow-up" size={12} />
                     {#if (sortBy?.length ?? 0) > 1}
                         <span class="sort-index">{sortIndex! + 1}</span>
                     {/if}
                 </div>
             {:else if sortString === `${field}_desc`}
                 <div class="sort-indicator">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>
+                    <Icon name="arrow-down" size={12} />
                     {#if (sortBy?.length ?? 0) > 1}
                         <span class="sort-index">{sortIndex! + 1}</span>
                     {/if}
                 </div>
             {:else}
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg>
+                <Icon name="arrows-up-down" size={12} class="unsorted" />
             {/if}
         </span>
     {/if}
@@ -159,8 +160,8 @@
         </div>
         <div class="header-cell col-actions">
             {#if sortBy && sortBy.length > 0}
-                <button class="btn-clear" onclick={clearSort} title="Clear sorting">
-                    ✕
+                <button class="btn-clear" onclick={clearSort} title="Clear sorting" aria-label="Clear sorting">
+                    <Icon name="x" size="0.75em" />
                 </button>
             {/if}
         </div>
@@ -299,6 +300,10 @@
         display: flex;
         align-items: center;
         gap: 2px;
+    }
+
+    :global(.unsorted) {
+        opacity: 0.5;
     }
 
     .sort-index {

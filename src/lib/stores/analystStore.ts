@@ -1,9 +1,8 @@
 import { writable, get } from 'svelte/store';
 
 interface AnalystCache {
-    params: string; // JSON stringified params for easy comparison
+    params: string;
     data: any;
-    timestamp: number;
 }
 
 function createAnalystStore() {
@@ -13,33 +12,14 @@ function createAnalystStore() {
     return {
         subscribe,
         setCache: (params: any, data: any) => {
-            console.log('[AnalystStore] Setting cache for params:', JSON.stringify(params));
-            set({
-                params: JSON.stringify(params),
-                data,
-                timestamp: Date.now()
-            });
+            set({ params: JSON.stringify(params), data });
         },
         getCache: (currentParams: any) => {
             const cache = get(store);
-            const currentParamsStr = JSON.stringify(currentParams);
-            
-            if (!cache) {
-                console.log('[AnalystStore] Cache miss (empty store)');
-                return null;
-            }
-            
-            if (cache.params === currentParamsStr) {
-                console.log('[AnalystStore] Cache HIT');
-                return cache.data;
-            }
-            
-            console.log('[AnalystStore] Cache miss (params mismatch)');
-            console.log('Cached:', cache.params);
-            console.log('Current:', currentParamsStr);
-            return null;
+            if (!cache) return null;
+            return cache.params === JSON.stringify(currentParams) ? cache.data : null;
         },
-        clear: () => set(null)
+        clear: () => set(null),
     };
 }
 

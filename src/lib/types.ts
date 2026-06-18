@@ -38,3 +38,17 @@ export type ClubData = {
 };
 
 export type ClubMap = Record<number, ClubData>;
+
+export type FilterProps = {
+  selectedCountry: number | null;
+  selectedClub: number | null;
+  minCA: number | null;
+  maxCA: number | null;
+  minPA: number | null;
+  maxPA: number | null;
+  preferredFoot: number | null;
+  favouriteNumber: number | null;
+  birthYear: number | null;
+  nameQuery: string | null;
+  sortBy: string[] | null;
+};

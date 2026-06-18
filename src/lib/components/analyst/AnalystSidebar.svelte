@@ -1,7 +1,8 @@
 <script lang="ts">
-    import type { PlayerRecord } from "$lib/types";
+    import type { PlayerRecord, FilterProps } from "$lib/types";
     import { countryMap, clubMap } from "$lib/constants";
     import type { BirthDateRange } from "$lib/api/player";
+    import { ANALYST_TABS } from './tabs';
 
     let { 
         players = $bindable(),
@@ -24,33 +25,12 @@
         players: PlayerRecord[];
         statistics: any;
         loading: boolean;
-        selectedCountry: number | null;
-        selectedClub: number | null;
-        minCA: number | null;
-        maxCA: number | null;
-        minPA: number | null;
-        maxPA: number | null;
-        preferredFoot: number | null;
-        favouriteNumber: number | null;
-        birthYear: number | null;
         birthDateRange?: BirthDateRange | null;
-        nameQuery: string | null;
-        sortBy: string[] | null;
         activeTab: string;
-    } = $props();
+    } & FilterProps = $props();
 
     let filteredCount = $derived(statistics?.count ?? 0);
 
-    const analysisTabs = [
-        { id: 'overview', name: 'Overview', icon: '📊' },
-        { id: 'abilities', name: 'Abilities', icon: '⚽' },
-        { id: 'geography', name: 'Geography', icon: '🌍' },
-        { id: 'physical', name: 'Physical', icon: '👤' },
-        { id: 'positional', name: 'Positional', icon: '🏃' },
-        { id: 'appearance', name: 'Appearance', icon: '🎨' },
-        { id: 'temporal', name: 'Temporal', icon: '📅' },
-        { id: 'clubs', name: 'Clubs', icon: '🏆' }
-    ];
 
     function getCountryName(countryId: number): string {
         return countryMap[countryId]?.name || `Country ${countryId}`;
@@ -122,7 +102,7 @@
     
     <nav class="analysis-nav">
         <ul class="nav-list">
-            {#each analysisTabs as tab}
+            {#each ANALYST_TABS as tab}
                 <li class="nav-item">
                     <button 
                         class="nav-button" 
@@ -244,16 +224,6 @@
         background: var(--color-background-light);
         padding: 0.1rem 0.4rem;
         border-radius: var(--radius-sm);
-    }
-
-    .loading-dots {
-        animation: dots 1.5s infinite;
-    }
-
-    @keyframes dots {
-        0%, 20% { opacity: 0; }
-        50% { opacity: 1; }
-        100% { opacity: 0; }
     }
 
 
