@@ -29,7 +29,7 @@
     } & FilterProps = $props();
 
     // Helper to find top item in counts map
-    function getTopItem(counts: Record<string | number, number>, map?: Record<number, any>): { name: string, count: number } | null {
+    function getTopItem(counts: Record<string | number, number>, map: Record<number, any> | undefined = undefined): { name: string, count: number } | null {
         if (!counts || Object.keys(counts).length === 0) return null;
         
         let maxKey: string | number | null = null;

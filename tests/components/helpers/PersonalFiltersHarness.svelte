@@ -15,6 +15,7 @@
     // $bindable outputs so binding write-backs are observable. The current
     // values are surfaced through the `read` callback the test supplies, which
     // is invoked with a fresh snapshot whenever any bound value changes.
+    import { untrack } from "svelte";
     import PersonalFilters from "$lib/components/filters/PersonalFilters.svelte";
 
     let {
@@ -25,11 +26,13 @@
         read: (s: HarnessState) => void;
     } = $props();
 
-    let preferredFoot = $state<number | null>(initial.preferredFoot ?? null);
-    let favouriteNumber = $state<number | null>(initial.favouriteNumber ?? null);
-    let birthYear = $state<number | null>(initial.birthYear ?? null);
-    let effectiveBirthYear = $state<number | null>(initial.effectiveBirthYear ?? null);
-    let birthDateRange = $state<BirthDateRange | null>(initial.birthDateRange ?? null);
+    // Seed once from the (reactive) prop; untrack makes the one-time read explicit.
+    const seed = untrack(() => initial);
+    let preferredFoot = $state<number | null>(seed.preferredFoot ?? null);
+    let favouriteNumber = $state<number | null>(seed.favouriteNumber ?? null);
+    let birthYear = $state<number | null>(seed.birthYear ?? null);
+    let effectiveBirthYear = $state<number | null>(seed.effectiveBirthYear ?? null);
+    let birthDateRange = $state<BirthDateRange | null>(seed.birthDateRange ?? null);
 
     $effect(() => {
         read({ preferredFoot, favouriteNumber, birthYear, effectiveBirthYear, birthDateRange });

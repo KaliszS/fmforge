@@ -3,7 +3,7 @@ name = "fmforge"
 version = "1.4.0"
 description = "Football Manager Regen Editor"
 authors = ["Sebastian Kalisz"]
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -18,10 +18,10 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
-tauri-plugin-opener = "2"
-once_cell = "1.21"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-tauri-plugin-dialog = "2"
-tauri-plugin-fs = "2"
+tauri = { version = "2.11.3", features = [] }
+tauri-plugin-opener = "2.5.4"
+once_cell = "1.21.4"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+tauri-plugin-dialog = "2.7.1"
+tauri-plugin-fs = "2.5.1"

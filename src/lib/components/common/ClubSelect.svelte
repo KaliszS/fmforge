@@ -29,7 +29,7 @@
     let searchTerm = $state("");
     let isOpen = $state(false);
     let filteredClubs = $state<{id: number, name: string, gameName: string}[]>([]);
-    let inputElement: HTMLInputElement;
+    let inputElement = $state<HTMLInputElement>();
     let containerElement: HTMLDivElement;
 
     // Sync searchTerm with value
@@ -119,6 +119,7 @@
         {/if}
         <input
             {id}
+            bind:this={inputElement}
             type="text"
             bind:value={searchTerm}
             oninput={handleInput}
