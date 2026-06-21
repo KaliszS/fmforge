@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { clubMap } from "$lib/constants";
     import ClubSelect from "$lib/components/common/ClubSelect.svelte";
 
     let {

@@ -7,20 +7,24 @@
         edit_mode,
     }: { skin_tone: number; edit_mode: boolean } = $props();
 
+    // Clamp a raw input string to a valid tone [1, 20]; non-numeric/cleared
+    // entries fall back to `current` so the field is never left blank.
+    function clampTone(raw: string, current: number): number {
+        const val = parseInt(raw);
+        if (isNaN(val)) return current;
+        return Math.min(20, Math.max(1, val));
+    }
+
+    // Rewrite the field's text only when the raw entry differs from the resolved
+    // value (out-of-range or non-numeric), so the input mirrors the stored tone.
+    function syncField(target: HTMLInputElement, val: number) {
+        if (parseInt(target.value) !== val) target.value = val.toString();
+    }
+
     function handleInput(e: Event) {
         const target = e.target as HTMLInputElement;
-        let val = parseInt(target.value);
-        if (isNaN(val)) return;
-        
-        if (val < 1) val = 1;
-        if (val > 20) val = 20;
-        
-        if (skin_tone !== val) {
-            skin_tone = val;
-        }
-        if (parseInt(target.value) !== val) {
-            target.value = val.toString();
-        }
+        skin_tone = clampTone(target.value, skin_tone);
+        syncField(target, skin_tone);
     }
 
     let quickEdit = $state(false);
@@ -38,12 +42,8 @@
 
     function handleTempInput(e: Event) {
         const target = e.target as HTMLInputElement;
-        let val = parseInt(target.value);
-        if (isNaN(val)) return;
-        if (val < 1) val = 1;
-        if (val > 20) val = 20;
-        if (temp_skin !== val) temp_skin = val;
-        if (parseInt(target.value) !== val) target.value = val.toString();
+        temp_skin = clampTone(target.value, temp_skin);
+        syncField(target, temp_skin);
     }
 </script>
 
@@ -54,7 +54,7 @@
             type="number"
             min="1"
             max="20"
-            bind:value={skin_tone}
+            value={skin_tone}
             oninput={handleInput}
             class="input input-number"
         />
@@ -64,7 +64,7 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
         class="skin-circle"
-        title={`Skin tone: ${skin_tone}` + "/ 20"}
+        title={`Skin tone: ${skin_tone} / 20`}
         style="background-color: {getSkinColor(skin_tone)}"
         ondblclick={openQuickEdit}
     >

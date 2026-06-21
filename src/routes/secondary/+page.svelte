@@ -106,7 +106,6 @@
 
         // Listen for sync events
         unlisten = await listen('sync-state', (event: any) => {
-            console.log('Received sync state:', event.payload);
             currentState = event.payload;
             
             if (currentState.theme) {
