@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { PlayerRecord, FilterProps } from "$lib/types";
-    import { countryMap, clubMap } from "$lib/constants";
+    import { countryMap } from "$lib/constants";
+    import { clubNames, ensureClubNames } from "$lib/clubs";
     import type { BirthDateRange } from "$lib/api/player";
     import { ANALYST_TABS } from './tabs';
 
@@ -36,8 +37,12 @@
         return countryMap[countryId]?.name || `Country ${countryId}`;
     }
 
+    $effect(() => {
+        ensureClubNames([selectedClub]);
+    });
+
     function getClubName(clubId: number): string {
-        return clubMap[clubId]?.name || `Club ${clubId}`;
+        return $clubNames.get(clubId) || `Club ${clubId}`;
     }
 </script>
 

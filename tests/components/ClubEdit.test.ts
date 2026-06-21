@@ -1,7 +1,45 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, fireEvent, screen } from '@testing-library/svelte';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, fireEvent, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
+
+// Club fixture standing in for the Rust-backed dataset. The ids/names mirror the
+// real src/data/clubs.json entries the original specs asserted on.
+const CLUBS: Record<number, { name: string; gameName: string }> = {
+  57: { name: 'KF Albpetrol', gameName: 'KF Albpetrol' },
+  61: { name: 'Tirana', gameName: 'Tirana' },
+  58: { name: 'Apolonia', gameName: 'Apolonia' },
+};
+
+// Mock the Tauri core so the async club commands resolve against the fixture.
+const invoke = vi.fn(async (cmd: string, args: any) => {
+  if (cmd === 'get_club_names') {
+    const out: Record<number, string> = {};
+    for (const id of args.ids) if (CLUBS[id]) out[id] = CLUBS[id].name;
+    return out;
+  }
+  if (cmd === 'search_clubs') {
+    const q = String(args.query ?? '').toLowerCase();
+    return Object.entries(CLUBS)
+      .filter(
+        ([id, c]) =>
+          !q ||
+          c.name.toLowerCase().includes(q) ||
+          c.gameName.toLowerCase().includes(q) ||
+          id.includes(q),
+      )
+      .map(([id, c]) => ({ id: +id, name: c.name, gameName: c.gameName }))
+      .slice(0, args.limit ?? 50);
+  }
+  return undefined;
+});
+vi.mock('@tauri-apps/api/core', () => ({
+  invoke: (cmd: string, args?: any) => invoke(cmd, args),
+}));
+
+// Imported after the mock so the module-singleton `clubNames` store binds to the
+// mocked `invoke`.
 import ClubEdit from '$lib/components/player/utils/ClubEdit.svelte';
+import { clubNames } from '$lib/clubs';
 
 // Real club ids from src/data/clubs.json:
 //   57 -> "KF Albpetrol"
@@ -14,6 +52,9 @@ const CLUB_TIRANA_NAME = 'Tirana';
 const MISSING_ID = 999999;
 
 beforeEach(() => {
+  // Reset the shared name cache so resolved names don't leak between tests.
+  clubNames.set(new Map());
+  invoke.mockClear();
   document.body.innerHTML = '';
 });
 
@@ -42,30 +83,32 @@ describe('ClubEdit — structure', () => {
   });
 });
 
-describe('ClubEdit — club name lookup from clubMap (display via ClubSelect)', () => {
+describe('ClubEdit — club name lookup (async, backend-driven via ClubSelect)', () => {
   it('seeds the club search box with the club name for a known id', async () => {
     render(ClubEdit, { props: { club_id: CLUB_ALBPETROL, favourite_team_id: null } });
-    await tick();
-    expect(clubSearch().value).toBe(CLUB_ALBPETROL_NAME);
+    // ClubSelect's $effect calls ensureClubNames([id]) -> invoke('get_club_names');
+    // the name resolves asynchronously and the effect re-runs to fill the input.
+    await waitFor(() => expect(clubSearch().value).toBe(CLUB_ALBPETROL_NAME));
   });
 
   it('seeds the favourite-team search box with the club name for a known id', async () => {
     render(ClubEdit, { props: { club_id: -1, favourite_team_id: CLUB_TIRANA } });
-    await tick();
-    expect(favSearch().value).toBe(CLUB_TIRANA_NAME);
+    await waitFor(() => expect(favSearch().value).toBe(CLUB_TIRANA_NAME));
   });
 
   it('leaves the search box empty when the club id is the empty value (-1)', async () => {
     render(ClubEdit, { props: { club_id: -1, favourite_team_id: null } });
     await tick();
     expect(clubSearch().value).toBe('');
+    // No lookup is issued for the empty value.
+    expect(invoke).not.toHaveBeenCalledWith('get_club_names', expect.anything());
   });
 
-  it('leaves the search box empty when the club id is missing from clubMap', async () => {
+  it('falls back to the raw id when the club id is missing from the dataset', async () => {
     render(ClubEdit, { props: { club_id: MISSING_ID, favourite_team_id: null } });
-    await tick();
-    // No clubMap entry -> the $effect never assigns a name, search stays blank.
-    expect(clubSearch().value).toBe('');
+    // The backend has no name for this id, so clubNameFrom falls back to the id
+    // string; the search box shows it rather than staying blank.
+    await waitFor(() => expect(clubSearch().value).toBe(String(MISSING_ID)));
   });
 });
 
@@ -97,9 +140,9 @@ describe('ClubEdit — numeric id input (current club)', () => {
   it('drives the club search box name when a known id is typed', async () => {
     render(ClubEdit, { props: { club_id: -1, favourite_team_id: null } });
     await fireEvent.input(clubIdInput(), { target: { value: String(CLUB_ALBPETROL) } });
-    await tick();
-    // club_id is bound; the ClubSelect $effect picks up the new id and shows its name.
-    expect(clubSearch().value).toBe(CLUB_ALBPETROL_NAME);
+    // club_id is bound; the ClubSelect $effect picks up the new id, fetches its
+    // name asynchronously, and shows it.
+    await waitFor(() => expect(clubSearch().value).toBe(CLUB_ALBPETROL_NAME));
   });
 });
 
@@ -131,8 +174,7 @@ describe('ClubEdit — numeric id input (favourite team)', () => {
   it('drives the favourite search box name when a known id is typed', async () => {
     render(ClubEdit, { props: { club_id: -1, favourite_team_id: null } });
     await fireEvent.input(favIdInput(), { target: { value: String(CLUB_TIRANA) } });
-    await tick();
-    expect(favSearch().value).toBe(CLUB_TIRANA_NAME);
+    await waitFor(() => expect(favSearch().value).toBe(CLUB_TIRANA_NAME));
   });
 });
 
@@ -143,10 +185,9 @@ describe('ClubEdit — ClubSelect dropdown selection', () => {
     // Focus opens the dropdown; type to narrow to a known club.
     await fireEvent.focus(clubSearch());
     await fireEvent.input(clubSearch(), { target: { value: CLUB_TIRANA_NAME } });
-    await tick();
 
-    // Click the matching dropdown option (label shows "#<id>").
-    const option = screen.getByText(`#${CLUB_TIRANA}`);
+    // The search is 150ms-debounced and async; wait for the matching option.
+    const option = await screen.findByText(`#${CLUB_TIRANA}`);
     await fireEvent.click(option.closest('button')!);
     await tick();
 
@@ -157,8 +198,7 @@ describe('ClubEdit — ClubSelect dropdown selection', () => {
 
   it('clearing the search box resets the club id to its empty value (-1)', async () => {
     render(ClubEdit, { props: { club_id: CLUB_ALBPETROL, favourite_team_id: null } });
-    await tick();
-    expect(clubIdInput().value).toBe(String(CLUB_ALBPETROL));
+    await waitFor(() => expect(clubIdInput().value).toBe(String(CLUB_ALBPETROL)));
 
     await fireEvent.focus(clubSearch());
     await fireEvent.input(clubSearch(), { target: { value: '' } });
@@ -176,11 +216,11 @@ describe('ClubEdit — prop re-sync', () => {
     expect(clubIdInput().value).toBe('');
 
     await rerender({ club_id: CLUB_ALBPETROL, favourite_team_id: CLUB_TIRANA });
-    await tick();
 
     expect(clubIdInput().value).toBe(String(CLUB_ALBPETROL));
-    expect(clubSearch().value).toBe(CLUB_ALBPETROL_NAME);
     expect(favIdInput().value).toBe(String(CLUB_TIRANA));
-    expect(favSearch().value).toBe(CLUB_TIRANA_NAME);
+    // Names resolve asynchronously through the backend lookup.
+    await waitFor(() => expect(clubSearch().value).toBe(CLUB_ALBPETROL_NAME));
+    await waitFor(() => expect(favSearch().value).toBe(CLUB_TIRANA_NAME));
   });
 });

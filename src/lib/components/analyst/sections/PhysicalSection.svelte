@@ -1,7 +1,8 @@
 <script lang="ts">
     import type { PlayerRecord, FilterProps } from "$lib/types";
     import { getTopPlayers, type BirthDateRange } from "$lib/api/player";
-    import { countryMap, clubMap } from "$lib/constants";
+    import { countryMap } from "$lib/constants";
+    import { clubNames, ensureClubNames } from "$lib/clubs";
     import { getFlagComponent } from "$lib/flags";
     import DetailedStatCard from "../charts/DetailedStatCard.svelte";
 
@@ -86,9 +87,21 @@
         return `${player.player.first_name} ${player.player.last_name}`;
     }
 
+    // Resolve club names for every player shown in the top lists.
+    $effect(() => {
+        if (!topPlayers) return;
+        const ids = [
+            ...(topPlayers.top_height ?? []),
+            ...(topPlayers.top_shortest ?? []),
+            ...(topPlayers.top_weight ?? []),
+            ...(topPlayers.top_lightest ?? []),
+        ].map((p: PlayerRecord) => p.player.club_id);
+        ensureClubNames(ids);
+    });
+
     function getClubName(clubId: number | null): string {
         if (clubId === null) return 'No Club';
-        return clubMap[clubId]?.name || `Club ${clubId}`;
+        return $clubNames.get(clubId) || `Club ${clubId}`;
     }
 
     function getCountryCode(countryId: number): string {

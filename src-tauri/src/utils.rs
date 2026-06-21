@@ -16,27 +16,60 @@ static COUNTRY_MAP: Lazy<HashMap<i32, String>> = Lazy::new(|| {
         .collect()
 });
 
-#[derive(Deserialize)]
-struct ClubData {
-    name: String,
+#[derive(Deserialize, Clone)]
+pub struct ClubData {
+    pub name: String,
+    #[serde(rename = "gameName", default)]
+    pub game_name: String,
 }
 
-static CLUB_MAP: Lazy<HashMap<i32, String>> = Lazy::new(|| {
+static CLUB_MAP: Lazy<HashMap<i32, ClubData>> = Lazy::new(|| {
     let json_str = include_str!("../../src/data/clubs.json");
-    // Try parsing as the new format first
+    // New format: { id: { name, gameName } }
     match serde_json::from_str::<HashMap<String, ClubData>>(json_str) {
         Ok(map) => map.into_iter()
-            .filter_map(|(k, v)| k.parse::<i32>().ok().map(|id| (id, v.name)))
+            .filter_map(|(k, v)| k.parse::<i32>().ok().map(|id| (id, v)))
             .collect(),
         Err(_) => {
-            // Fallback to old format if parsing fails (just in case)
+            // Fallback to old format (id -> name string) just in case.
             let map: HashMap<String, String> = serde_json::from_str(json_str).expect("Failed to parse clubs.json");
             map.into_iter()
-                .filter_map(|(k, v)| k.parse::<i32>().ok().map(|id| (id, v)))
+                .filter_map(|(k, v)| k.parse::<i32>().ok().map(|id| (id, ClubData { name: v.clone(), game_name: v })))
                 .collect()
         }
     }
 });
+
+pub fn club_names_for<I: IntoIterator<Item = i32>>(ids: I) -> HashMap<i32, String> {
+    ids.into_iter()
+        .filter_map(|id| CLUB_MAP.get(&id).map(|c| (id, c.name.clone())))
+        .collect()
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClubLite {
+    pub id: i32,
+    pub name: String,
+    pub game_name: String,
+}
+
+pub fn search_club_map(query: &str, limit: usize) -> Vec<ClubLite> {
+    let q = query.trim().to_lowercase();
+    let mut out: Vec<ClubLite> = CLUB_MAP
+        .iter()
+        .filter(|(id, c)| {
+            q.is_empty()
+                || c.name.to_lowercase().contains(&q)
+                || c.game_name.to_lowercase().contains(&q)
+                || id.to_string().contains(&q)
+        })
+        .map(|(id, c)| ClubLite { id: *id, name: c.name.clone(), game_name: c.game_name.clone() })
+        .collect();
+    out.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()).then(a.id.cmp(&b.id)));
+    out.truncate(limit.clamp(1, 500));
+    out
+}
 
 pub fn get_birth_year(birth_date: &str) -> Option<i32> {
     // Parse birth date in DD/MM/YYYY format
@@ -119,8 +152,6 @@ fn get_position_rank(position: &str) -> i32 {
 use std::cmp::Ordering;
 
 pub fn sort_players(mut players: Vec<PlayerRecord>, sort_criteria: &[String]) -> Vec<PlayerRecord> {
-    println!("Sorting players by: {:?}", sort_criteria);
-    
     players.sort_by(|a, b| {
         for criterion in sort_criteria {
             let ordering = match criterion.as_str() {
@@ -185,15 +216,13 @@ pub fn sort_players(mut players: Vec<PlayerRecord>, sort_criteria: &[String]) ->
                     name_b.cmp(&name_a)
                 },
                 "club_asc" => {
-                    let empty = String::new();
-                    let club_a = a.player.club_id.and_then(|id| CLUB_MAP.get(&id)).unwrap_or(&empty);
-                    let club_b = b.player.club_id.and_then(|id| CLUB_MAP.get(&id)).unwrap_or(&empty);
+                    let club_a = a.player.club_id.and_then(|id| CLUB_MAP.get(&id)).map(|c| c.name.as_str()).unwrap_or("");
+                    let club_b = b.player.club_id.and_then(|id| CLUB_MAP.get(&id)).map(|c| c.name.as_str()).unwrap_or("");
                     club_a.cmp(club_b)
                 },
                 "club_desc" => {
-                    let empty = String::new();
-                    let club_a = a.player.club_id.and_then(|id| CLUB_MAP.get(&id)).unwrap_or(&empty);
-                    let club_b = b.player.club_id.and_then(|id| CLUB_MAP.get(&id)).unwrap_or(&empty);
+                    let club_a = a.player.club_id.and_then(|id| CLUB_MAP.get(&id)).map(|c| c.name.as_str()).unwrap_or("");
+                    let club_b = b.player.club_id.and_then(|id| CLUB_MAP.get(&id)).map(|c| c.name.as_str()).unwrap_or("");
                     club_b.cmp(club_a)
                 },
                 "nationality_asc" => {
@@ -262,7 +291,6 @@ pub fn sort_players(mut players: Vec<PlayerRecord>, sort_criteria: &[String]) ->
         Ordering::Equal
     });
     
-    println!("Sorted {} players", players.len());
     players
 }
 

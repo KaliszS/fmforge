@@ -1,7 +1,8 @@
 <script lang="ts">
     import type { PlayerRecord, FilterProps } from "$lib/types";
     import SimpleStatCard from "../charts/SimpleStatCard.svelte";
-    import { countryMap, clubMap } from "$lib/constants";
+    import { countryMap } from "$lib/constants";
+    import { clubNames, clubNameFrom, ensureClubNames } from "$lib/clubs";
     import { modSettings, type ModSettings } from "$lib/stores/modSettings";
     import { getBirthYearOffset } from "$lib/utils/birthYear";
 
@@ -28,31 +29,22 @@
         players: PlayerRecord[];
     } & FilterProps = $props();
 
-    // Helper to find top item in counts map
-    function getTopItem(counts: Record<string | number, number>, map: Record<number, any> | undefined = undefined): { name: string, count: number } | null {
+    // Find the highest-count entry; returns its numeric key + count.
+    function getTopItem(counts: Record<string | number, number> | undefined): { key: number, count: number } | null {
         if (!counts || Object.keys(counts).length === 0) return null;
-        
-        let maxKey: string | number | null = null;
+
+        let maxKey: number | null = null;
         let maxCount = -1;
-        
+
         for (const [key, count] of Object.entries(counts)) {
             if (count > maxCount) {
                 maxCount = count as number;
-                maxKey = key;
+                maxKey = parseInt(key);
             }
         }
-        
+
         if (maxKey === null) return null;
-        
-        let name = String(maxKey);
-        if (map) {
-            const id = parseInt(String(maxKey));
-            if (!isNaN(id) && map[id]) {
-                name = map[id].name;
-            }
-        }
-        
-        return { name, count: maxCount };
+        return { key: maxKey, count: maxCount };
     }
 
     // Helper for foot stats
@@ -95,8 +87,19 @@
         };
     }
 
-    let topNationality = $derived(getTopItem(statistics?.nationality_counts, countryMap));
-    let topClub = $derived(getTopItem(statistics?.club_counts, clubMap));
+    let topNationality = $derived.by(() => {
+        const t = getTopItem(statistics?.nationality_counts);
+        return t ? { name: countryMap[t.key]?.name ?? String(t.key), count: t.count } : null;
+    });
+    let topClub = $derived.by(() => {
+        const t = getTopItem(statistics?.club_counts);
+        return t ? { name: clubNameFrom($clubNames, t.key) ?? String(t.key), count: t.count } : null;
+    });
+    // Resolve the top club's name from the backend if not already cached.
+    $effect(() => {
+        const t = getTopItem(statistics?.club_counts);
+        if (t) ensureClubNames([t.key]);
+    });
     let dominantFoot = $derived(getDominantFoot(statistics?.preferred_foot_counts));
     let ageStats = $derived(getAgeStats(statistics?.birth_year_counts, $modSettings));
 </script>

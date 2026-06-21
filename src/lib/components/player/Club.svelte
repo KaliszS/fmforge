@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { clubMap } from "$lib/constants";
+    import { clubNames, clubNameFrom, ensureClubNames } from "$lib/clubs";
     import ClubEdit from "./utils/ClubEdit.svelte";
     import QuickEditModal from "$lib/components/common/QuickEditModal.svelte";
 
@@ -13,10 +13,11 @@
         edit_mode: boolean;
     } = $props();
 
-    function getClubName(id: number | null): string | null {
-        if (id === null) return null;
-        return clubMap[id]?.name ?? `${id}`;
-    }
+    // Names usually arrive with the player page, but resolve any we don't have
+    // yet (e.g. after editing the club through the picker).
+    $effect(() => {
+        ensureClubNames([club_id, favourite_team_id]);
+    });
 
     let quickEdit = $state(false);
     let temp_club_id = $state(0);
@@ -43,13 +44,13 @@
     <div class="club-info" ondblclick={openQuickEdit}>
         <div class="club-entry" title="current club">
             <span class="icon">🏟️</span>
-            <span class="value">{getClubName(club_id)}</span>
+            <span class="value">{clubNameFrom($clubNames, club_id)}</span>
         </div>
         <div class="club-entry" title="favourite team">
             <span class="icon">❤️</span>
             <span class="value">
                 {#if favourite_team_id}
-                    {getClubName(favourite_team_id)}
+                    {clubNameFrom($clubNames, favourite_team_id)}
                 {:else}
                     <span class="tag tag-empty">empty</span>
                 {/if}

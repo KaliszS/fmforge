@@ -1,8 +1,46 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, fireEvent, screen } from '@testing-library/svelte';
+import { render, fireEvent, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
+
+// Club fixture standing in for the Rust-backed dataset. ids/names mirror the real
+// src/data/clubs.json entries the original specs asserted on.
+const CLUBS: Record<number, { name: string; gameName: string }> = {
+  57: { name: 'KF Albpetrol', gameName: 'KF Albpetrol' },
+  61: { name: 'Tirana', gameName: 'Tirana' },
+  58: { name: 'Apolonia', gameName: 'Apolonia' },
+};
+
+// Mock the Tauri core so the async club commands resolve against the fixture.
+const invoke = vi.fn(async (cmd: string, args: any) => {
+  if (cmd === 'get_club_names') {
+    const out: Record<number, string> = {};
+    for (const id of args.ids) if (CLUBS[id]) out[id] = CLUBS[id].name;
+    return out;
+  }
+  if (cmd === 'search_clubs') {
+    const q = String(args.query ?? '').toLowerCase();
+    return Object.entries(CLUBS)
+      .filter(
+        ([id, c]) =>
+          !q ||
+          c.name.toLowerCase().includes(q) ||
+          c.gameName.toLowerCase().includes(q) ||
+          id.includes(q),
+      )
+      .map(([id, c]) => ({ id: +id, name: c.name, gameName: c.gameName }))
+      .slice(0, args.limit ?? 50);
+  }
+  return undefined;
+});
+vi.mock('@tauri-apps/api/core', () => ({
+  invoke: (cmd: string, args?: any) => invoke(cmd, args),
+}));
+
+// Imported after the mock so the module-singleton `clubNames` store binds to the
+// mocked `invoke`.
 import GeneralFilters from '$lib/components/filters/GeneralFilters.svelte';
 import GeneralFiltersHarness from './helpers/GeneralFiltersHarness.svelte';
+import { clubNames } from '$lib/clubs';
 
 // Valid ids/keys picked from the bundled data + constants:
 //   country 5  -> Algeria, 6 -> Angola          (src/data/countries.json)
@@ -38,6 +76,9 @@ const clubIdInput = () => screen.getByLabelText('Club ID') as HTMLInputElement;
 const favClubIdInput = () => screen.getByLabelText('Favourite Club ID') as HTMLInputElement;
 
 beforeEach(() => {
+  // Reset the shared name cache so resolved names don't leak between tests.
+  clubNames.set(new Map());
+  invoke.mockClear();
   document.body.innerHTML = '';
 });
 
@@ -102,15 +143,19 @@ describe('GeneralFilters — rendering seeded from props', () => {
     expect(favClubIdInput().value).toBe('61');
   });
 
-  it('seeds the ClubSelect search box with the club name for a selected club', () => {
+  it('seeds the ClubSelect search box with the club name for a selected club', async () => {
     setup({ selectedClub: 57 });
-    // ClubSelect's $effect sets searchTerm to clubMap[id].name when value matches.
-    expect(screen.getByPlaceholderText('Select Club...')).toHaveValue('KF Albpetrol');
+    // ClubSelect's $effect resolves the name from the backend (get_club_names).
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText('Select Club...')).toHaveValue('KF Albpetrol'),
+    );
   });
 
-  it('seeds the favourite ClubSelect search box from selectedFavouriteClub', () => {
+  it('seeds the favourite ClubSelect search box from selectedFavouriteClub', async () => {
     setup({ selectedFavouriteClub: 61 });
-    expect(screen.getByPlaceholderText('Select Favourite Club...')).toHaveValue('Tirana');
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText('Select Favourite Club...')).toHaveValue('Tirana'),
+    );
   });
 });
 
@@ -159,16 +204,18 @@ describe('GeneralFilters — club ID editing (bindable)', () => {
   it('propagates a typed club ID into the ClubSelect search box', async () => {
     setup({ selectedClub: null });
     await fireEvent.input(clubIdInput(), { target: { value: '61' } });
-    await tick();
-    // The shared binding feeds ClubSelect, whose $effect resolves the name.
-    expect(screen.getByPlaceholderText('Select Club...')).toHaveValue('Tirana');
+    // The shared binding feeds ClubSelect, whose $effect resolves the name async.
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText('Select Club...')).toHaveValue('Tirana'),
+    );
   });
 
   it('propagates a typed favourite club ID into its ClubSelect search box', async () => {
     setup({ selectedFavouriteClub: null });
     await fireEvent.input(favClubIdInput(), { target: { value: '57' } });
-    await tick();
-    expect(screen.getByPlaceholderText('Select Favourite Club...')).toHaveValue('KF Albpetrol');
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText('Select Favourite Club...')).toHaveValue('KF Albpetrol'),
+    );
   });
 
   it('clears the ID input when the club is cleared', async () => {
@@ -185,8 +232,7 @@ describe('GeneralFilters — ClubSelect interaction', () => {
     setup({ selectedClub: null });
     const search = screen.getByPlaceholderText('Select Club...') as HTMLInputElement;
     await fireEvent.input(search, { target: { value: 'Tirana' } });
-    await tick();
-    // Dropdown lists matches; pick the Tirana option (#61).
+    // Dropdown is populated by a 150ms-debounced async search_clubs call.
     const option = await screen.findByText('Tirana');
     await fireEvent.click(option);
     await tick();

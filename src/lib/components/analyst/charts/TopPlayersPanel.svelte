@@ -1,7 +1,8 @@
 <script lang="ts">
     import type { FilterProps } from "$lib/types";
     import { getTopPlayers, type BirthDateRange } from "$lib/api/player";
-    import { countryMap, clubMap } from "$lib/constants";
+    import { countryMap } from "$lib/constants";
+    import { clubNames, ensureClubNames } from "$lib/clubs";
     import { getFlagComponent } from "$lib/flags";
 
     let {
@@ -60,9 +61,14 @@
         return `${player.player.first_name} ${player.player.last_name}`;
     }
 
+    // Resolve club names for the displayed top players.
+    $effect(() => {
+        ensureClubNames((topPlayers?.top_pa ?? []).map((p: any) => p.player.club_id));
+    });
+
     function getClubName(clubId: number | null): string {
         if (clubId === null) return 'No Club';
-        return clubMap[clubId]?.name || `Club ${clubId}`;
+        return $clubNames.get(clubId) || `Club ${clubId}`;
     }
 
     function getCountryCode(countryId: number): string {

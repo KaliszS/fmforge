@@ -28,7 +28,7 @@ use file_operations::{
     save_players_to_file,
     append_players_from_file
 };
-use player_queries::{get_players_page, get_players_chunk, get_filtered_player_ids};
+use player_queries::{get_players_page, get_players_chunk, get_filtered_player_ids, get_club_names, search_clubs};
 use player_statistics::{get_player_statistics, get_top_players};
 use player_management::{
     update_players,
@@ -55,7 +55,9 @@ pub fn run() {
             remove_player,
             get_invalid_rows_list,
             save_players_to_file,
-            get_filtered_player_ids
+            get_filtered_player_ids,
+            get_club_names,
+            search_clubs
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
