@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { PlayerRecord } from "$lib/types";
+import { rememberClubNames } from "$lib/clubs";
 
 export interface BirthDateRange {
   dayFrom: number | null;
@@ -11,6 +12,7 @@ export interface BirthDateRange {
 export interface PlayersPage {
   players: PlayerRecord[];
   total: number;
+  club_names?: Record<number, string>;
 }
 
 export async function loadPlayersPage(
@@ -32,7 +34,7 @@ export async function loadPlayersPage(
   playerIds: number[] | null = null,
   birthDateRange: BirthDateRange | null = null,
 ): Promise<PlayersPage> {
-  return await invoke("get_players_page", {
+  const page = await invoke<PlayersPage>("get_players_page", {
     offset,
     limit,
     filters: {
@@ -57,6 +59,9 @@ export async function loadPlayersPage(
       player_ids: playerIds,
     },
   });
+  // Cache the club names this page resolved so the frontend needn't bundle them.
+  rememberClubNames(page.club_names);
+  return page;
 }
 
 export async function addNewPlayer(): Promise<number> {

@@ -1,6 +1,6 @@
 {
   "name": "fmforge",
-  "version": "1.4.0",
+  "version": "1.4.2",
   "description": "",
   "type": "module",
   "scripts": {
@@ -16,7 +16,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@observablehq/plot": "^0.6.17",
     "@tauri-apps/api": "^2.11.1",
     "@tauri-apps/plugin-dialog": "^2.7.1",
     "@tauri-apps/plugin-fs": "^2.5.1",

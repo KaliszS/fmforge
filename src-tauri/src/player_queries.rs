@@ -1,22 +1,18 @@
 use crate::model::{PlayerFilters, PlayerRecord};
 use crate::{get_players};
-use crate::utils::{get_birth_year, sort_players, matches_search_query, is_birth_date_in_range};
+use crate::utils::{get_birth_year, sort_players, matches_search_query, is_birth_date_in_range, club_names_for, search_club_map, ClubLite};
 use serde::Serialize;
+use std::collections::HashMap;
 
 #[derive(Serialize)]
 pub struct PlayersPage {
     pub players: Vec<PlayerRecord>,
     pub total: usize,
+    pub club_names: HashMap<i32, String>,
 }
 
 #[tauri::command]
 pub fn get_players_chunk(filters: Option<PlayerFilters>) -> Vec<PlayerRecord> {
-    println!("Getting players chunk with filters");
-    if let Some(ref f) = filters {
-        println!("Filters: country={:?}, club={:?}, min_ca={:?}, max_ca={:?}, min_pa={:?}, max_pa={:?}, preferred_foot={:?}, favourite_number={:?}, birth_year_min={:?}, birth_year_max={:?}, sort_by={:?}", 
-            f.country, f.club, f.min_ca, f.max_ca, f.min_pa, f.max_pa, f.preferred_foot, f.favourite_number, f.birth_year_min, f.birth_year_max, f.sort_by);
-    }
-    
     let players = get_players().lock().unwrap();
     let mut filtered_players: Vec<PlayerRecord> = players
         .iter()
@@ -125,7 +121,6 @@ pub fn get_players_chunk(filters: Option<PlayerFilters>) -> Vec<PlayerRecord> {
                             return false;
                         }
                     } else {
-                        println!("Failed to parse birth date: {}", player.birth_date);
                         return false;
                     }
                 }
@@ -152,8 +147,6 @@ pub fn get_players_chunk(filters: Option<PlayerFilters>) -> Vec<PlayerRecord> {
         })
         .collect();
 
-    println!("Filtered to {} players", filtered_players.len());
-
     // Apply sorting - default to birthdate if no sort specified
     if let Some(ref f) = filters {
         if let Some(ref sort_by) = f.sort_by {
@@ -165,7 +158,6 @@ pub fn get_players_chunk(filters: Option<PlayerFilters>) -> Vec<PlayerRecord> {
         filtered_players = sort_players(filtered_players, &["age_desc".to_string()]);
     }
 
-    println!("Returning {} players chunk", filtered_players.len());
     filtered_players
 }
 
@@ -175,8 +167,6 @@ pub fn get_players_page(
     limit: usize,
     filters: Option<PlayerFilters>,
 ) -> PlayersPage {
-    println!("Getting players page - offset: {}, limit: {}", offset, limit);
-
     let filtered_players = get_players_chunk(filters);
     let total = filtered_players.len();
 
@@ -186,13 +176,27 @@ pub fn get_players_page(
         .take(limit)
         .collect();
 
-    println!("Returning {} players for page (total: {})", players.len(), total);
-    PlayersPage { players, total }
+    let club_names = club_names_for(
+        players
+            .iter()
+            .flat_map(|r| [r.player.club_id, r.player.favourite_team_id].into_iter().flatten()),
+    );
+
+    PlayersPage { players, total, club_names }
+}
+
+#[tauri::command]
+pub fn get_club_names(ids: Vec<i32>) -> HashMap<i32, String> {
+    club_names_for(ids)
+}
+
+#[tauri::command]
+pub fn search_clubs(query: String, limit: usize) -> Vec<ClubLite> {
+    search_club_map(&query, limit)
 }
 
 #[tauri::command]
 pub fn get_filtered_player_ids(filters: Option<PlayerFilters>) -> Vec<usize> {
-    println!("Getting filtered player IDs");
     let filtered_players = get_players_chunk(filters);
     
     filtered_players

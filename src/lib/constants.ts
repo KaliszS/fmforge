@@ -1,6 +1,5 @@
 import countriesData from '../data/countries.json';
-import clubsData from '../data/clubs.json';
-import type { CountryMap, ClubMap } from './types';
+import type { CountryMap } from './types';
 
 // ==========================================================================
 // PREFERRED FOOT OPTIONS
@@ -148,4 +147,3 @@ export function getSkinColor(tone: number) {
 }
 
 export const countryMap: CountryMap = countriesData as CountryMap;
-export const clubMap: ClubMap = clubsData as ClubMap;

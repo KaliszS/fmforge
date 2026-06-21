@@ -1,23 +1,16 @@
 <script lang="ts">
-    import { clubMap } from "$lib/constants";
-    
-    // Convert clubMap to array once
-    const allClubs = Object.entries(clubMap).map(([id, data]) => ({
-        id: +id,
-        name: data.name,
-        gameName: data.gameName
-    }));
+    import { clubNames, clubNameFrom, ensureClubNames, searchClubs, type ClubLite } from "$lib/clubs";
 
-    let { 
-        value = $bindable(), 
+    let {
+        value = $bindable(),
         placeholder = "Select Club...",
         disabled = false,
         id = undefined,
         emptyValue = null,
         inputClass = "",
         icon = undefined
-    }: { 
-        value: number | null | undefined; 
+    }: {
+        value: number | null | undefined;
         placeholder?: string;
         disabled?: boolean;
         id?: string;
@@ -28,89 +21,75 @@
 
     let searchTerm = $state("");
     let isOpen = $state(false);
-    let filteredClubs = $state<{id: number, name: string, gameName: string}[]>([]);
+    let filteredClubs = $state<ClubLite[]>([]);
     let inputElement = $state<HTMLInputElement>();
     let containerElement: HTMLDivElement;
+    let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
-    // Sync searchTerm with value
+    function hasValue(): boolean {
+        return value !== emptyValue && value !== null && value !== undefined;
+    }
+
+    // Keep the input text in sync with the selected value, resolving its name
+    // from the backend when needed. Skip while the dropdown is open so we don't
+    // clobber what the user is typing. (Closing the dropdown re-runs this and
+    // restores the selected club's name.)
     $effect(() => {
-        // If value matches a club, set the name
-        if (value !== emptyValue && value !== null && value !== undefined && clubMap[value as number]) {
-            // Only update if we are not actively searching/selecting to avoid jumping
+        if (hasValue()) {
+            ensureClubNames([value as number]);
             if (!isOpen) {
-                searchTerm = clubMap[value as number].name;
+                searchTerm = clubNameFrom($clubNames, value as number) ?? "";
             }
-        } else if (value === emptyValue || value === null || value === undefined) {
-            if (!isOpen) {
-                searchTerm = "";
-            }
+        } else if (!isOpen) {
+            searchTerm = "";
         }
     });
+
+    // Close when user clicks outside the container. Using mousedown (not click)
+    // so the listener fires before the dropdown button's onclick handler —
+    // but we guard against inside clicks so selecting still works.
+    $effect(() => {
+        if (!isOpen) return;
+        function onOutsideMousedown(e: MouseEvent) {
+            if (containerElement && !containerElement.contains(e.target as Node)) {
+                isOpen = false;
+            }
+        }
+        document.addEventListener('mousedown', onOutsideMousedown, true);
+        return () => document.removeEventListener('mousedown', onOutsideMousedown, true);
+    });
+
+    function runSearch() {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(async () => {
+            filteredClubs = await searchClubs(searchTerm, 50);
+        }, 150);
+    }
 
     function handleInput(e: Event) {
         const target = e.target as HTMLInputElement;
         searchTerm = target.value;
-        
+
         if (searchTerm === "") {
             value = emptyValue;
         }
-        
+
         isOpen = true;
-        filterClubs();
+        runSearch();
     }
 
-    function filterClubs() {
-        if (!searchTerm) {
-            filteredClubs = allClubs.slice(0, 50);
-            return;
-        }
-        
-        const lowerTerm = searchTerm.toLowerCase();
-        filteredClubs = allClubs.filter(club => 
-            club.name.toLowerCase().includes(lowerTerm) || 
-            club.gameName.toLowerCase().includes(lowerTerm) ||
-            club.id.toString().includes(lowerTerm)
-        ).slice(0, 50);
+    function openDropdown() {
+        if (disabled) return;
+        isOpen = true;
+        runSearch();
     }
 
-    function selectClub(club: {id: number, name: string}) {
+    function selectClub(club: ClubLite) {
         value = club.id;
         searchTerm = club.name;
         isOpen = false;
     }
-    
-    function handleFocus() {
-        if (disabled) return;
-        isOpen = true;
-        filterClubs();
-    }
-    
-    // Handle clicking outside
-    function handleDocumentClick(e: MouseEvent) {
-        if (containerElement && !containerElement.contains(e.target as Node)) {
-            isOpen = false;
-            // Reset search term if no valid selection was made or if we just clicked away
-            if (value !== emptyValue && value !== null && value !== undefined && clubMap[value as number]) {
-                searchTerm = clubMap[value as number].name;
-            } else {
-                searchTerm = "";
-                // If user typed something but didn't select, should we clear value?
-                // If searchTerm is empty, we already cleared value in handleInput.
-                // If searchTerm is not empty but doesn't match, we might want to clear or revert.
-                // For now, let's assume revert to last valid value (which is what the effect does when isOpen becomes false? No, effect runs on value change)
-                // Actually, if I just close, the effect above `if (!isOpen)` will run? 
-                // No, effect runs when dependencies change. `isOpen` is a dependency? No, it's inside the `if`.
-                // Wait, $effect tracks dependencies.
-            }
-        }
-    }
-
-    // We can use a window click listener or just onblur on the container if it was focusable, 
-    // but input blur is tricky with dropdown clicks.
-    // Using a svelte:window listener is safer for "click outside".
 </script>
-
-<svelte:window onclick={handleDocumentClick} />
 
 <div class="club-select-container" bind:this={containerElement}>
     <div class="input-wrapper">
@@ -123,7 +102,7 @@
             type="text"
             bind:value={searchTerm}
             oninput={handleInput}
-            onfocus={handleFocus}
+            onclick={openDropdown}
             {placeholder}
             {disabled}
             class="club-input {inputClass}"
@@ -131,7 +110,7 @@
             autocomplete="off"
         />
         {#if value !== emptyValue && value !== null && value !== undefined && !disabled}
-            <button class="clear-btn" onclick={() => { value = emptyValue; searchTerm = ""; filterClubs(); inputElement?.focus(); }} title="Clear">
+            <button class="clear-btn" onclick={() => { value = emptyValue; searchTerm = ""; runSearch(); inputElement?.focus(); }} title="Clear">
                 ✕
             </button>
         {/if}
@@ -140,8 +119,8 @@
     {#if isOpen}
         <div class="dropdown">
             {#each filteredClubs as club}
-                <button 
-                    class="dropdown-item" 
+                <button
+                    class="dropdown-item"
                     onclick={() => selectClub(club)}
                     type="button"
                     class:selected={value === club.id}

@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PlayerRecord, FilterProps } from "$lib/types";
-    import { clubMap } from "$lib/constants";
+    import { clubNames, ensureClubNames } from "$lib/clubs";
 
     let { 
         statistics,
@@ -53,8 +53,13 @@
         });
     });
 
+    // Resolve names for the clubs actually shown.
+    $effect(() => {
+        ensureClubNames(displayClubs.map(([id]) => id));
+    });
+
     function getClubName(id: number) {
-        return clubMap[id]?.name || `Club ${id}`;
+        return $clubNames.get(id) || `Club ${id}`;
     }
 </script>
 
