@@ -10,6 +10,12 @@
     let quickEdit = $state(false);
     let temp_position = $state('');
 
+    // Fall back to a neutral chip for unknown/unmapped position codes so the badge
+    // never renders a dangling `badge-` class with empty title/short.
+    const positionInfo = $derived(
+        POSITION_MAP[position] ?? { group: "unknown", label: "Unknown", short: "?" },
+    );
+
     function openQuickEdit() {
         if (edit_mode) return;
         temp_position = position;
@@ -31,11 +37,11 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <span
-        class="badge badge-{POSITION_MAP[position]?.group}"
-        title={POSITION_MAP[position]?.label}
+        class="badge badge-{positionInfo.group}"
+        title={positionInfo.label}
         ondblclick={openQuickEdit}
     >
-        {POSITION_MAP[position]?.short}
+        {positionInfo.short}
     </span>
 
     <QuickEditModal title="Edit Position" bind:isOpen={quickEdit} onSave={saveQuickEdit}>

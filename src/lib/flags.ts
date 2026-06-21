@@ -445,4 +445,5 @@ const flagMap: Record<string, any> = {
   Sx: Sx,
   Bq: Bq,
   Cw: Cw,
+  Un: Un,
 };

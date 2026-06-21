@@ -57,17 +57,11 @@
                 isValidField = value !== undefined && value !== null && value !== "" && value !== -1;
             }
             
-            if (!isValidField) {
-                console.log(`Field ${field} is invalid:`, value);
-            }
-            
             return isValidField;
         });
-        
+
         const allValid = validationResults.every(result => result);
-        console.log('Validation results:', validationResults);
-        console.log('All valid:', allValid);
-        
+
         return allValid;
     });
 

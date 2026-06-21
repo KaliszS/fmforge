@@ -20,7 +20,7 @@
     let pageInput = $state((currentPage + 1).toString());
 
     const inputWidth = $derived(
-        `calc(${Math.max(pageInput.length, totalPages > 0 ? totalPages.toString().length : 1)}ch + 0.6rem)`
+        `calc(${Math.max(String(pageInput ?? '').length, totalPages > 0 ? totalPages.toString().length : 1)}ch + 0.6rem)`
     );
 
     $effect(() => {

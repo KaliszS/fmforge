@@ -16,7 +16,7 @@
     }
 
     function saveQuickEdit() {
-        city = temp_city;
+        city = temp_city.trim();
     }
 </script>
 
@@ -24,6 +24,7 @@
     <input
         type="text"
         bind:value={city}
+        onblur={() => { if (city) city = city.trim(); }}
         class="input input-text city-input"
         placeholder="Enter city name"
     />

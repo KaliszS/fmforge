@@ -37,9 +37,7 @@
     function handleDateChange(event: Event) {
         const target = event.target as HTMLInputElement;
         const dateValue = target.value;
-        
-        console.log('handleDateChange called with:', dateValue);
-        
+
         if (dateValue) {
             const [year, month, day] = dateValue.split("-");
             const newDate = `${day}/${month}/${year}`;
@@ -53,22 +51,15 @@
             };
             const unsubscribe = modSettings.subscribe(s => currentSettings = s);
             unsubscribe();
-            
-            console.log('Current settings:', currentSettings);
-            console.log('New date:', newDate);
-            
+
             if (currentSettings.showRealBirthDates && currentSettings.canToggle) {
                 // If showing real dates, convert the entered real date to in-game date
                 const inGameDate = calculateInGameBirthdate(newDate, currentSettings);
-                console.log('Converting real date to in-game:', newDate, '->', inGameDate);
                 birthdate = inGameDate;
             } else {
                 // If showing in-game dates, store directly
-                console.log('Storing in-game date directly:', newDate);
                 birthdate = newDate;
             }
-            
-            console.log('Final birthdate:', birthdate);
         } else {
             birthdate = "";
         }
